@@ -1,0 +1,260 @@
+:root {
+  --link-hover-bg: linear-gradient(135deg, #989878 0%, #FAF3E8 100%);
+  --white-text: #FFFFFF;
+}
+
+body{
+  margin: 10px;
+}
+
+.gradient-custom {
+  /* fallback for old browsers */
+  background: #000000;
+
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: -webkit-linear-gradient(135deg, #000000 0%, #6c6a6a 100%);
+
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(135deg, #4C585D 15%, #FAF3E8 100%);
+}
+
+.nav-link {
+  color: whitesmoke;
+  text-decoration: none;
+  padding: 8px 12px;
+  /* Separate transitions for entering/leaving states with delays */
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), /* faster transform */
+              background 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,/* delayed background */
+              color 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
+              box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative; 
+  overflow: hidden; /* Ensures hover effects don't overflow */
+}
+
+.nav-link:hover {
+  background: var(--link-hover-bg);
+  color: #000000 !important;
+  font-weight: 450;
+  box-shadow: 0 5px 4px rgba(0, 0, 0, 0.552);
+  transform: translateY(-2px);
+  /* Faster transitions when hovering */
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive brand logo (used in header) */
+.brand-logo {
+  /* Mobile-first base styles */
+  max-height: 36px;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  transform: scale(0.95);
+  transform-origin: left center;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, max-height, width;
+}
+
+@media (min-width: 600px) {
+  .brand-logo {
+    max-height: 70px; /* larger on wider screens */
+    transform: scale(1); /* return to normal scale */
+  }
+}
+
+/* Add smooth transitions to header padding */
+header.py-3 {
+  transition: padding 0.3s cubic-bezier(0.0, 0, 0.2, 1);
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+@media (min-width: 768px) { /* Activates on tablets and larger */
+  header.py-3 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+}
+
+/* Fixed-size button helper: mobile-first approach */
+.fixed-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;            /* smaller height for mobile */
+  min-width: 40px;         /* smaller width for mobile */
+  max-width: 40px;
+  padding: 0 8px;          /* smaller padding for mobile */
+  font-size: 0.75rem;      /* smaller font for mobile */
+  box-shadow: 10px rgba(0, 0, 0, 0.552);
+  transform-origin: center;
+  transition: transform 0.3s cubic-bezier(0.58,0.07,0.96,0.72);
+  white-space: nowrap;     /* prevent wrapping */
+  overflow: hidden;
+}
+
+.fixed-btn:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s cubic-bezier(0.58,0.07,0.96,0.72);
+  overflow: visible;
+}
+
+/* Larger screens get larger buttons */
+@media (min-width: 340px) {
+  .fixed-btn {
+    height: 36px; /* standard height */
+    min-width: 90px; /* standard width */
+    max-width: 90px; 
+    padding: 0 12px; /* standard padding */
+    font-size: 0.95rem; /* standard font size */
+  }
+}
+
+
+
+
+
+/* Hero Section Styles */
+.hero-section {
+  min-height: 400px;      /* shorter height for mobile */
+  background: radial-gradient(rgba(0, 0, 0, 0.318), rgba(0, 0, 0, 0)),
+              url('files/pexels-vishnurnair-1105666.jpg?auto=format&fit=crop&q=80'); /* Credit: Vishnu Nair on Pexels */
+  background-size: cover;
+  background-position: center;
+  background-attachment: scroll; /* better performance on mobile */
+  padding: 40px 0;        /* smaller padding for mobile */
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    min-height: 500px;
+    background-attachment: fixed;
+    padding: 80px 0;
+  }
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.025); /* rgba(r, g, b, a=opacity) */
+  pointer-events: none;
+}
+
+.search-container {
+  backdrop-filter: blur(10px); /* Frosted glass effect */
+  border: 2px solid rgba(255, 255, 255, 0.637);
+  transition: transform 0.2s cubic-bezier(0.58,0.07,0.96,0.72),
+              box-shadow 0.2s cubic-bezier(0.58,0.07,0.96,0.72);
+}
+
+.search-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2)!important;
+}
+
+.advanced-filters-card {
+  background-color: rgba(255, 0, 0, 0); /* Semi-transparent white */
+  backdrop-filter: blur(8px); /* Frosted glass effect */
+  border: 2px solid rgba(255, 255, 255, 0.612);
+}
+
+.search-btn {
+  padding: 0.6rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Form styles */
+.form-control, .form-select {
+  border: 1px solid #dee2e6;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 109, 253, 0.786);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: 500px;
+    padding: 60px 0;
+  }
+  
+  .search-container {
+    padding: 1.5rem !important;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+}
+
+
+
+
+/* Ubuntu Font Styles */
+.ubuntu-light {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.ubuntu-regular {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.ubuntu-medium {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.ubuntu-bold {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.ubuntu-light-italic {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.ubuntu-regular-italic {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.ubuntu-medium-italic {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.ubuntu-bold-italic {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}

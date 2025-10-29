@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bristol Community Events</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script> <!-- Font Awesome Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+    </style>
+</head>
+<body>
+    <!-- Bootstrap Navbar -->
+    <header class="py-3 gradient-custom text-white" id="topnav">
+    <div class="container ubuntu-light" style="flex-wrap: nowrap;">
+      <div class="d-flex align-items-center">
+        <!-- Brand / logo: links to home and displays the BCE image -->
+        <a href="index.html" class="d-flex align-items-center text-white text-decoration-none">
+        <img src="files/BCS_Logo.png" alt="Bristol Community Events logo" class="brand-logo me-3" loading="lazy">
+        <span class="visually-hidden">Bristol Community Events</span>
+        </a>
+
+        <ul class="nav me-auto d-flex align-items-center">
+          <a href="template/events.html" class="nav-link px-2 text-light rounded-1">Events</a>
+          <a href="template/create.html" class="nav-link px-2 text-light rounded-1">Create Event</a>
+          <a href="template/about.html" class="nav-link px-2 text-light rounded-1">About Us</a>
+        </ul>
+
+        <!-- Idea for website-wide search for events -->
+        <form hidden class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+          <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search">
+        </form>
+
+        <div class="text-end d-inline-flex">
+          <button type="button" class="btn btn-outline-dark me-2 fixed-btn">Login</button>
+          <button type="button" class="btn btn-warning btn-outline-warning fixed-btn" style="color: black;">Sign-up</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    <div class="hero-section ubuntu-regular position-relative" id="home">
+        <div class="hero-overlay"></div>  
+        <div class="container py-5">
+            <div class="row justify-content-center text-center mb-4">
+                <div class="col-lg-8">
+                    <h1 class="display-3 text-white mb-3">Discover Amazing Events in Bristol</h1>
+                    <p class="lead text-white mb-4" style="font-weight: bold;">Find and book the perfect event - from concerts and workshops to exhibitions and sports.</p>
+                </div>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-10"> <!-- col-12 for smaller screens, col-lg-10 shows 10 columns when screen size is lg-->
+                    <div class="search-container p-4 rounded-3 shadow-lg">
+                        <form class="event-search-form">
+                            <div class="row g-3 text-white">
+                                <!-- Location Search -->
+                                <div class="col-md-6 col-lg-3">
+                                    <div class="form-group">
+                                        <label class="form-label"><i class="fa-solid fa-map-location-dot me-2"></i>Location</label>
+                                        <select class="form-select" id="locations">
+                                            <option value="" selected>Any Location</option>
+                                            <option value="Bristol City Centre">Bristol City Centre</option>
+                                            <option value="Clifton">Clifton</option>
+                                            <option value="Gloucester Road">Gloucester Road</option>
+                                            <option value="Bedminster">Bedminster</option>
+                                            <option value="Redland">Redland</option>
+                                            <option value="Southville">Southville</option>
+                                            <option value="Stokes Croft">Stokes Croft</option>
+                                            <option value="Easton">Easton</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Date Range -->
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="form-group">
+                                        <label class="form-label"><i class="fa fa-calendar me-2"></i>Dates</label>
+                                        <div class="input-group">
+                                            <input type="date" class="form-control" placeholder="Start Date">
+                                            <span class="input-group-text">to</span>
+                                            <input type="date" class="form-control" placeholder="End Date">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Price Range -->
+                                <div class="col-md-6 col-lg-3">
+                                    <div class="form-group">
+                                        <!-- Using <i> for icons -->
+                                        <label class="form-label"><i class="fa fa-gbp me-2"></i>Price Range</label>
+                                        <select class="form-select">
+                                            <option value="" selected>Any Price</option>
+                                            <option value="free">Free</option>
+                                            <option value="0-20">£0 - £20</option>
+                                            <option value="20-50">£20 - £50</option>
+                                            <option value="50+">£50+</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Search Button -->
+                                <div class="col-md-6 col-lg-2">
+                                    <div class="form-group h-100 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-secondary w-100 search-btn">
+                                            <i class="fa fa-search me-2"></i>Search
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Advanced Filters (Collapsible) -->
+                            <div class="row mt-3">
+                                <div class="col-12 d-flex flex-column align-items-center">
+                                    <a class="text-center text-decoration-none text-white mb-3" style="font-weight: 500;" data-bs-toggle="collapse" href="#advancedFilters" role="button" aria-controls="advancedFilters" aria-expanded="false">
+                                        <i class="fa fa-sliders me-2"></i>Advanced Filters
+                                    </a>    
+                                    <div class="collapse mt-3 w-100" id="advancedFilters">
+                                        <div class="row justify-content-center">
+                                            <div class="col-xs-12 col-md-8 col-lg-6">
+                                                <!-- Use a dedicated class so we can apply a frosted-glass effect -->
+                                                <div class="card-body advanced-filters-card text-white rounded-3 p-3">
+                                            <!-- Venue Type -->
+                                            <div class="col-xs-4 pb-2">
+                                                <div class="form-group">
+                                                    <label class="form-label">Venue Type</label>
+                                                    <select class="form-select">
+                                                        <option value="" selected>All Venues</option>
+                                                        <option value="theatre">Theatre</option>
+                                                        <option value="stadium">Stadium</option>
+                                                        <option value="club">Club</option>
+                                                        <option value="gallery">Gallery</option>
+                                                        <option value="outdoor">Outdoor</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <!-- Event Type -->
+                                            <div class="col-xs-4 pb-2">
+                                                <div class="form-group">
+                                                    <label class="form-label">Event Type</label>
+                                                    <select class="form-select">
+                                                        <option value="" selected>All Types</option>
+                                                        <option value="music">Music</option>
+                                                        <option value="sports">Sports</option>
+                                                        <option value="art">Art & Culture</option>
+                                                        <option value="food">Food & Drink</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <!-- Accessibility -->
+                                            <div class="col-xs-4 pb-2">
+                                                <div class="form-group">
+                                                    <label class="form-label">Accessibility</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" value="" id="wheelchairAccess">
+                                                        <label class="form-check-label" for="wheelchairAccess">
+                                                            Wheelchair Accessible
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Hero Section --> 
+     
+    <!-- Insert carousel to the right of pictures of venues in bristol-->
+
+    <!-- Insert another carousel to the left of Upcoming events preview-->
+ 
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>
