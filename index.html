@@ -22,10 +22,11 @@
           <img src="files/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo me-3">
         </a>
         <ul class="nav me-auto d-flex align-items-center">
-          <a href="template/events.html" class="nav-link px-2 text-light rounded-1">Events</a>
-          <a href="template/create.html" class="nav-link px-2 text-light rounded-1">Create Event</a>
-          <a href="template/about.html" class="nav-link px-2 text-light rounded-1">About Us</a>
-          <a href="template/about.html" class="nav-link px-2 text-light rounded-1">Contact</a>
+          <a href="template/events.html" class="button px-2 text-light rounded-1">Events</a>
+          <a href="template/create.html" class="button px-2 text-light rounded-1">Create Event</a>
+          <a href="template/about.html" class="button px-2 text-light rounded-1">About Us</a>
+          <a href="template/about.html" class="button px-2 text-light rounded-1">Contact</a>
+          <!-- Idea: Add cards of each venue -->
         </ul>
         <div class="text-end d-inline-flex">
           <button class="btn btn-dark me-2 fixed-btn">Login</button>
@@ -168,8 +169,8 @@
               <h2 class="display-4 mb-3">Experience Bristol's Best Venues</h2>
               <p class="lead mb-4">From historic theatres to modern arenas, discover the perfect space for your next event.</p>
               <div class="d-flex justify-content-center justify-content-lg-start gap-3">
-                <a href="#" class="btn btn-primary">Explore Venues</a>
-                <a href="#" class="btn btn-outline-light">View Calendar</a>
+                <a href="#" class="button rounded-pill border border-1 border-light">Explore Venues</a>
+                <a href="#" class="button rounded-pill border border-1 border-light">Book Events</a>
               </div>
             </div>
           </div>
@@ -182,23 +183,28 @@
                 <button type="button" data-bs-target="#venueCarousel" data-bs-slide-to="1"></button>
                 <button type="button" data-bs-target="#venueCarousel" data-bs-slide-to="2"></button>
                 <button type="button" data-bs-target="#venueCarousel" data-bs-slide-to="3"></button>
+                <button type="button" data-bs-target="#venueCarousel" data-bs-slide-to="4"></button>
               </div>
-              <div class="carousel-inner">
+              <div class="carousel-inner"> 
                 <div class="carousel-item active">
-                  <img src="files/bristol-hippodrome.jpg" class="d-block w-100" style="height:400px;object-fit:cover;">
+                  <img src="files/bristol-hippodrome.png" class="d-block w-100" style="height:400px;object-fit:cover;">
                   <div class="carousel-caption"><h5>Bristol Hippodrome</h5><p>Historic theatre in the heart of Bristol</p></div>
                 </div>
                 <div class="carousel-item">
-                  <img src="files/o2-academy-bristol.jpg" class="d-block w-100" style="height:400px;object-fit:cover;">
-                  <div class="carousel-caption"><h5>O2 Academy Bristol</h5><p>Premier music venue</p></div>
+                  <img src="files/Arnolfini.jpg" class="d-block w-100" style="height:400px;object-fit:cover;">
+                  <div class="carousel-caption"><h5>Arnolfni</h5><p>Renowned centre for contemporary arts</p></div>
                 </div>
                 <div class="carousel-item">
                   <img src="files/bristol-beacon.jpg" class="d-block w-100" style="height:400px;object-fit:cover;">
                   <div class="carousel-caption"><h5>Bristol Beacon</h5><p>Modern concert hall and event space</p></div>
                 </div>
                 <div class="carousel-item">
-                  <img src="files/ashton-gate.jpg" class="d-block w-100" style="height:400px;object-fit:cover;">
+                  <img src="files/ashton-gate.png" class="d-block w-100" style="height:400px;object-fit:cover;">
                   <div class="carousel-caption"><h5>Ashton Gate Stadium</h5><p>Bristol's largest outdoor venue</p></div>
+                </div>
+                <div class="carousel-item">
+                  <img src="files/bristol-oldvic.jpg" class="d-block w-100" style="height:400px;object-fit:cover;">
+                  <div class="carousel-caption"><h5>Bristol Old Vic</h5><p>Performing Arts Theatre</p></div>
                 </div>
               </div>
               <button class="carousel-control-prev" type="button" data-bs-target="#venueCarousel" data-bs-slide="prev">
@@ -213,6 +219,59 @@
       </div>
     </section>
   </div>
+  <!-- 🌙 Dark Mode Footer -->
+<footer class="footer-dark text-light pt-5 pb-3 mt-5">
+  <div class="container">
+    <div class="row gy-4">
+
+      <!-- Company Info -->
+      <div class="col-12 col-md-4">
+        <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
+        <p class="text-muted">
+          Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.  
+          Discover and create local events with us!
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="col-6 col-md-4">
+        <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
+        <ul class="list-unstyled">
+          <li><a href="index.html" class="footer-link">Home</a></li>
+          <li><a href="template/events.html" class="footer-link">Events</a></li>
+          <li><a href="template/create.html" class="footer-link">Create Event</a></li>
+          <li><a href="template/about.html" class="footer-link">About Us</a></li>
+          <li><a href="#" class="footer-link">Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-6 col-md-4">
+        <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
+        <ul class="list-unstyled">
+          <li><i class="fa-solid fa-phone me-2"></i> +44 117 123 4567</li>
+          <li><i class="fa-solid fa-envelope me-2"></i> info@bristolevents.co.uk</li>
+          <li><i class="fa-solid fa-location-dot me-2"></i> 10 Park Street, Bristol, UK</li>
+        </ul>
+
+        <div class="social-icons mt-3">
+          <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
+          <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
+          <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
+    <div class="text-center small text-muted">
+      © 2025 Bristol Community Events. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+  <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

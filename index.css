@@ -14,21 +14,11 @@
 }
 
 @keyframes gradientAnimation {
-  0% {
-    background-position: 0% 50%;
-  }
-  25% {
-    background-position: 50% 100%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  75% {
-    background-position: 50% 0%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% {background-position: 0% 50%;}
+  25% {background-position: 50% 100%;}
+  50% {background-position: 100% 50%;}
+  75% {background-position: 50% 0%;}
+  100% {background-position: 0% 50%;}
 }
 body.animated-gradient {
   background: var(--sunset-gradient);
@@ -56,7 +46,7 @@ main, section, header, footer {
 /* SECONDARY HERO / CAROUSEL */
 .secondary-hero {
   background: rgba(41, 36, 36, 0.508) !important;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(20px);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.631);
   border: 1px solid #dee2e6;
   border-radius: 8px;
@@ -69,7 +59,7 @@ main, section, header, footer {
   background: #000000; /* fallback for old browsers */
   background: linear-gradient(135deg, #00071F 15%, #35033b 100%);
 }
-.nav-link {
+.button {
   color: whitesmoke;
   text-decoration: none;
   font-weight: 400;
@@ -81,7 +71,7 @@ main, section, header, footer {
                 box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden; /* Ensures hover effects don't overflow */}
-.nav-link:hover {
+.button:hover {
   background: var(--header-gradient);
   color: #ffffff !important;
   font-weight: 600;
@@ -242,6 +232,48 @@ header.py-3 {
 }
 
 
+/* Footer */
+.footer-dark {
+  background: linear-gradient(135deg, rgb(14, 14, 40) 0%, rgb(0, 0, 0) 70%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.80rem;
+  color: #d0d0ff;
+  position: relative;
+  z-index: 3;
+}
+.footer-link {
+  color: #b3b3ff;
+  text-decoration: none;
+  display: inline-block;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+.footer-link:hover {
+  color: #6a00f4;
+  transform: translateX(4px);
+}
+.social-icons {
+  display: flex;
+  gap: 12px;
+}
+.social-link {
+  color: #b3b3ff;
+  font-size: 1.25rem;
+  transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
+}
+.social-link:hover {
+  color: #6a00f4;
+  text-shadow: 0 0 10px #6a00f4;
+  transform: scale(1.2);
+}
+/* Responsive*/
+@media (max-width: 768px) {
+  .footer-dark {
+    text-align: center;
+  }
+  .social-icons {
+    justify-content: center;
+  }
+}
 
 
 
