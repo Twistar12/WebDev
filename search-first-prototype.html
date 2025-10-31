@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search-first Prototype — Bristol Events</title>
+  <link rel="stylesheet" href="index.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
+  <style>
+    /* Small prototype-specific tweaks */
+    .hero-proto { padding: 3rem 0; }
+    .event-card img{ height:140px; object-fit:cover; }
+    .results-count{ font-weight:600; }
+    @media (max-width:576px){ .hero-proto{ padding:2rem 0 } }
+  </style>
+</head>
+<body class="ubuntu-regular">
+  <header class="py-3 gradient-custom text-white">
+    <div class="container d-flex align-items-center">
+      <a href="#" class="d-flex align-items-center text-white text-decoration-none me-3">
+        <img src="files/BCS_Logo.png" alt="logo" class="brand-logo me-2" loading="lazy">
+        <span class="h5 mb-0">Bristol Community Events</span>
+      </a>
+      <nav class="ms-auto">
+        <a class="nav-link text-white d-inline-block me-2" href="#">Events</a>
+        <a class="nav-link text-white d-inline-block me-2" href="#">Create</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-proto text-center text-white" style="background:linear-gradient(90deg, rgba(76,88,93,0.9), rgba(250,243,232,0.9));">
+      <div class="container">
+        <h1 class="display-6 mb-2">Find events in Bristol</h1>
+        <p class="lead mb-4">Search by location, date and category — results update instantly.</p>
+
+        <form id="searchForm" class="row g-2 justify-content-center align-items-end">
+          <div class="col-12 col-sm-6 col-md-3">
+            <label class="form-label visually-hidden">Location</label>
+            <select id="location" class="form-select" aria-label="Location select">
+              <option value="">Any location</option>
+              <option>Bristol City Centre</option>
+              <option>Clifton</option>
+              <option>Gloucester Road</option>
+              <option>Bedminster</option>
+            </select>
+          </div>
+
+          <div class="col-6 col-sm-4 col-md-2">
+            <label class="form-label visually-hidden">From</label>
+            <input id="dateFrom" type="date" class="form-control" />
+          </div>
+
+          <div class="col-6 col-sm-4 col-md-2">
+            <label class="form-label visually-hidden">To</label>
+            <input id="dateTo" type="date" class="form-control" />
+          </div>
+
+          <div class="col-6 col-sm-4 col-md-2">
+            <label class="form-label visually-hidden">Category</label>
+            <select id="category" class="form-select">
+              <option value="">Any category</option>
+              <option value="music">Music</option>
+              <option value="art">Art</option>
+              <option value="food">Food</option>
+              <option value="sports">Sports</option>
+            </select>
+          </div>
+
+          <div class="col-6 col-sm-4 col-md-1">
+            <button id="clearBtn" type="button" class="btn btn-outline-dark w-100">Clear</button>
+          </div>
+
+          <div class="col-12 col-md-2">
+            <button id="searchBtn" type="submit" class="btn btn-primary w-100"><i class="fa fa-search me-1"></i>Search</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="container my-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="results-count">Showing <span id="count">0</span> events</div>
+        <div>
+          <button id="toggleView" class="btn btn-sm btn-outline-secondary">Toggle map/list</button>
+        </div>
+      </div>
+
+      <div id="results" class="row g-3">
+        <!-- Event cards rendered here -->
+      </div>
+
+      <div id="noResults" class="alert alert-warning mt-3 d-none">No events match your filters.</div>
+    </section>
+  </main>
+
+  <!-- Minimal script to provide mock search functionality -->
+  <script>
+    // Mock events
+    const events = [
+      { id:1, title:"Summer Jazz Night", date:"2025-07-11", location:"Clifton", category:"music", price:"£15", img:"files/pexels-jonathan-borba-3058277.jpg" },
+      { id:2, title:"Street Food Festival", date:"2025-08-05", location:"Gloucester Road", category:"food", price:"Free", img:"files/pexels-pixabay-461198.jpg" },
+      { id:3, title:"Open Air Cinema", date:"2025-07-20", location:"Bristol City Centre", category:"art", price:"£8", img:"files/pexels-arthouse.jpg" },
+      { id:4, title:"Sunday Park Run", date:"2025-07-13", location:"Bedminster", category:"sports", price:"Free", img:"files/pexels-athletics.jpg" },
+      { id:5, title:"Local Bands Night", date:"2025-07-18", location:"Stokes Croft", category:"music", price:"£10", img:"files/pexels-concert.jpg" }
+    ];
+
+    const resultsEl = document.getElementById('results');
+    const countEl = document.getElementById('count');
+    const noResultsEl = document.getElementById('noResults');
+
+    function renderCards(list){
+      resultsEl.innerHTML = '';
+      if(!list.length){
+        noResultsEl.classList.remove('d-none');
+      } else {
+        noResultsEl.classList.add('d-none');
+      }
+      list.forEach(ev => {
+        const col = document.createElement('div');
+        col.className = 'col-12 col-md-6 col-lg-4';
+        col.innerHTML = `
+          <div class="card event-card h-100">
+            <img src="${ev.img}" class="card-img-top" alt="${ev.title}" loading="lazy">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">${ev.title}</h5>
+              <p class="card-text mb-1"><strong>${ev.date}</strong> • ${ev.location}</p>
+              <p class="mb-2"><span class="badge bg-light text-dark">${ev.category}</span> <span class="text-muted">${ev.price}</span></p>
+              <div class="mt-auto">
+                <button class="btn btn-sm btn-outline-primary me-2">Save</button>
+                <button class="btn btn-sm btn-primary">Book</button>
+              </div>
+            </div>
+          </div>`;
+        resultsEl.appendChild(col);
+      });
+      countEl.textContent = list.length;
+    }
+
+    // Basic filter logic
+    function filterEvents(){
+      const location = document.getElementById('location').value;
+      const category = document.getElementById('category').value;
+      const from = document.getElementById('dateFrom').value;
+      const to = document.getElementById('dateTo').value;
+
+      let filtered = events.slice();
+      if(location) filtered = filtered.filter(e => e.location === location);
+      if(category) filtered = filtered.filter(e => e.category === category);
+      if(from) filtered = filtered.filter(e => e.date >= from);
+      if(to) filtered = filtered.filter(e => e.date <= to);
+      renderCards(filtered);
+    }
+
+    // Init
+    renderCards(events);
+
+    // Event handlers
+    document.getElementById('searchForm').addEventListener('submit', function(e){
+      e.preventDefault(); filterEvents();
+    });
+
+    // Debounced live filtering as user changes filters
+    let deb; 
+    ['location','category','dateFrom','dateTo'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        clearTimeout(deb); deb = setTimeout(filterEvents, 250);
+      });
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      document.getElementById('location').value = '';
+      document.getElementById('category').value = '';
+      document.getElementById('dateFrom').value = '';
+      document.getElementById('dateTo').value = '';
+      renderCards(events);
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

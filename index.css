@@ -24,8 +24,8 @@ body{
   padding: 8px 12px;
   /* Separate transitions for entering/leaving states with delays */
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), /* faster transform */
-              background 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,/* delayed background */
-              color 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
+              background 0.5s cubic-bezier(0.4, 0, 0.2, 1),/* delayed background */
+              color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
               box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative; 
   overflow: hidden; /* Ensures hover effects don't overflow */
@@ -39,7 +39,7 @@ body{
   transform: translateY(-2px);
   /* Faster transitions when hovering */
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.3s cubic-bezier(0.4, 0, 0.2, 1), /* faster background */
               color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -127,7 +127,7 @@ header.py-3 {
               url('files/pexels-vishnurnair-1105666.jpg?auto=format&fit=crop&q=80'); /* Credit: Vishnu Nair on Pexels */
   background-size: cover;
   background-position: center;
-  background-attachment: scroll; /* better performance on mobile */
+  background-attachment: fixed; /* better performance on mobile */
   padding: 40px 0;        /* smaller padding for mobile */
   position: relative;
 }
@@ -176,9 +176,19 @@ header.py-3 {
 
 .search-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 20px #095FD7;
 }
 
+.clear-btn {
+  padding: 0.6rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.clear-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 20px rgb(255, 255, 255);
+}
 /* Form styles */
 .form-control, .form-select {
   border: 1px solid #dee2e6;
