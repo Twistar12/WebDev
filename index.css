@@ -15,11 +15,50 @@
   min-height: 100vh;
   margin: 0;
 }
-
-body {
-  margin: 0;
+body.animated-gradient {
+  background: var(--cream-gradient);
+  background-size: 200% 200%;
+  animation: gradientAnimation 8s ease infinite;
   min-height: 100vh;
+  margin: 0;
+  background-attachment: fixed;
+  color: white;
 }
+/* Keep all content slightly elevated from gradient */
+main, section, header, footer {
+  position: relative;
+  z-index: 2;
+}
+/* Allow the gradient to show through everything else */
+.secondary-hero,
+.search-container,
+.advanced-filters-card {
+  background: rgba(0, 0, 0, 0.247); /* subtle transparent layer */
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0);
+}
+
+/* SECONDARY HERO / CAROUSEL */
+.secondary-hero {
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before,
+.secondary-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 1;
+}
+
+
 
 /* NAVBAR */
 .gradient-custom {
@@ -135,8 +174,8 @@ header.py-3 {
 .hero-background {
   position: absolute;
   inset: 0;
-  background: url('files/pexels-vishnurnair-1105666.jpg') center/cover no-repeat;
-  filter: brightness(60%);
+  background: url('files/pexels-vishnurnair-1105666.jpg') no-repeat center center/cover;
+  filter: brightness(0.6) contrast(1.2) saturate(1.1);
   z-index: 1;
 }
 .hero .container {
@@ -181,7 +220,6 @@ header.py-3 {
   box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
 }
 
-
 /*Responsive adjustments for search form*/
 @media (max-width: 768px) {
   .hero {
@@ -199,16 +237,10 @@ header.py-3 {
   }
 }
 
-/* SECONDARY HERO / CAROUSEL */
-.secondary-hero {
-  background: transparent;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 0 10px rgb(255, 255, 255);
-  position: relative;
-  overflow: hidden;
-}
+
+
+
+
 
 /* Mobile-first carousel styles */
 #venueCarousel {
@@ -272,10 +304,6 @@ header.py-3 {
     height: 450px;
   }
 }
-
-
-
-
 
 /* Ubuntu Font Styles */
 .style-script-regular {
