@@ -231,6 +231,65 @@ header.py-3 {
   }
 }
 
+/* Mobile-first carousel styles */
+#venueCarousel {
+  margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+#venueCarousel .carousel-item {
+  transition: transform 0.6s ease-in-out;
+}
+#venueCarousel .carousel-caption {
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(5px);
+  border-radius: 8px;
+  padding: 1rem;
+  bottom: 20px;
+  left: 10%;
+  right: 10%;
+}
+#venueCarousel .carousel-caption h5 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+#venueCarousel .carousel-caption p {
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  #venueCarousel {
+    margin-top: 0;
+  }
+  
+  #venueCarousel .carousel-caption {
+    padding: 1.5rem;
+    bottom: 30px;
+  }
+  
+  #venueCarousel .carousel-caption h5 {
+    font-size: 1.25rem;
+  }
+  
+  #venueCarousel .carousel-caption p {
+    font-size: 1rem;
+  }
+}
+/* Large screens */
+@media (min-width: 992px) {
+  .secondary-hero {
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+  }
+  
+  #venueCarousel .carousel-item img {
+    height: 450px;
+  }
+}
+
+
+
 
 /* Footer */
 .footer-dark {
@@ -277,69 +336,6 @@ header.py-3 {
 
 
 
-
-/* Mobile-first carousel styles */
-#venueCarousel {
-  margin-top: 1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-#venueCarousel .carousel-item {
-  transition: transform 0.6s ease-in-out;
-}
-
-#venueCarousel .carousel-caption {
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(5px);
-  border-radius: 8px;
-  padding: 1rem;
-  bottom: 20px;
-  left: 10%;
-  right: 10%;
-}
-
-#venueCarousel .carousel-caption h5 {
-  font-size: 1.1rem;
-  margin-bottom: 0.25rem;
-}
-
-#venueCarousel .carousel-caption p {
-  font-size: 0.9rem;
-  margin-bottom: 0;
-}
-
-/* Responsive adjustments */
-@media (min-width: 768px) {
-  #venueCarousel {
-    margin-top: 0;
-  }
-  
-  #venueCarousel .carousel-caption {
-    padding: 1.5rem;
-    bottom: 30px;
-  }
-  
-  #venueCarousel .carousel-caption h5 {
-    font-size: 1.25rem;
-  }
-  
-  #venueCarousel .carousel-caption p {
-    font-size: 1rem;
-  }
-}
-
-/* Large screens */
-@media (min-width: 992px) {
-  .secondary-hero {
-    min-height: 500px;
-    display: flex;
-    align-items: center;
-  }
-  
-  #venueCarousel .carousel-item img {
-    height: 450px;
-  }
-}
 
 /* Ubuntu Font Styles */
 .style-script-regular {
