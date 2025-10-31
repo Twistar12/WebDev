@@ -1,5 +1,6 @@
 :root {
   --cream-gradient: linear-gradient(135deg, #989878 0%, #FAF3E8 100%);
+  --sunset-gradient: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1, #f6d365, #fda085);
 }
 
 @keyframes gradientAnimation {
@@ -7,18 +8,10 @@
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
-.animated-gradient {
-  background: var(--cream-gradient);
-  background-size: 200% 200%;
-  animation: gradientAnimation 8s ease infinite;
-  min-height: 100vh;
-  margin: 0;
-}
 body.animated-gradient {
-  background: var(--cream-gradient);
-  background-size: 200% 200%;
-  animation: gradientAnimation 8s ease infinite;
+  background: var(--sunset-gradient);
+  background-size: 400% 400%;
+  animation: gradientAnimation 25s linear infinite;
   min-height: 100vh;
   margin: 0;
   background-attachment: fixed;
