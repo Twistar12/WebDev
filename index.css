@@ -124,12 +124,13 @@ header.py-3 {
 .hero-section {
   min-height: 400px;      /* shorter height for mobile */
   background: radial-gradient(rgba(0, 0, 0, 0.318), rgba(0, 0, 0, 0)),
-              url('files/pexels-vishnurnair-1105666.jpg?auto=format&fit=crop&q=80'); /* Credit: Vishnu Nair on Pexels */
-  background-size: cover;
+              url('files/pexels-vishnurnair-1105666.jpg'); /* Credit: Vishnu Nair on Pexels */
+  background-size: fill;
   background-position: center;
-  background-attachment: fixed; /* better performance on mobile */
-  padding: 40px 0;        /* smaller padding for mobile */
-  position: relative;
+  background-attachment: scroll; /* Changed from fixed to prevent overflow */
+  background-repeat: no-repeat;
+  z-index: -1;
+  transform: translateZ(0); /* Hardware acceleration */
 }
 
 @media (min-width: 768px) {
@@ -219,6 +220,83 @@ header.py-3 {
 
 
 
+/* Secondary Hero Section Styles */
+.secondary-hero {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 0 10px rgb(255, 255, 255);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Mobile-first carousel styles */
+#venueCarousel {
+  margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+#venueCarousel .carousel-item {
+  transition: transform 0.6s ease-in-out;
+}
+
+#venueCarousel .carousel-caption {
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(5px);
+  border-radius: 8px;
+  padding: 1rem;
+  bottom: 20px;
+  left: 10%;
+  right: 10%;
+}
+
+#venueCarousel .carousel-caption h5 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+#venueCarousel .carousel-caption p {
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  #venueCarousel {
+    margin-top: 0;
+  }
+  
+  #venueCarousel .carousel-caption {
+    padding: 1.5rem;
+    bottom: 30px;
+  }
+  
+  #venueCarousel .carousel-caption h5 {
+    font-size: 1.25rem;
+  }
+  
+  #venueCarousel .carousel-caption p {
+    font-size: 1rem;
+  }
+}
+
+/* Large screens */
+@media (min-width: 992px) {
+  .secondary-hero {
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+  }
+  
+  #venueCarousel .carousel-item img {
+    height: 450px;
+  }
+}
+
+
+
+
 
 /* Ubuntu Font Styles */
 .ubuntu-light {
@@ -267,4 +345,42 @@ header.py-3 {
   font-family: "Ubuntu", sans-serif;
   font-weight: 700;
   font-style: italic;
+}
+
+/* Secondary Hero Section with Aurora Effect */
+.secondary-hero {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  margin-top: 0;
+  padding: 3rem 0;
+  background: linear-gradient(
+    135deg,
+    #1a2a6c 0%,    /* Deep blue */
+    #b21f1f 33%,   /* Deep red */
+    #fdbb2d 67%,   /* Golden yellow */
+    #1a2a6c 100%   /* Back to deep blue */
+  );
+  background-size: 400% 400%;
+  animation: aurora 15s ease infinite;
+}
+
+/* Aurora animation effect */
+@keyframes aurora {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Overlay for better text readability */
+.secondary-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(1px);
+  z-index: -1;
 }
