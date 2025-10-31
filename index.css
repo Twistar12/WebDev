@@ -1,17 +1,39 @@
 :root {
+  --header-gradient: linear-gradient(135deg, #00071F 15%, #35033b 100%);
   --cream-gradient: linear-gradient(135deg, #989878 0%, #FAF3E8 100%);
-  --sunset-gradient: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1, #f6d365, #fda085);
+  --sunset-gradient: linear-gradient(
+    -45deg,
+    #0d0d0d,  /* near black */
+    #1a1a1a,  /* charcoal grey */
+    #3a0ca3,  /* deep indigo */
+    #7209b7,  /* dark royal purple */
+    #f72585,  /* warm magenta highlight */
+    #ff7b00,  /* vivid sunset orange */
+    #000000   /* full black for contrast */
+  );
 }
 
 @keyframes gradientAnimation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 50% 100%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 0%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 body.animated-gradient {
   background: var(--sunset-gradient);
   background-size: 400% 400%;
-  animation: gradientAnimation 25s linear infinite;
+  animation: gradientAnimation 20s linear infinite;
   min-height: 100vh;
   margin: 0;
   background-attachment: fixed;
@@ -33,31 +55,19 @@ main, section, header, footer {
 
 /* SECONDARY HERO / CAROUSEL */
 .secondary-hero {
-  background: rgba(255, 255, 255, 0.05) !important;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  background: rgba(41, 36, 36, 0.508) !important;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.631);
   border: 1px solid #dee2e6;
   border-radius: 8px;
   padding: 2rem;
   position: relative;
   overflow: hidden;
 }
-
-.hero::before,
-.secondary-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0);
-  z-index: 1;
-}
-
-
-
 /* NAVBAR */
 .gradient-custom {
-  background: #4C585D; /* fallback for old browsers */
-  background: linear-gradient(135deg, #4C585D 15%, #FAF3E8 100%);
-  ;
+  background: #000000; /* fallback for old browsers */
+  background: linear-gradient(135deg, #00071F 15%, #35033b 100%);
 }
 .nav-link {
   color: whitesmoke;
@@ -72,10 +82,10 @@ main, section, header, footer {
     position: relative;
     overflow: hidden; /* Ensures hover effects don't overflow */}
 .nav-link:hover {
-  background: var(--cream-gradient);
-  color: #000000 !important;
+  background: var(--header-gradient);
+  color: #ffffff !important;
   font-weight: 600;
-  box-shadow: 0 5 20px rgba(0, 0, 0, 0.552);
+  border: 1px solid rgba(193, 2, 183, 0.385);
   transform: translateY(-2px);
   /* Faster transitions when hovering */
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
@@ -112,6 +122,7 @@ header.py-3 {
   transition: padding 0.3s cubic-bezier(0.0, 0, 0.2, 1);
   padding-top: 0.5rem !important;
   padding-bottom: 0.5rem !important;
+  box-shadow: 0 0px 10px rgba(107, 2, 255, 0.586)
 }
 /* Activates on tablets and larger */
 @media (min-width: 768px) { 
@@ -167,7 +178,7 @@ header.py-3 {
 .hero-background {
   position: absolute;
   inset: 0;
-  background: url('files/pexels-vishnurnair-1105666.jpg') no-repeat center center/cover;
+  background: url('files/pexels-suzyhazelwood-10319912.jpg') no-repeat center center/cover;
   filter: brightness(0.6) contrast(1.2) saturate(1.1);
   z-index: 1;
 }
