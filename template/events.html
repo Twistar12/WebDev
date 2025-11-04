@@ -3,19 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bristol Community Events</title>
+  <title>All Events | Bristol Community Events</title>
   <link rel="stylesheet" href="../index.css">
   <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+
+    .event-card {
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 12px;
+      color: #fff;
+    }
+    .event-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+    }
+    .filter-bar {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    .modal-content {
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .book-btn {
+      background: linear-gradient(90deg, #3a0ca3, #7209b7);
+      color: #fff;
+      border: none;
+      transition: all 0.3s ease;
+    }
+    .book-btn:hover {
+      background: linear-gradient(90deg, #7209b7, #f72585);
+      transform: scale(1.05);
+    }
   </style>
 </head>
 
 <body class="ubuntu-regular animated-gradient">
   <!-- Navbar -->
-  <header class="py-3 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
+ <header class="py-3 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
     <div class="container ubuntu-light">
       <div class="d-flex align-items-center">
         <a href="index.html" class="d-flex align-items-center text-white text-decoration-none">
@@ -35,59 +70,195 @@
       </div>
     </div>
   </header>
+
+
+  <section class="container py-5">
+    <h1 class="text-center mb-4">Upcoming Events</h1>
+
+    <!-- Filters -->
+    <div class="filter-bar ubuntu-light text-white">
+      <form id="filterForm" class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Venue</label>
+          <select class="form-select" id="venueFilter">
+            <option value="">All Venues</option>
+            <option>Bristol Hippodrome</option>
+            <option>Arnolfini</option>
+            <option>Bristol Beacon</option>
+            <option>Ashton Gate Stadium</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Price Range</label>
+          <select class="form-select" id="priceFilter">
+            <option value="">Any</option>
+            <option value="free">Free</option>
+            <option value="low">£0 - £20</option>
+            <option value="mid">£20 - £50</option>
+            <option value="high">£50+</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-control" id="dateFilter">
+        </div>
+        <div class="col-md-3">
+          <button type="button" class="btn btn-outline-light w-100" id="clearFilters">Clear Filters</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="row" id="eventsContainer">
+      <!-- JS will inject events here -->
+    </div>
+  </section>
+
+  <!-- Event Modal -->
+  <div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content p-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="eventTitle"></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p id="eventDesc"></p>
+          <ul class="list-unstyled mt-3">
+            <li><strong>Date:</strong> <span id="eventDate"></span></li>
+            <li><strong>Venue:</strong> <span id="eventVenue"></span></li>
+            <li><strong>Price:</strong> £<span id="eventPrice"></span></li>
+            <li><strong>Capacity:</strong> <span id="eventCapacity"></span></li>
+            <li><strong>Available Slots:</strong> <span id="eventSlots"></span></li>
+          </ul>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn book-btn w-100" id="bookNowBtn">Book Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
-    <footer class="footer-dark text-light pt-5 pb-3 mt-5">
+  <footer class="footer-dark text-light pt-5 pb-3 mt-5">
     <div class="container">
-        <div class="row gy-4">
+      <div class="row gy-4">
 
         <!-- Company Info -->
         <div class="col-12 col-md-4">
-            <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
-            <p class="text-muted">
+          <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
+          <p class="text-muted">
             Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.  
             Discover and create local events with us!
-            </p>
+          </p>
         </div>
 
         <!-- Quick Links -->
         <div class="col-6 col-md-4">
-            <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
-            <ul class="list-unstyled">
+          <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
+          <ul class="list-unstyled">
             <li><a href="index.html" class="footer-link">Home</a></li>
             <li><a href="events.html" class="footer-link">Events</a></li>
             <li><a href="create.html" class="footer-link">Create Event</a></li>
             <li><a href="about.html" class="footer-link">About</a></li>
             <li><a href="about.html" class="footer-link">Contact Us</a></li>
-            </ul>
+          </ul>
         </div>
 
         <!-- Contact Info -->
         <div class="col-6 col-md-4">
-            <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
-            <ul class="list-unstyled">
+          <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
+          <ul class="list-unstyled">
             <li><i class="fa-solid fa-phone me-2"></i> +44 117 123 4567</li>
             <li><i class="fa-solid fa-envelope me-2"></i> info@bristolevents.co.uk</li>
             <li><i class="fa-solid fa-location-dot me-2"></i> 10 Park Street, Bristol, UK</li>
-            </ul>
+          </ul>
 
-            <div class="social-icons mt-3">
+          <div class="social-icons mt-3">
             <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
             <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
             <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
             <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
             <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i class="fa-brands fa-whatsapp"></i></a>
-            </div>
+          </div>
         </div>
-        </div>
+      </div>
 
-        <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
-        <div class="text-center small text-muted">
+      <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
+      <div class="text-center small text-muted">
         © 2025 Bristol Community Events. All rights reserved.
-        </div>
+      </div>
     </div>
-    </footer>
+  </footer>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const events = [
+      { title: "Summer Jazz Night", date: "2025-06-20", venue: "Bristol Hippodrome", price: 30, capacity: 200, slots: 50, desc: "Enjoy a smooth jazz evening with local artists." },
+      { title: "Art Expo 2025", date: "2025-07-10", venue: "Arnolfini", price: 10, capacity: 300, slots: 120, desc: "Showcasing Bristol’s most creative visual artists." },
+      { title: "Rock Festival", date: "2025-08-15", venue: "Ashton Gate Stadium", price: 75, capacity: 5000, slots: 2000, desc: "A full-day outdoor rock music festival." },
+      { title: "Community Food Fair", date: "2025-05-12", venue: "Bristol Beacon", price: 0, capacity: 1000, slots: 450, desc: "Taste amazing food from around the community." },
+    ];
+
+    const container = document.getElementById("eventsContainer");
+
+    function renderEvents(list) {
+      container.innerHTML = "";
+      list.forEach(ev => {
+        const card = document.createElement("div");
+        card.className = "col-md-6 col-lg-4 mb-4";
+        card.innerHTML = `
+          <div class="event-card p-3 h-100 d-flex flex-column justify-content-between">
+            <div>
+              <h4>${ev.title}</h4>
+              <p class="mb-1"><i class="fa fa-calendar me-2"></i>${ev.date}</p>
+              <p class="mb-1"><i class="fa fa-location-dot me-2"></i>${ev.venue}</p>
+              <p class="mb-1"><i class="fa fa-ticket me-2"></i>£${ev.price}</p>
+            </div>
+            <button class="btn btn-outline-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#eventModal" onclick='openEvent(${JSON.stringify(ev)})'>View More</button>
+          </div>`;
+        container.appendChild(card);
+      });
+    }
+
+    function openEvent(ev) {
+      document.getElementById("eventTitle").textContent = ev.title;
+      document.getElementById("eventDate").textContent = ev.date;
+      document.getElementById("eventVenue").textContent = ev.venue;
+      document.getElementById("eventPrice").textContent = ev.price;
+      document.getElementById("eventCapacity").textContent = ev.capacity;
+      document.getElementById("eventSlots").textContent = ev.slots;
+      document.getElementById("eventDesc").textContent = ev.desc;
+    }
+
+    function filterEvents() {
+      const venue = document.getElementById("venueFilter").value;
+      const price = document.getElementById("priceFilter").value;
+      const date = document.getElementById("dateFilter").value;
+      let filtered = events;
+
+      if (venue) filtered = filtered.filter(e => e.venue === venue);
+      if (price) {
+        if (price === "free") filtered = filtered.filter(e => e.price === 0);
+        else if (price === "low") filtered = filtered.filter(e => e.price <= 20 && e.price > 0);
+        else if (price === "mid") filtered = filtered.filter(e => e.price > 20 && e.price <= 50);
+        else if (price === "high") filtered = filtered.filter(e => e.price > 50);
+      }
+      if (date) filtered = filtered.filter(e => e.date === date);
+
+      renderEvents(filtered);
+    }
+
+    document.getElementById("venueFilter").addEventListener("change", filterEvents);
+    document.getElementById("priceFilter").addEventListener("change", filterEvents);
+    document.getElementById("dateFilter").addEventListener("change", filterEvents);
+    document.getElementById("clearFilters").addEventListener("click", () => {
+      document.getElementById("filterForm").reset();
+      renderEvents(events);
+    });
+
+    renderEvents(events);
+  </script>
+</body>
 </html>
