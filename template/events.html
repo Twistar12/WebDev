@@ -10,7 +10,17 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
-
+    @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
+        
+    .tilt-prism-regular {
+      font-family: "Tilt Prism", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 400;
+      font-style: normal;
+      font-variation-settings:
+        "XROT" 0,
+        "YROT" 0;
+    }
     .event-card {
       background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(8px);
@@ -23,11 +33,24 @@
       transform: translateY(-5px);
       box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
     }
-    .filter-bar {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 1rem;
-      margin-bottom: 2rem;
+    .underline {
+      position: relative;
+      display: inline-block
+    }
+    .underline::before{
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 100%;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+    .event-card:hover .underline::before{ 
+      transform: scaleX(1);
     }
     .modal-content {
       background: rgba(0, 0, 0, 0.8);
@@ -36,14 +59,23 @@
       border: 1px solid rgba(255,255,255,0.1);
     }
     .book-btn {
-      background: linear-gradient(90deg, #3a0ca3, #7209b7);
-      color: #fff;
-      border: none;
-      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #400177 15%, #1c003a 100%);
+      color: white;
+      text-decoration: none;
+      border: 1px solid rgba(193, 2, 183, 0.385);
+      box-shadow: 0 0 10px rgba(85, 4, 94, 0.651);
+      transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .book-btn:hover {
       background: linear-gradient(90deg, #7209b7, #f72585);
-      transform: scale(1.05);
+      color: white;
+      text-decoration: none;
+      border:1px solid rgba(193, 2, 183, 0.385);
+      box-shadow: 0 0 10px rgba(85, 4, 94, 0.651);
+      font-weight: 600;
+      transform: scale(1.02);
     }
   </style>
 </head>
@@ -71,15 +103,13 @@
     </div>
   </header>
 
-
   <section class="container py-5">
     <h1 class="text-center mb-4">Upcoming Events</h1>
-
     <!-- Filters -->
-    <div class="filter-bar ubuntu-light text-white">
+    <div class="search-container p-4 rounded-3 shadow-lg mx-auto col-12 col-md-12 col-lg-12 w-100 mb-5">
       <form id="filterForm" class="row g-3 align-items-end">
-        <div class="col-md-3">
-          <label class="form-label">Venue</label>
+        <div class="col-md-6 col-lg-3">
+          <label for="venueFilter" class="form-label"><i class="fa-solid fa-location-dot me-2"></i>Venue</label>
           <select class="form-select" id="venueFilter">
             <option value="">All Venues</option>
             <option>Bristol Hippodrome</option>
@@ -88,8 +118,8 @@
             <option>Ashton Gate Stadium</option>
           </select>
         </div>
-        <div class="col-md-3">
-          <label class="form-label">Price Range</label>
+        <div class="col-md-6 col-lg-3">
+          <label for="priceFilter" class="form-label"><i class="fa-solid fa-sterling-sign me-2"></i>Price Range</label>
           <select class="form-select" id="priceFilter">
             <option value="">Any</option>
             <option value="free">Free</option>
@@ -98,20 +128,31 @@
             <option value="high">£50+</option>
           </select>
         </div>
-        <div class="col-md-3">
-          <label class="form-label">Date</label>
+        <div class="col-md-6 col-lg-3">
+          <label for="dateFilter" class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Date</label>
           <input type="date" class="form-control" id="dateFilter">
         </div>
-        <div class="col-md-3">
-          <button type="button" class="btn btn-outline-light w-100" id="clearFilters">Clear Filters</button>
+        <div class="col-md-6 col-lg-3">
+          <label for="categoryFilter"class="form-label"><i class="fa fa-tags me-2"></i>Category</label>
+          <select class="form-select" id="categoryFilter">
+                <option value="">Any Category</option>
+                <option value="Music">Music</option>
+                <option value="Art">Art</option>
+                <option value="Food">Food</option>
+                <option value="Sports">Sports</option>
+              </select>
+        </div>
+        <div class="col-md-4 col-lg-3 mx-auto">
+          <button type="button" class="btn btn-outline-light w-100 clear-btn" id="clearFilters">Clear Filters</button>
         </div>
       </form>
     </div>
 
     <!-- Events Grid -->
     <div class="row" id="eventsContainer">
-      <!-- JS will inject events here -->
+      <!-- JavaScript injection of contents -->
     </div>
+
   </section>
 
   <!-- Event Modal -->
@@ -124,16 +165,17 @@
         </div>
         <div class="modal-body">
           <p id="eventDesc"></p>
-          <ul class="list-unstyled mt-3">
+          <ul class="list-unstyled mt-3"> <!-- Bootstrap List Typography-->
             <li><strong>Date:</strong> <span id="eventDate"></span></li>
             <li><strong>Venue:</strong> <span id="eventVenue"></span></li>
             <li><strong>Price:</strong> £<span id="eventPrice"></span></li>
+            <li><strong>Category:</strong> <span id="eventCategory"></span></li>
             <li><strong>Capacity:</strong> <span id="eventCapacity"></span></li>
             <li><strong>Available Slots:</strong> <span id="eventSlots"></span></li>
           </ul>
         </div>
         <div class="modal-footer border-0">
-          <button class="btn book-btn w-100" id="bookNowBtn">Book Now</button>
+          <a href="booking.html" class="btn book-btn w-100" id="bookNowBtn">Book Now</a>
         </div>
       </div>
     </div>
@@ -195,28 +237,34 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const events = [
-      { title: "Summer Jazz Night", date: "2025-06-20", venue: "Bristol Hippodrome", price: 30, capacity: 200, slots: 50, desc: "Enjoy a smooth jazz evening with local artists." },
-      { title: "Art Expo 2025", date: "2025-07-10", venue: "Arnolfini", price: 10, capacity: 300, slots: 120, desc: "Showcasing Bristol’s most creative visual artists." },
-      { title: "Rock Festival", date: "2025-08-15", venue: "Ashton Gate Stadium", price: 75, capacity: 5000, slots: 2000, desc: "A full-day outdoor rock music festival." },
-      { title: "Community Food Fair", date: "2025-05-12", venue: "Bristol Beacon", price: 0, capacity: 1000, slots: 450, desc: "Taste amazing food from around the community." },
+      { title: "Summer Jazz Night", date: "2025-06-20", venue: "Bristol Hippodrome", image:"bristol-hippodrome.png", price: 30, category: "Music", capacity: 200, slots: 50, desc: "An evening of smooth jazz performances by local artists." },
+      { title: "Art Expo 2025", date: "2025-07-10", venue: "Arnolfini", price: 10, image:"Arnolfini.jpg", category: "Art", capacity: 300, slots: 120, desc: "Showcasing Bristol’s most creative visual artists." },
+      { title: "Rock Festival", date: "2025-08-15", venue: "Ashton Gate Stadium", image:"ashton-gate.png", price: 75, category: "Sports", capacity: 5000, slots: 2000, desc: "A full-day outdoor rock music festival." },
+      { title: "Community Food Fair", date: "2025-05-12", venue: "Bristol Beacon", image:"bristol-beacon.jpg", price: 0, category: "Food", capacity: 1000, slots: 450, desc: "Taste amazing food from around the community." },
     ];
 
     const container = document.getElementById("eventsContainer");
 
     function renderEvents(list) {
       container.innerHTML = "";
-      list.forEach(ev => {
-        const card = document.createElement("div");
+      // For loop using forEach()
+      list.forEach(ev => {                   
+        const card = document.createElement("div"); // Start to create cards in this container
         card.className = "col-md-6 col-lg-4 mb-4";
-        card.innerHTML = `
-          <div class="event-card p-3 h-100 d-flex flex-column justify-content-between">
-            <div>
-              <h4>${ev.title}</h4>
-              <p class="mb-1"><i class="fa fa-calendar me-2"></i>${ev.date}</p>
+        // `...` for multi-line strings
+        card.innerHTML = `    
+          <div class="event-card card h-100 d-flex flex-column justify-content-between">
+            <img src="../files/${ev.image}" class="card-img-top rounded-1" alt="${ev.title}" loading="lazy" style="max-height: 199px; object-fit: cover;">
+            <div class="card-body p-4">
+              <h4 class="underline">${ev.title}</h4>
+              <p class="mb-1"><i class="fa fa-calendar me-2"></i>${ev.date}</p> 
               <p class="mb-1"><i class="fa fa-location-dot me-2"></i>${ev.venue}</p>
               <p class="mb-1"><i class="fa fa-ticket me-2"></i>£${ev.price}</p>
+              <p class="mb-1"><i class="fa fa-tags me-2"></i>${ev.category}</p>
+              <small>Capacity: ${ev.capacity} | Available Slots: ${ev.slots}</small>
+              <p class="mt-2">${ev.desc}</p>
             </div>
-            <button class="btn btn-outline-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#eventModal" onclick='openEvent(${JSON.stringify(ev)})'>View More</button>
+            <button class="btn btn-outline-light m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick='openEvent(${JSON.stringify(ev)})'>View More</button>
           </div>`;
         container.appendChild(card);
       });
@@ -227,6 +275,7 @@
       document.getElementById("eventDate").textContent = ev.date;
       document.getElementById("eventVenue").textContent = ev.venue;
       document.getElementById("eventPrice").textContent = ev.price;
+      document.getElementById("eventCategory").textContent = ev.category
       document.getElementById("eventCapacity").textContent = ev.capacity;
       document.getElementById("eventSlots").textContent = ev.slots;
       document.getElementById("eventDesc").textContent = ev.desc;
@@ -236,6 +285,7 @@
       const venue = document.getElementById("venueFilter").value;
       const price = document.getElementById("priceFilter").value;
       const date = document.getElementById("dateFilter").value;
+      const category = document.getElementById("categoryFilter").value;
       let filtered = events;
 
       if (venue) filtered = filtered.filter(e => e.venue === venue);
@@ -246,6 +296,7 @@
         else if (price === "high") filtered = filtered.filter(e => e.price > 50);
       }
       if (date) filtered = filtered.filter(e => e.date === date);
+      if (category) filtered = filtered.filter(e => e.category === category);
 
       renderEvents(filtered);
     }
@@ -253,6 +304,7 @@
     document.getElementById("venueFilter").addEventListener("change", filterEvents);
     document.getElementById("priceFilter").addEventListener("change", filterEvents);
     document.getElementById("dateFilter").addEventListener("change", filterEvents);
+    document.getElementById("categoryFilter").addEventListener("change", filterEvents);
     document.getElementById("clearFilters").addEventListener("click", () => {
       document.getElementById("filterForm").reset();
       renderEvents(events);

@@ -65,12 +65,13 @@ main, section, header, footer {
   font-weight: 400;
   padding: 8px 16px;
   /* Separate transitions for entering/leaving states with delays */
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), /* faster transform */
-                background 0.5s cubic-bezier(0.4, 0, 0.2, 1), /* delayed background */
-                color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
-                box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden; /* Ensures hover effects don't overflow */}
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), /* faster transform */
+              background 0.5s cubic-bezier(0.4, 0, 0.2, 1), /* delayed background */
+              color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden; /* Ensures hover effects don't overflow */
+}
 .button:hover {
   background: var(--header-gradient);
   color: #ffffff !important;
