@@ -3,19 +3,161 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bristol Community Events</title>
+  <title>All Events | Bristol Community Events</title>
   <link rel="stylesheet" href="../index.css">
   <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
+        
+    .tilt-prism-regular {
+      font-family: "Tilt Prism", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 400;
+      font-style: normal;
+      font-variation-settings:
+        "XROT" 0,
+        "YROT" 0;
+    }
+    .event-card {
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 12px;
+      color: #fff;
+    }
+    .event-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+    }
+    .underline {
+      position: relative;
+      display: inline-block
+    }
+    .underline::before{
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 100%;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+    .event-card:hover .underline::before{ 
+      transform: scaleX(1);
+    }
+
+
+        .flip-card {
+      background: transparent;
+      width: 100%;
+      height: 350px;
+      perspective: 1000px;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .flip-card-front {
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .flip-card-front img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .flip-card-back {
+      background: linear-gradient(160deg, #400177 15%, #1c003a 100%);
+      color: white;
+      transform: rotateY(180deg);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .flip-card-back p {
+      font-size: 0.95rem;
+    }
+
+    .flip-card-back button {
+      background: linear-gradient(90deg, #7209b7, #f72585);
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      transition: transform 0.2s ease;
+    }
+
+    .flip-card-back button:hover {
+      transform: scale(1.05);
+    }
+    
+    .modal-content {
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .book-btn {
+      background: linear-gradient(135deg, #400177 15%, #1c003a 100%);
+      color: white;
+      text-decoration: none;
+      border: 1px solid rgba(193, 2, 183, 0.385);
+      box-shadow: 0 0 10px rgba(85, 4, 94, 0.651);
+      transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .book-btn:hover {
+      background: linear-gradient(90deg, #7209b7, #f72585);
+      color: white;
+      text-decoration: none;
+      border:1px solid rgba(193, 2, 183, 0.385);
+      box-shadow: 0 0 10px rgba(85, 4, 94, 0.651);
+      font-weight: 600;
+      transform: scale(1.02);
+    }
   </style>
 </head>
 
 <body class="ubuntu-regular animated-gradient">
   <!-- Navbar -->
-  <header class="py-3 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
+ <header class="py-3 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
     <div class="container ubuntu-light">
       <div class="d-flex align-items-center">
         <a href="index.html" class="d-flex align-items-center text-white text-decoration-none">
@@ -35,59 +177,192 @@
       </div>
     </div>
   </header>
+
+  <section class="container py-5">
+    <h1 class="text-center mb-4">Upcoming Events</h1>
+    <!-- Filters -->
+    <div class="search-container p-4 rounded-3 shadow-lg mx-auto col-12 col-md-12 col-lg-12 w-100 mb-5">
+      <form id="filterForm" class="row g-3 align-items-end">
+        <div class="col-md-6 col-lg-3">
+          <label for="venueFilter" class="form-label"><i class="fa-solid fa-location-dot me-2"></i>Venue</label>
+          <select class="form-select" id="venueFilter">
+            <option value="">All Venues</option>
+            <option>Bristol Hippodrome</option>
+            <option>Arnolfini</option>
+            <option>Bristol Beacon</option>
+            <option>Ashton Gate Stadium</option>
+          </select>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <label for="priceFilter" class="form-label"><i class="fa-solid fa-sterling-sign me-2"></i>Price Range</label>
+          <select class="form-select" id="priceFilter">
+            <option value="">Any</option>
+            <option value="free">Free</option>
+            <option value="low">£0 - £20</option>
+            <option value="mid">£20 - £50</option>
+            <option value="high">£50+</option>
+          </select>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <label for="dateFilter" class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Date</label>
+          <input type="date" class="form-control" id="dateFilter">
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <label for="categoryFilter"class="form-label"><i class="fa fa-tags me-2"></i>Category</label>
+          <select class="form-select" id="categoryFilter">
+                <option value="">Any Category</option>
+                <option value="Music">Music</option>
+                <option value="Art">Art</option>
+                <option value="Food">Food</option>
+                <option value="Sports">Sports</option>
+              </select>
+        </div>
+        <div class="col-md-4 col-lg-3 mx-auto">
+          <button type="button" class="btn btn-outline-light w-100 clear-btn" id="clearFilters">Clear Filters</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="row" id="eventsContainer">
+      <!-- JavaScript injection of contents -->
+    </div>
+
+  </section>
+
+  <!-- Event Modal -->
+  <div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content p-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="eventTitle"></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p id="eventDesc"></p>
+          <ul class="list-unstyled mt-3"> <!-- Bootstrap List Typography-->
+            <li><strong>Date:</strong> <span id="eventDate"></span></li>
+            <li><strong>Venue:</strong> <span id="eventVenue"></span></li>
+            <li><strong>Price:</strong> £<span id="eventPrice"></span></li>
+            <li><strong>Category:</strong> <span id="eventCategory"></span></li>
+            <li><strong>Capacity:</strong> <span id="eventCapacity"></span></li>
+            <li><strong>Available Slots:</strong> <span id="eventSlots"></span></li>
+          </ul>
+        </div>
+        <div class="modal-footer border-0">
+          <a href="booking.html" class="btn book-btn w-100" id="bookNowBtn">Book Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
-    <footer class="footer-dark text-light pt-5 pb-3 mt-5">
+  <footer class="footer-dark text-light pt-5 pb-3 mt-5">
     <div class="container">
-        <div class="row gy-4">
+      <div class="row gy-4">
 
         <!-- Company Info -->
         <div class="col-12 col-md-4">
-            <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
-            <p class="text-muted">
+          <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
+          <p class="text-muted">
             Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.  
             Discover and create local events with us!
-            </p>
+          </p>
         </div>
 
         <!-- Quick Links -->
         <div class="col-6 col-md-4">
-            <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
-            <ul class="list-unstyled">
+          <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
+          <ul class="list-unstyled">
             <li><a href="index.html" class="footer-link">Home</a></li>
             <li><a href="events.html" class="footer-link">Events</a></li>
             <li><a href="create.html" class="footer-link">Create Event</a></li>
             <li><a href="about.html" class="footer-link">About</a></li>
             <li><a href="about.html" class="footer-link">Contact Us</a></li>
-            </ul>
+          </ul>
         </div>
 
         <!-- Contact Info -->
         <div class="col-6 col-md-4">
-            <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
-            <ul class="list-unstyled">
+          <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
+          <ul class="list-unstyled">
             <li><i class="fa-solid fa-phone me-2"></i> +44 117 123 4567</li>
             <li><i class="fa-solid fa-envelope me-2"></i> info@bristolevents.co.uk</li>
             <li><i class="fa-solid fa-location-dot me-2"></i> 10 Park Street, Bristol, UK</li>
-            </ul>
+          </ul>
 
-            <div class="social-icons mt-3">
+          <div class="social-icons mt-3">
             <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
             <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
             <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
             <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
             <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i class="fa-brands fa-whatsapp"></i></a>
-            </div>
+          </div>
         </div>
-        </div>
+      </div>
 
-        <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
-        <div class="text-center small text-muted">
+      <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
+      <div class="text-center small text-muted">
         © 2025 Bristol Community Events. All rights reserved.
-        </div>
+      </div>
     </div>
-    </footer>
+  </footer>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const events = [
+      { title: "Summer Jazz Night", date: "2025-06-20", venue: "Bristol Hippodrome", image:"bristol-hippodrome.png", price: 30, category: "Music", capacity: 200, slots: 50, desc: "An evening of smooth jazz performances by local artists." },
+      { title: "Art Expo 2025", date: "2025-07-10", venue: "Arnolfini", price: 10, image:"Arnolfini.jpg", category: "Art", capacity: 300, slots: 120, desc: "Showcasing Bristol’s most creative visual artists." },
+      { title: "Rock Festival", date: "2025-08-15", venue: "Ashton Gate Stadium", image:"ashton-gate.png", price: 75, category: "Sports", capacity: 5000, slots: 2000, desc: "A full-day outdoor rock music festival." },
+      { title: "Community Food Fair", date: "2025-05-12", venue: "Bristol Beacon", image:"bristol-beacon.jpg", price: 0, category: "Food", capacity: 1000, slots: 450, desc: "Taste amazing food from around the community." },
+    ];
+
+    const container = document.getElementById("eventsContainer");
+
+    function renderEvents(list) {
+  container.innerHTML = "";
+
+  list.forEach(ev => {
+    const card = document.createElement("div");
+    card.className = "col-md-6 col-lg-4 mb-4";
+
+    card.innerHTML = `
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <!-- FRONT -->
+          <div class="flip-card-front">
+            <img src="../files/${ev.image}" alt="${ev.title}">
+            <div class="p-3 text-start">
+              <h5 class="underline">${ev.title}</h5>
+              <p class="mb-1"><i class="fa fa-location-dot me-2"></i>${ev.venue}</p>
+              <p class="mb-1"><i class="fa fa-sterling-sign me-2"></i>${ev.price}</p>
+              <p class="mb-1"><i class="fa fa-tags me-2"></i>${ev.category}</p>
+              <p class="mb-0"><i class="fa fa-calendar me-2"></i>${ev.date}</p>
+            </div>
+          </div>
+
+          <!-- BACK -->
+          <div class="flip-card-back">
+            <div>
+              <h5>${ev.title}</h5>
+              <p class="mt-3">${ev.desc}</p>
+            </div>
+            <button 
+              data-bs-toggle="modal" 
+              data-bs-target="#eventModal"
+              onclick='openEvent(${JSON.stringify(ev)})'>
+              View More
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+    renderEvents(events);
+  </script>
+</body>
 </html>
