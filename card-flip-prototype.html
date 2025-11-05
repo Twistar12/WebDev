@@ -4,19 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>All Events | Bristol Community Events</title>
-  <link rel="stylesheet" href="../index.css">
+  <link rel="stylesheet" href="index.css">
   <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
-
+        
+    .tilt-prism-regular {
+      font-family: "Tilt Prism", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 400;
+      font-style: normal;
+      font-variation-settings:
+        "XROT" 0,
+        "YROT" 0;
+    }
     .event-card {
       background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.15);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 5s ease, box-shadow 0.3s ease;
       border-radius: 12px;
       color: #fff;
     }
@@ -45,80 +54,79 @@
     }
 
 
-    .flip-card {
-  background: transparent;
-  width: 100%;
-  height: 350px;
-  perspective: 1000px;
-}
+        .flip-card {
+      background: transparent;
+      width: 100%;
+      height: 350px;
+      perspective: 1000px;
+    }
 
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transition: transform 0.8s;
-  transform-style: preserve-3d;
-}
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
 
-.flip-card:hover .flip-card-inner {
-  transform: rotateY(180deg);
-}
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
 
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 12px;
-  overflow: hidden;
-}
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      overflow: hidden;
+    }
 
-.flip-card-front {
-  background: rgba(0, 0, 0, 0.35);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
+    .flip-card-front {
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
 
-.flip-card-front img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
+    .flip-card-front img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-.flip-card-back {
-  background: linear-gradient(160deg, #400177 15%, #1c003a 100%);
-  color: white;
-  transform: rotateY(180deg);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+    .flip-card-back {
+      background: rgba(0, 0, 0, 0.35);
+      color: white;
+      transform: rotateY(180deg);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-.flip-card-back p {
-  font-size: 0.95rem;
-}
+    .flip-card-back p {
+      font-size: 0.95rem;
+    }
 
-.flip-card-back button {
-  background: linear-gradient(90deg, #7209b7, #f72585);
-  border: none;
-  color: #fff;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  transition: transform 0.2s ease;
-}
+    .flip-card-back button {
+      background: linear-gradient(90deg, #7209b7, #f72585);
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      transition: transform 0.2s ease;
+    }
 
-.flip-card-back button:hover {
-  transform: scale(1.05);
-}
-
-
+    .flip-card-back button:hover {
+      transform: scale(1.05);
+    }
+    
     .modal-content {
       background: rgba(0, 0, 0, 0.8);
       color: #fff;
@@ -149,16 +157,17 @@
 
 <body class="ubuntu-regular animated-gradient">
   <!-- Navbar -->
-  <header class="py-3 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
+ <header class="py-3 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
     <div class="container ubuntu-light">
       <div class="d-flex align-items-center">
         <a href="index.html" class="d-flex align-items-center text-white text-decoration-none">
           <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo me-3">
         </a>
-        <ul class="nav me-auto d-flex align-items-center list-inline">
-          <li class="list-inline-item button px-2 rounded-1"><a href="events.html" class="text-decoration-none text-light">Events</a></li>
-          <li class="list-inline-item button px-2 rounded-1"><a href="create.html" class="text-decoration-none text-light">Create Event</a></li>
-          <li class="list-inline-item button px-2 rounded-1"><a href="about.html" class="text-decoration-none text-light">About Us</a></li>
+        <ul class="nav me-auto d-flex align-items-center">
+          <a href="events.html" class="button px-2 text-light rounded-1">Events</a>
+          <a href="create.html" class="button px-2 text-light rounded-1">Create Event</a>
+          <a href="about.html" class="button px-2 text-light rounded-1">About</a>
+          <a href="about.html" class="button px-2 text-light rounded-1">Contact Us</a>
           <!-- Idea: Add cards of each venue -->
         </ul>
         <div class="text-end d-inline-flex">
@@ -199,7 +208,7 @@
           <input type="date" class="form-control" id="dateFilter">
         </div>
         <div class="col-md-6 col-lg-3">
-          <label for="categoryFilter" class="form-label"><i class="fa fa-tags me-2"></i>Category</label>
+          <label for="categoryFilter"class="form-label"><i class="fa fa-tags me-2"></i>Category</label>
           <select class="form-select" id="categoryFilter">
                 <option value="">Any Category</option>
                 <option value="Music">Music</option>
@@ -226,7 +235,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content p-4">
         <div class="modal-header border-0">
-          <h5 class="modal-title" id="eventTitle">Event Modal</h5>
+          <h5 class="modal-title" id="eventTitle"></h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -268,7 +277,8 @@
             <li><a href="index.html" class="footer-link">Home</a></li>
             <li><a href="events.html" class="footer-link">Events</a></li>
             <li><a href="create.html" class="footer-link">Create Event</a></li>
-            <li><a href="about.html" class="footer-link">About Us</a></li>
+            <li><a href="about.html" class="footer-link">About</a></li>
+            <li><a href="about.html" class="footer-link">Contact Us</a></li>
           </ul>
         </div>
 
@@ -311,69 +321,46 @@
     const container = document.getElementById("eventsContainer");
 
     function renderEvents(list) {
-      container.innerHTML = "";
-      // For loop using forEach()
-      list.forEach(ev => {                   
-        const card = document.createElement("div"); // Start to create cards in this container
-        card.className = "col-md-6 col-lg-4 mb-4";
-        // `...` for multi-line strings
-        card.innerHTML = `    
-          <div class="event-card card h-100 d-flex flex-column justify-content-between">
-            <img src="../files/${ev.image}" class="card-img-top rounded-1" alt="${ev.title}" loading="lazy" style="max-height: 199px; object-fit: cover;">
-            <div class="card-body p-4">
-              <h4 class="underline">${ev.title}</h4>
-              <p class="mb-1"><i class="fa fa-calendar me-2"></i>${ev.date}</p> 
+  container.innerHTML = "";
+
+  list.forEach(ev => {
+    const card = document.createElement("div");
+    card.className = "col-md-6 col-lg-4 mb-4";
+
+    card.innerHTML = `
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <!-- FRONT -->
+          <div class="flip-card-front">
+            <img src="../files/${ev.image}" alt="${ev.title}">
+            <div class="p-3 text-start">
+              <h5 class="underline">${ev.title}</h5>
               <p class="mb-1"><i class="fa fa-location-dot me-2"></i>${ev.venue}</p>
-              <p class="mb-1"><i class="fa fa-ticket me-2"></i>£${ev.price}</p>
+              <p class="mb-1"><i class="fa fa-sterling-sign me-2"></i>${ev.price}</p>
               <p class="mb-1"><i class="fa fa-tags me-2"></i>${ev.category}</p>
-              <small>Capacity: ${ev.capacity} | Available Slots: ${ev.slots}</small>
-              <p class="mt-2">${ev.desc}</p>
+              <p class="mb-0"><i class="fa fa-calendar me-2"></i>${ev.date}</p>
             </div>
-            <button class="btn btn-outline-light m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick='openEvent(${JSON.stringify(ev)})'>View More</button>
-          </div>`;
-        container.appendChild(card);
-      });
-    }
+          </div>
 
-    function openEvent(ev) {
-      document.getElementById("eventTitle").textContent = ev.title;
-      document.getElementById("eventDate").textContent = ev.date;
-      document.getElementById("eventVenue").textContent = ev.venue;
-      document.getElementById("eventPrice").textContent = ev.price;
-      document.getElementById("eventCategory").textContent = ev.category
-      document.getElementById("eventCapacity").textContent = ev.capacity;
-      document.getElementById("eventSlots").textContent = ev.slots;
-      document.getElementById("eventDesc").textContent = ev.desc;
-    }
-
-    function filterEvents() {
-      const venue = document.getElementById("venueFilter").value;
-      const price = document.getElementById("priceFilter").value;
-      const date = document.getElementById("dateFilter").value;
-      const category = document.getElementById("categoryFilter").value;
-      let filtered = events;
-
-      if (venue) filtered = filtered.filter(e => e.venue === venue);
-      if (price) {
-        if (price === "free") filtered = filtered.filter(e => e.price === 0);
-        else if (price === "low") filtered = filtered.filter(e => e.price <= 20 && e.price > 0);
-        else if (price === "mid") filtered = filtered.filter(e => e.price > 20 && e.price <= 50);
-        else if (price === "high") filtered = filtered.filter(e => e.price > 50);
-      }
-      if (date) filtered = filtered.filter(e => e.date === date);
-      if (category) filtered = filtered.filter(e => e.category === category);
-
-      renderEvents(filtered);
-    }
-
-    document.getElementById("venueFilter").addEventListener("change", filterEvents);
-    document.getElementById("priceFilter").addEventListener("change", filterEvents);
-    document.getElementById("dateFilter").addEventListener("change", filterEvents);
-    document.getElementById("categoryFilter").addEventListener("change", filterEvents);
-    document.getElementById("clearFilters").addEventListener("click", () => {
-      document.getElementById("filterForm").reset();
-      renderEvents(events);
-    });
+          <!-- BACK -->
+          <div class="flip-card-back">
+            <div>
+              <h5>${ev.title}</h5>
+              <p class="mt-3">${ev.desc}</p>
+            </div>
+            <button 
+              data-bs-toggle="modal" 
+              data-bs-target="#eventModal"
+              onclick='openEvent(${JSON.stringify(ev)})'>
+              View More
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
 
     renderEvents(events);
   </script>

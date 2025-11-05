@@ -122,11 +122,15 @@ header.py-3 {
     padding-bottom: 1rem !important;
   } 
 }
+
 /* Fixed-size button helper: mobile-first approach */
-.fixed-btn {
+.login-btn, .signup-btn {
   box-sizing: border-box;
-  display: inline-flex;
   align-items: center;
+  display: inline-flex;
+  text-decoration: none;
+  color: white;
+  border-radius: 4px;
   justify-content: center;
   height: 32px; /* smaller height for mobile */
   min-width: 40px; /* smaller width for mobile */
@@ -138,14 +142,32 @@ header.py-3 {
   white-space: nowrap; /* prevent wrapping */ 
   overflow: hidden;
 }
-.fixed-btn:hover {
+.login-btn {
+  background-color: rgba(28, 31, 35);
+}
+.signup-btn {
+  background-color: rgba(16, 202, 240);
+}
+
+.login-btn:hover {
   transform: scale(1.1);
-  transition: transform 0.3s ease-in-out;
+  color: white;
+  font-weight: 500;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+}
+.signup-btn:hover {
+  transform: scale(1.1);
+  color: black;
+  font-weight: 500;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: visible;
 }
 /* Larger screens get larger buttons */
 @media (min-width: 340px) {
-  .fixed-btn {
+  .login-btn, .signup-btn {
     height: 36px;
     /* standard height */
     min-width: 90px;
@@ -153,11 +175,10 @@ header.py-3 {
     max-width: 90px;
     padding: 0 12px;
     /* standard padding */
-    font-size: 0.95rem;
+    font-size: 1rem;
     /* standard font size */
   }
 }
-
 
 /* HERO */
 .hero {
@@ -232,6 +253,12 @@ header.py-3 {
   }
 }
 
+/* Hide Carousel for medium and small screens */
+@media (max-width: 991px) {
+  #carousel {
+    display: none;
+  }
+}
 /* Mobile-first carousel styles */
 #venueCarousel {
   margin-top: 1rem;
