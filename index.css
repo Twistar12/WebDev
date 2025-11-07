@@ -88,7 +88,7 @@ main, section, header, footer {
 /* Responsive brand logo (used in header) */
 .brand-logo {
   /* Mobile-first base styles */
-  max-height: 36px;
+  max-height: 40px;
   height: auto;
   width: auto;
   object-fit: contain;
@@ -109,7 +109,7 @@ main, section, header, footer {
 }
 
 /* Add smooth transitions to header padding */
-header.py-3 {
+header {
   transition: padding 0.3s cubic-bezier(0.0, 0, 0.2, 1);
   padding-top: 0.5rem !important;
   padding-bottom: 0.5rem !important;
