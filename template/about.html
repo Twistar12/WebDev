@@ -1,37 +1,98 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bristol Community Events</title>
+  <title>About Us | Bristol Community Events</title>
   <link rel="stylesheet" href="../index.css">
   <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
+
     .tilt-prism-regular {
       font-family: "Tilt Prism", sans-serif;
       font-optical-sizing: auto;
       font-weight: 400;
       font-style: normal;
-      font-variation-settings:
-        "XROT" 0,
-        "YROT" 0;
+    }
+
+    .about-hero {
+      background: linear-gradient(160deg, #400177 15%, #1c003a 100%);
+      color: white;
+      text-align: center;
+      padding: 100px 0;
+    }
+
+    .about-section {
+      background: rgba(0, 0, 0, 0.213);
+      border-radius: 15px;
+      padding: 2rem;
+      backdrop-filter: blur(8px);
+      color: #fff;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .about-section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.278);
+    }
+
+    .icon-circle {
+      background: linear-gradient(135deg, #7209b7, #f72585);
+      color: white;
+      width: 60px;
+      height: 60px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .stats-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 1.5rem;
+      color: #fff;
+    }
+
+    .join-section {
+      background: linear-gradient(-45deg, #240254 15%, #1d0130 100%);
+      box-shadow: 0 0 10px #240254;
+      color: #fff;
+      text-align: center;
+      border-radius: 15px;
+      padding: 3rem 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .about-hero h1 {
+        font-size: 2.2rem;
+      }
+
+      .about-section {
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
 
 <body class="ubuntu-regular animated-gradient">
-  <!-- Navbar -->
+
+  <!-- NAVBAR -->
   <header class="py-2 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
       <div class="container">
         <!-- Logo -->
         <a href="index.html" class="navbar-brand d-flex align-items-center">
-          <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo d-inline-block align-items-center me-2"
-            style="height: 55px;">
+          <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo"
+            class="brand-logo d-inline-block align-items-center me-2" style="height: 55px;">
           <span class="tilt-prism-regular mt-2 me-2">Bristol Community Events</span>
         </a>
         <!-- Mobile Toggle Button triggers when width < 992px -->
@@ -61,58 +122,193 @@
       </div>
     </nav>
   </header>
-  <!-- FOOTER -->
-    <footer class="footer-dark text-light pt-5 pb-3 mt-5">
+
+  <!-- HERO -->
+  <section class="about-hero">
     <div class="container">
-        <div class="row gy-4">
+      <h1 class="style-script-regular" style="font-size: 4rem">About Bristol Community Events</h1>
+      <p class="lead mt-3">Connecting Bristol’s vibrant communities through unforgettable experiences.</p>
+    </div>
+  </section>
 
-        <!-- Company Info -->
-        <div class="col-12 col-md-4">
-            <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
-            <p class="text-muted">
-            Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.  
-            Discover and create local events with us!
-            </p>
+  <!-- MISSION / VISION -->
+  <section class="py-5">
+    <div class="container">
+      <div class="row g-4 align-items-stretch">
+        <div class="col-md-6">
+          <div class="about-section h-100">
+            <div class="icon-circle"><i class="fas fa-bullseye"></i></div>
+            <h3 class="mb-3">Our Mission</h3>
+            <p>To empower Bristol’s people and organizations to connect through events that inspire, educate, and
+              celebrate the city’s creativity and diversity.</p>
+          </div>
         </div>
+        <div class="col-md-6">
+          <div class="about-section h-100">
+            <div class="icon-circle"><i class="fas fa-eye"></i></div>
+            <h3 class="mb-3">Our Vision</h3>
+            <p>To be Bristol’s go-to hub for discovering, hosting, and experiencing events that bring the community
+              closer together.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <!-- Quick Links -->
+  <!-- WHAT WE DO -->
+  <section class="py-5">
+    <div class="container text-center">
+      <h2 class="mb-5">What We Do</h2>
+      <div class="row g-4 align-items-stretch">
+        <div class="col-md-4">
+          <div class="about-section h-100">
+            <div class="icon-circle"><i class="fas fa-calendar-check"></i></div>
+            <h4>Event Management</h4>
+            <p>Plan and manage events effortlessly — from small community meetups to large-scale festivals.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="about-section h-100">
+            <div class="icon-circle"><i class="fas fa-users"></i></div>
+            <h4>Community Engagement</h4>
+            <p>We help local communities connect through shared experiences and collaborations.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="about-section h-100">
+            <div class="icon-circle"><i class="fas fa-ticket-alt"></i></div>
+            <h4>Ticketing & Support</h4>
+            <p>Seamless ticketing solutions and 24/7 support to make every event a success.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
+  <section class="py-5">
+    <div class="container text-center">
+      <h2 class="mb-5">Why Choose Us</h2>
+      <div class="row g-4 align-items-stretch">
+        <div class="col-md-6 col-lg-3">
+          <div class="about-section h-100">
+            <div class="icon-circle"><i class="fas fa-map-marker-alt"></i></div>
+            <h4>Local Expertise</h4>
+            <p>Deep understanding of Bristol’s communities, venues, and event spaces.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="about-section h-100">
+            <div class="icon-circle"><i class="fas fa-shield-alt"></i></div>
+            <h4>Trusted Platform</h4>
+            <p>Secure booking system and verified event organizers.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="about-section h-100">
+            <div class="icon-circle"><i class="fas fa-hands-helping"></i></div>
+            <h4>Community Support</h4>
+            <p>24/7 customer service and dedicated event support team.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="about-section h-100">
+            <div class="icon-circle"><i class="fas fa-heart"></i></div>
+            <h4>Social Impact</h4>
+            <p>Reinvesting in local communities and supporting grassroots initiatives.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT -->
+  <section class="py-5">
+    <div class="container text-center">
+      <h2 class="mb-5">Our Impact in Numbers</h2>
+      <div class="row g-4 align-items-stretch">
+        <div class="col-6 col-md-3">
+          <div class="stats-box h-100">
+            <h3>500+</h3>
+            <p>Events Hosted</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stats-box h-100">
+            <h3>50K+</h3>
+            <p>Community Members</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stats-box h-100">
+            <h3>100+</h3>
+            <p>Venues</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stats-box h-100">
+            <h3>£1M+</h3>
+            <p>Community Impact</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOIN US -->
+  <section class="join-section my-5 mx-3">
+    <div class="container">
+      <h2>Join Our Community</h2>
+      <p class="lead mb-4">Discover, create, and experience events that make Bristol shine.</p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="../auth/sign-up.html" class="btn btn-outline-light clear-btn px-4 py-2">Create Account</a>
+        <a href="events.html" class="btn btn-outline-info search-btn px-4 py-2">Browse Events</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer-dark text-light pt-5 pb-3 mt-5">
+    <div class="container">
+      <div class="row gy-4">
+        <div class="col-12 col-md-4">
+          <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
+          <p class="text-muted">Bringing Bristol’s vibrant community together through concerts, workshops, food
+            festivals, and more.</p>
+        </div>
         <div class="col-6 col-md-4">
-            <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
-            <ul class="list-unstyled">
+          <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
+          <ul class="list-unstyled">
             <li><a href="index.html" class="footer-link">Home</a></li>
             <li><a href="events.html" class="footer-link">Events</a></li>
             <li><a href="create.html" class="footer-link">Create Event</a></li>
-            <li><a href="about.html" class="footer-link">About Us</a></li>
-            </ul>
+            <li><a href="about.html" class="footer-link">About</a></li>
+          </ul>
         </div>
-
-        <!-- Contact Info -->
         <div class="col-6 col-md-4">
-            <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
-            <ul class="list-unstyled">
-            <li><i class="fa-solid fa-phone me-2"></i> +44 117 123 4567</li>
-            <li><i class="fa-solid fa-envelope me-2"></i> info@bristolevents.co.uk</li>
-            <li><i class="fa-solid fa-location-dot me-2"></i> 10 Park Street, Bristol, UK</li>
-            </ul>
-
-            <div class="social-icons mt-3">
-            <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
-            <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
-            <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
-            <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i class="fa-brands fa-whatsapp"></i></a>
-            </div>
+          <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
+          <ul class="list-unstyled">
+            <li><i class="fa-solid fa-phone me-2 mb-2"></i> +44 117 123 4567</li>
+            <li><i class="fa-solid fa-envelope me-2 mb-2"></i> info@bristolevents.co.uk</li>
+            <li><i class="fa-solid fa-location-dot me-2 mb-2"></i> 10 Park Street, Bristol, UK</li>
+          </ul>
         </div>
+        <div class="text-center small mt-0 text-muted">Follow us on our socials</div>
+        <div class="social-icons mt-0 justify-content-center">
+          <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
+          <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
+          <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i
+              class="fa-brands fa-whatsapp"></i></a>
         </div>
-
-        <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
-        <div class="text-center small text-muted">
-        © 2025 Bristol Community Events. All rights reserved.
-        </div>
+      </div>
+      <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
+      <div class="text-center small text-muted">© 2025 Bristol Community Events. All rights reserved.</div>
     </div>
-    </footer>
+  </footer>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
 </html>
