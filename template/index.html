@@ -18,7 +18,7 @@
   <header class="py-3 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
     <div class="container ubuntu-light">
       <div class="d-flex align-items-center">
-        <a href="index.html" class="d-flex align-items-center text-white text-decoration-none">
+        <a href="../template/index.html" class="d-flex align-items-center text-white text-decoration-none">
           <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo me-3">
         </a>
         <ul class="nav me-auto d-flex align-items-center list-inline">
@@ -98,53 +98,57 @@
   
             <!-- Buttons -->
             <div class="col-md-6 col-lg-4 mx-auto">
-              <button type="reset" class="btn btn-outline-light w-100 clear-btn"><i
-                  class="fa fa-eraser me-2"></i>Clear</button>
+              <button type="reset" class="btn btn-outline-light w-100 clear-btn"><i class="fa fa-eraser me-2"></i>Clear</button>
             </div>
             <div class="col-md-6 col-lg-4 mx-auto">
-              <button type="submit" class="btn btn-outline-primary w-100 search-btn"><i
-                  class="fa fa-search me-2"></i>Search</button>
+              <button type="submit" class="btn btn-outline-primary w-100 search-btn"><i class="fa fa-search me-2"></i>Search</button>
             </div>
-  
-            <!-- Advanced Filters (Collapsible) -->
-            <div class="row mt-3">
-              <div class="col-12 d-flex flex-column align-items-center"> <a
-                  class="text-center text-decoration-none text-white mb-3" style="font-weight: 500;"
-                  data-bs-toggle="collapse" href="#advancedFilters" role="button" aria-controls="advancedFilters"
-                  aria-expanded="false"> <i class="fa fa-sliders me-2"></i>Advanced Filters </a>
-                <div class="collapse mt-3 w-100" id="advancedFilters">
-                  <div class="row justify-content-center">
-                    <div class="col-xs-12 col-md-8 col-lg-6">
-                      <div class="card-body advanced-filters-card text-white rounded-3 p-3"> <!-- Venue Type -->
-                        <div class="col-xs-4 pb-2">
-                          <div class="form-group"> <label class="form-label">Venue Type</label> <select
-                              class="form-select">
-                              <option value="" selected>All Venues</option>
-                              <option value="theatre">Theatre</option>
-                              <option value="stadium">Stadium</option>
-                              <option value="club">Club</option>
-                              <option value="gallery">Gallery</option>
-                              <option value="outdoor">Outdoor</option>
-                            </select> </div>
-                        </div> <!-- Event Type -->
-                        <div class="col-xs-4 pb-2">
-                          <div class="form-group"> <label class="form-label">Event Type</label> <select
-                              class="form-select">
-                              <option value="" selected>All Types</option>
-                              <option value="music">Music</option>
-                              <option value="sports">Sports</option>
-                              <option value="art">Art & Culture</option>
-                              <option value="food">Food & Drink</option>
-                            </select> </div>
-                        </div> <!-- Accessibility -->
-                        <div class="col-xs-4 pb-2">
-                          <div class="form-group">
-                            <div class="form-check"> <input class="form-check-input" type="checkbox" value=""
-                                id="wheelchairAccess">
-                              <label class="form-check-label text-start" for="wheelchairAccess"> Wheelchair Accessible </label>
-                            </div>
-                          </div>
-                        </div>
+          </div>
+
+          <!-- Advanced Filters (Collapsible) -->
+          <div class="row mt-3">
+            <div class="col-12 text-center">
+              <a class="text-decoration-none text-white mb-3 d-inline-block" style="font-weight: 500;"
+                 data-bs-toggle="collapse" href="#advancedFilters" role="button" aria-controls="advancedFilters"
+                 aria-expanded="false">
+                <i class="fa fa-sliders me-2"></i>Advanced Filters
+              </a>
+              
+              <div class="collapse mt-3" id="advancedFilters">
+                <div class="advanced-filters-card text-white rounded-3 p-4 mx-auto" style="max-width: 600px;">
+                  <div class="row g-3">
+                    <!-- Venue Type -->
+                    <div class="col-12">
+                      <label class="form-label">Venue Type</label>
+                      <select class="form-select">
+                        <option value="" selected>All Venues</option>
+                        <option value="theatre">Theatre</option>
+                        <option value="stadium">Stadium</option>
+                        <option value="club">Club</option>
+                        <option value="gallery">Gallery</option>
+                        <option value="outdoor">Outdoor</option>
+                      </select>
+                    </div>
+                    
+                    <!-- Event Type -->
+                    <div class="col-12">
+                      <label class="form-label">Event Type</label>
+                      <select class="form-select">
+                        <option value="" selected>All Types</option>
+                        <option value="music">Music</option>
+                        <option value="sports">Sports</option>
+                        <option value="art">Art & Culture</option>
+                        <option value="food">Food & Drink</option>
+                      </select>
+                    </div>
+                    
+                    <!-- Accessibility -->
+                    <div class="col-12">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="wheelchairAccess">
+                        <label class="form-check-label" for="wheelchairAccess">
+                          Wheelchair Accessible
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -156,6 +160,7 @@
       </div>
     </div>
   </section>
+
 
   <!-- SECONDARY HERO WITH CAROUSEL -->
   <div class="container my-5">
@@ -206,7 +211,7 @@
                   <div class="carousel-caption"><h5>Bristol Old Vic</h5><p>Performing Arts Theatre</p></div>
                 </div>
               </div>
-              <button class="carousel-control-prev" type="button" data-bs-target="#venueCarousel" data-bs-slide="prev">
+              <button class="carousel-control-prev " type="button" data-bs-target="#venueCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon"></span>
               </button>
               <button class="carousel-control-next" type="button" data-bs-target="#venueCarousel" data-bs-slide="next">

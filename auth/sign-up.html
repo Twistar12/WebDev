@@ -18,13 +18,13 @@
   <header class="py-3 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
     <div class="container ubuntu-light">
       <div class="d-flex align-items-center">
-        <a href="index.html" class="d-flex align-items-center text-white text-decoration-none">
+        <a href="../template/index.html" class="d-flex align-items-center text-white text-decoration-none">
           <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo me-3">
         </a>
         <ul class="nav me-auto d-flex align-items-center list-inline">
-          <li class="list-inline-item button px-2 rounded-1"><a href="events.html" class="text-decoration-none text-light">Events</a></li>
-          <li class="list-inline-item button px-2 rounded-1"><a href="create.html" class="text-decoration-none text-light">Create Event</a></li>
-          <li class="list-inline-item button px-2 rounded-1"><a href="about.html" class="text-decoration-none text-light">About Us</a></li>
+          <li class="list-inline-item button px-2 rounded-1"><a href="../template/events.html" class="text-decoration-none text-light">Events</a></li>
+          <li class="list-inline-item button px-2 rounded-1"><a href="../template/create.html" class="text-decoration-none text-light">Create Event</a></li>
+          <li class="list-inline-item button px-2 rounded-1"><a href="../template/about.html" class="text-decoration-none text-light">About Us</a></li>
           <!-- Idea: Add cards of each venue -->
         </ul>
         <div class="text-end d-inline-flex">
@@ -35,10 +35,110 @@
     </div>
   </header>
 
-  <!-- Sign in page must ask for email, username(to display on top right), password, maybe photo for avatar -->
-  <!-- Also ask for first name last name, use input groups for those-->
-  <!-- Social login using Google, Apple, Facebook -->
-  <!-- Optional: Phone Number-->
+  <div class="container my-5 w-50 align-items-center ">
+    <section class="secondary-hero p-5 d-flex flex-wrap align-items-center position-relative text-white w-full" style="box-shadow: 0 0 5px rgba(0, 0, 0, 255); border: none; align-self: center;">
+        <div class="container-fluid">
+            <div class="row mt-3">
+                <!-- Sign Up Form --> 
+                <div class="col-12 text-center flex-column mx-auto">
+                    <h2 class="ubuntu-medium mb-4 text-center">Create Account</h2>
+                    <form action="#" method="post" class="needs-validation" novalidate>
+                        <!-- Name Input Group -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6 col-12">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" required>
+                                    <label for="firstName" class="text-dark">First Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" required>
+                                    <label for="lastName" class="text-dark">Last Name</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                          <div class="col-md-6 col-12">
+                            <!-- Username Input -->
+                            <div class="form-floating mb-3 ">
+                              <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                              <label for="username" class="text-dark">Username</label>
+                            </div>
+                          <div class="col-md-6 col-12">
+                            <!-- Email Input -->
+                            <div class="form-floating mb-3">
+                              <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                              <label for="email" class="text-dark">Email Address</label>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Password Input -->
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="password" name="password" 
+                                placeholder="Password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">
+                            <label for="password" class="text-dark">Password</label>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                                placeholder="Confirm Password" required>
+                            <label for="confirmPassword" class="text-dark">Confirm Password</label>
+                        </div>
+
+                        <!-- Phone Number (Optional) -->
+                        <div class="form-floating mb-3">
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                placeholder="Phone Number (Optional)" pattern="[0-9]{11}">
+                            <label for="phone" class="text-dark">Phone Number (Optional)</label>
+                        </div>
+
+                        <!-- Avatar Upload -->
+                        <div class="mb-3">
+                            <label for="avatar" class="form-label">Profile Picture (Optional)</label>
+                            <input type="file" class="form-control" id="avatar" name="avatar" 
+                                accept="image/*">
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="#" class="text-white">Terms and Conditions</a>
+                            </label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100 mb-3">Create Account</button>
+
+                        <!-- Social Login Options -->
+                        <div class="text-center">
+                            <p class="mb-3">Or sign up with:</p>
+                            <div class="d-flex justify-content-center gap-3 mb-3">
+                                <button type="button" class="btn btn-outline-light">
+                                    <i class="fab fa-google"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-light">
+                                    <i class="fab fa-apple"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-light">
+                                    <i class="fab fa-facebook-f"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <a href="login.html" class="text-white">Already have an account? Login</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
   <!-- FOOTER -->
   <footer class="footer-dark text-light pt-5 pb-3 mt-5">
     <div class="container">
