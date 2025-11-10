@@ -257,7 +257,12 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p id="eventDesc"></p>
+          <!-- Event Image -->
+           <img id="eventImage" src="" alt="Event Image" class="img-fluid rounded-3 mb-3" style="max-height: 300px; object-fit: cover; width: 100%;">
+           <!-- Event Description -->
+          <p id="eventDesc" class="mb-4"></p>
+
+          <!-- Event Details-->
           <ul class="list-unstyled mt-3"> <!-- Bootstrap List Typography-->
             <li><strong>Date:</strong> <span id="eventDate"></span></li>
             <li><strong>Venue:</strong> <span id="eventVenue"></span></li>
@@ -268,7 +273,8 @@
           </ul>
         </div>
         <div class="modal-footer border-0">
-          <a href="booking.html" class="btn book-btn w-100" id="bookNowBtn">Book Now</a>
+          <!-- Query for what event is selected inserted by JS -->
+          <a href="#" class="btn book-btn w-100" id="bookNowBtn">Book Now</a>
         </div>
       </div>
     </div>
@@ -362,6 +368,7 @@
       });
     }
 
+    // Populate the modal
     function openEvent(ev) {
       document.getElementById("eventTitle").textContent = ev.title;
       document.getElementById("eventDate").textContent = ev.date;
@@ -371,6 +378,15 @@
       document.getElementById("eventCapacity").textContent = ev.capacity;
       document.getElementById("eventSlots").textContent = ev.slots;
       document.getElementById("eventDesc").textContent = ev.desc;
+
+      // Add event image
+      const img = document.getElementById("eventImage");
+      img.src = `../files/${ev.image}`;
+      img.alt = ev.title;
+
+      // Book Now button
+      const bookNowBtn = document.getElementById("bookNowBtn");
+      bookNowBtn.href = `booking.html?event=${encodeURIComponent(ev.title)}`;
     }
 
     function filterEvents() {
