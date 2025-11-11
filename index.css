@@ -136,7 +136,7 @@ header {
   min-width: 40px; /* smaller width for mobile */
   max-width: 40px; padding: 0 8px;/* smaller padding for mobile */
   font-size: 0.75rem; /* smaller font for mobile */
-  box-shadow: 10px rgba(0, 0, 0, 0.552); 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.552); 
   transform-origin: center;
   transition: transform 0.3s ease-in-out;
   white-space: nowrap; /* prevent wrapping */ 
