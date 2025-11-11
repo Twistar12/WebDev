@@ -305,6 +305,7 @@
       { title: "Theatre Night: Phantom Echoes", date: "2025-12-10", venue: "Bristol Hippodrome", image: "bristol-hippodrome.png", price: 35, category: "Theatre", capacity: 120, slots: 100, desc: "A thrilling new stage performance blending mystery and music." }
     ];
 
+    // Insert event cards in .container with #eventsContainer
     const container = document.getElementById("eventsContainer");
 
     function renderEvents(list) {
@@ -338,7 +339,7 @@
               <small>Capacity: ${ev.capacity} | Available Slots: ${ev.slots}</small>
               <p class="mt-2">${ev.desc}</p>
             </div>
-            <button class="btn btn-outline-light m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick='openEvent(${JSON.stringify(ev)})'>View More</button>
+            <button class="btn btn-outline-light m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick='openEvent(${JSON.stringify(ev)})'>View More</button> <!-- Convert to JS String -->
           </div>`;
         container.appendChild(card);
       });
@@ -362,7 +363,7 @@
 
       // Book Now button
       const bookNowBtn = document.getElementById("bookNowBtn");
-      bookNowBtn.href = `booking.html?event=${encodeURIComponent(ev.title)}`;
+      bookNowBtn.href = `booking.html?event=${encodeURIComponent(ev.title)}`; // Change title to a safe URL to execute
     }
 
     function filterEvents() {
@@ -372,29 +373,30 @@
       const category = document.getElementById("categoryFilter").value;
       let filtered = events;
 
-      if (venue) filtered = filtered.filter(e => e.venue === venue);
+      if (venue) filtered = filtered.filter(e => e.venue === venue); // Check for filters applied and add only those satisfying the filter in 'filtered'
       if (price) {
-        if (price === "free") filtered = filtered.filter(e => e.price === 0);
-        else if (price === "low") filtered = filtered.filter(e => e.price <= 20 && e.price > 0);
-        else if (price === "mid") filtered = filtered.filter(e => e.price > 20 && e.price <= 50);
-        else if (price === "high") filtered = filtered.filter(e => e.price > 50);
+        if (price === "free") filtered = filtered.filter(e => e.price === 0); // Filter events with price value = 0
+        else if (price === "low") filtered = filtered.filter(e => e.price <= 20 && e.price > 0); // Filter events with price value <=20 and > 0
+        else if (price === "mid") filtered = filtered.filter(e => e.price > 20 && e.price <= 50); // Filter events with price value > 20 and <= 50
+        else if (price === "high") filtered = filtered.filter(e => e.price > 50); // Filter events with price > 50
       }
-      if (date) filtered = filtered.filter(e => e.date === date);
-      if (category) filtered = filtered.filter(e => e.category === category);
+      if (date) filtered = filtered.filter(e => e.date === date); // Filter events based on the date provided
+      if (category) filtered = filtered.filter(e => e.category === category); // Filter events that satisfy the category
 
-      renderEvents(filtered);
+      renderEvents(filtered); // Render all events populated in 'filtered' that satisfy the following filters
     }
 
-    document.getElementById("venueFilter").addEventListener("change", filterEvents);
+    // Add event listener to listen for a value change in the respective ids and apply filterEvents function
+    document.getElementById("venueFilter").addEventListener("change", filterEvents); 
     document.getElementById("priceFilter").addEventListener("change", filterEvents);
     document.getElementById("dateFilter").addEventListener("change", filterEvents);
     document.getElementById("categoryFilter").addEventListener("change", filterEvents);
-    document.getElementById("clearFilters").addEventListener("click", () => {
-      document.getElementById("filterForm").reset();
-      renderEvents(events);
+    document.getElementById("clearFilters").addEventListener("click", () => { // Clear filters button
+      document.getElementById("filterForm").reset(); 
+      renderEvents(events); // After clearing, render events again this time with no filters applied
     });
 
-    renderEvents(events);
+    renderEvents(events); // Display filtered events
   </script>
 </body>
 </html>

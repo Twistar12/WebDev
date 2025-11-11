@@ -1,25 +1,46 @@
 :root {
   --header-gradient: linear-gradient(135deg, #00071F 15%, #35033b 100%);
   --cream-gradient: linear-gradient(135deg, #989878 0%, #FAF3E8 100%);
-  --sunset-gradient: linear-gradient(
-    -45deg,
-    #0d0d0d,  /* near black */
-    #1a1a1a,  /* charcoal grey */
-    #3a0ca3,  /* deep indigo */
-    #7209b7,  /* dark royal purple */
-    #f72585,  /* warm magenta highlight */
-    #ff7b00,  /* vivid sunset orange */
-    #000000   /* full black for contrast */
-  );
+  --sunset-gradient: linear-gradient(-45deg,
+      #0d0d0d,
+      /* near black */
+      #1a1a1a,
+      /* charcoal grey */
+      #3a0ca3,
+      /* deep indigo */
+      #7209b7,
+      /* dark royal purple */
+      #f72585,
+      /* warm magenta highlight */
+      #ff7b00,
+      /* vivid sunset orange */
+      #000000
+      /* full black for contrast */
+    );
 }
 
 @keyframes gradientAnimation {
-  0% {background-position: 0% 50%;}
-  25% {background-position: 50% 100%;}
-  50% {background-position: 100% 50%;}
-  75% {background-position: 50% 0%;}
-  100% {background-position: 0% 50%;}
+  0% {
+    background-position: 0% 50%;
+  }
+
+  25% {
+    background-position: 50% 100%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  75% {
+    background-position: 50% 0%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
+
 body.animated-gradient {
   background: var(--sunset-gradient);
   background-size: 400% 400%;
@@ -29,16 +50,22 @@ body.animated-gradient {
   background-attachment: fixed;
   color: white;
 }
+
 /* Keep all content slightly elevated from gradient */
-main, section, header, footer {
+main,
+section,
+header,
+footer {
   position: relative;
   z-index: 2;
 }
+
 /* Allow the gradient to show through everything else */
 .secondary-hero,
 .search-container,
 .advanced-filters-card {
-  background: rgba(0, 0, 0, 0.247); /* subtle transparent layer */
+  background: rgba(0, 0, 0, 0.247);
+  /* subtle transparent layer */
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0);
 }
@@ -54,24 +81,31 @@ main, section, header, footer {
   position: relative;
   overflow: hidden;
 }
+
 /* NAVBAR */
 .gradient-custom {
-  background: #000000; /* fallback for old browsers */
+  background: #000000;
+  /* fallback for old browsers */
   background: linear-gradient(135deg, #00071F 15%, #35033b 100%);
 }
+
 .button {
   color: whitesmoke;
   text-decoration: none;
   font-weight: 400;
   padding: 8px 16px;
   /* Separate transitions for entering/leaving states with delays */
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), /* faster transform */
-              background 0.5s cubic-bezier(0.4, 0, 0.2, 1), /* delayed background */
-              color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
-              box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    /* faster transform */
+    background 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    /* delayed background */
+    color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden; /* Ensures hover effects don't overflow */
+  overflow: hidden;
+  /* Ensures hover effects don't overflow */
 }
+
 .button:hover {
   background: var(--header-gradient);
   color: #ffffff !important;
@@ -80,9 +114,10 @@ main, section, header, footer {
   transform: translateY(-2px);
   /* Faster transitions when hovering */
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              background 0.3s cubic-bezier(0.4, 0, 0.2, 1), /* faster background */
-              color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    /* faster background */
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Responsive brand logo (used in header) */
@@ -96,15 +131,17 @@ main, section, header, footer {
   transform: scale(0.95);
   transform-origin: left center;
   transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform, max-height, width;
 }
 
 @media (min-width: 600px) {
   .brand-logo {
-    max-height: 70px; /* larger on wider screens */
-    transform: scale(1); /* return to normal scale */
+    max-height: 70px;
+    /* larger on wider screens */
+    transform: scale(1);
+    /* return to normal scale */
   }
 }
 
@@ -115,16 +152,18 @@ header {
   padding-bottom: 0.5rem !important;
   box-shadow: 0 0px 10px rgba(107, 2, 255, 0.586)
 }
+
 /* Activates on tablets and larger */
-@media (min-width: 768px) { 
+@media (min-width: 768px) {
   header.py-3 {
     padding-top: 1rem !important;
     padding-bottom: 1rem !important;
-  } 
+  }
 }
 
 /* Fixed-size button helper: mobile-first approach */
-.login-btn, .signup-btn {
+.login-btn,
+.signup-btn {
   box-sizing: border-box;
   align-items: center;
   display: inline-flex;
@@ -132,19 +171,27 @@ header {
   color: white;
   border-radius: 4px;
   justify-content: center;
-  height: 32px; /* smaller height for mobile */
-  min-width: 40px; /* smaller width for mobile */
-  max-width: 40px; padding: 0 8px;/* smaller padding for mobile */
-  font-size: 0.75rem; /* smaller font for mobile */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.552); 
+  height: 32px;
+  /* smaller height for mobile */
+  min-width: 40px;
+  /* smaller width for mobile */
+  max-width: 40px;
+  padding: 0 8px;
+  /* smaller padding for mobile */
+  font-size: 0.75rem;
+  /* smaller font for mobile */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.552);
   transform-origin: center;
   transition: transform 0.3s ease-in-out;
-  white-space: nowrap; /* prevent wrapping */ 
+  white-space: nowrap;
+  /* prevent wrapping */
   overflow: hidden;
 }
+
 .login-btn {
   background-color: rgba(28, 31, 35);
 }
+
 .signup-btn {
   background-color: rgba(16, 202, 240);
 }
@@ -154,20 +201,24 @@ header {
   color: white;
   font-weight: 500;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: visible;
 }
+
 .signup-btn:hover {
   transform: scale(1.1);
   color: black;
   font-weight: 500;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: visible;
 }
+
 /* Larger screens get larger buttons */
 @media (min-width: 320px) {
-  .login-btn, .signup-btn {
+
+  .login-btn,
+  .signup-btn {
     font-size: 0.6rem;
     height: 36px;
     /* standard height */
@@ -188,6 +239,7 @@ header {
   padding: 100px 0;
   overflow: hidden;
 }
+
 .hero-background {
   position: absolute;
   inset: 0;
@@ -195,6 +247,7 @@ header {
   filter: brightness(0.6) contrast(1.2) saturate(1.1);
   z-index: 1;
 }
+
 .hero .container {
   position: relative;
   z-index: 2;
@@ -203,35 +256,43 @@ header {
 /* SEARCH FORM */
 .search-container {
   backdrop-filter: blur(10px);
-  background-color: rgba(255,255,255,0.1);
-  border: 2px solid rgba(255,255,255,0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: white;
   transition: transform 0.2s cubic-bezier(0.58, 0.07, 0.96, 0.72),
-              box-shadow 0.2s cubic-bezier(0.58, 0.07, 0.96, 0.72);
-  }
+    box-shadow 0.2s cubic-bezier(0.58, 0.07, 0.96, 0.72);
+}
+
 .search-container:hover {
   transform: scale(1.02);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
+
 .advanced-filters-card {
-  background-color: rgba(255, 0, 0, 0); /* Semi-transparent white */
-  backdrop-filter: blur(8px); /* Frosted glass effect */
+  background-color: rgba(255, 0, 0, 0);
+  /* Semi-transparent white */
+  backdrop-filter: blur(8px);
+  /* Frosted glass effect */
   border: 2px solid rgba(255, 255, 255, 0.612);
 }
+
 .search-btn {
   padding: 0.6rem 1.5rem;
   font-weight: 500;
   transition: all 0.3s ease-in-out;
 }
+
 .search-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(9, 95, 215, 0.6);
 }
+
 .clear-btn {
   padding: 0.6rem 1.5rem;
   font-weight: 500;
   transition: all 0.3s ease;
 }
+
 .clear-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
@@ -243,12 +304,15 @@ header {
     min-height: 500px;
     padding: 60px 0;
   }
+
   .search-container {
     padding: 1.5rem !important;
   }
+
   .search-container:hover {
     transform: scale(1.01);
   }
+
   .form-group {
     margin-bottom: 1rem;
   }
@@ -260,16 +324,19 @@ header {
     display: none;
   }
 }
+
 /* Mobile-first carousel styles */
 #venueCarousel {
   margin-top: 1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
+
 #venueCarousel .carousel-item {
   transition: transform 0.6s ease-in-out;
 }
+
 #venueCarousel .carousel-caption {
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
   border-radius: 8px;
   padding: 1rem;
@@ -277,33 +344,37 @@ header {
   left: 10%;
   right: 10%;
 }
+
 #venueCarousel .carousel-caption h5 {
   font-size: 1.1rem;
   margin-bottom: 0.25rem;
 }
+
 #venueCarousel .carousel-caption p {
   font-size: 0.9rem;
   margin-bottom: 0;
 }
+
 /* Responsive adjustments */
 @media (min-width: 768px) {
   #venueCarousel {
     margin-top: 0;
   }
-  
+
   #venueCarousel .carousel-caption {
     padding: 1.5rem;
     bottom: 30px;
   }
-  
+
   #venueCarousel .carousel-caption h5 {
     font-size: 1.25rem;
   }
-  
+
   #venueCarousel .carousel-caption p {
     font-size: 1rem;
   }
 }
+
 /* Large screens */
 @media (min-width: 992px) {
   .secondary-hero {
@@ -311,7 +382,7 @@ header {
     display: flex;
     align-items: center;
   }
-  
+
   #venueCarousel .carousel-item img {
     height: 450px;
   }
@@ -329,35 +400,42 @@ header {
   position: relative;
   z-index: 3;
 }
+
 .footer-link {
   color: #b3b3ff;
   text-decoration: none;
   display: inline-block;
   transition: color 0.3s ease, transform 0.3s ease;
 }
+
 .footer-link:hover {
   color: #6a00f4;
   transform: translateX(4px);
 }
+
 .social-icons {
   display: flex;
   gap: 12px;
 }
+
 .social-link {
   color: #b3b3ff;
   font-size: 1.25rem;
   transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
 }
+
 .social-link:hover {
   color: #6a00f4;
   text-shadow: 0 0 10px #6a00f4;
   transform: scale(1.2);
 }
+
 /* Responsive*/
 @media (max-width: 768px) {
   .footer-dark {
     text-align: center;
   }
+
   .social-icons {
     justify-content: center;
   }
@@ -372,36 +450,43 @@ header {
   font-weight: 400;
   font-style: normal;
 }
+
 .ubuntu-light {
   font-family: "Ubuntu", sans-serif;
   font-weight: 300;
   font-style: normal;
 }
+
 .ubuntu-regular {
   font-family: "Ubuntu", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
+
 .ubuntu-medium {
   font-family: "Ubuntu", sans-serif;
   font-weight: 500;
   font-style: normal;
 }
+
 .ubuntu-bold {
   font-family: "Ubuntu", sans-serif;
   font-weight: 700;
   font-style: normal;
 }
+
 .ubuntu-light-italic {
   font-family: "Ubuntu", sans-serif;
   font-weight: 300;
   font-style: italic;
 }
+
 .ubuntu-regular-italic {
   font-family: "Ubuntu", sans-serif;
   font-weight: 400;
   font-style: italic;
 }
+
 .ubuntu-medium-italic {
   font-family: "Ubuntu", sans-serif;
   font-weight: 500;
@@ -413,4 +498,3 @@ header {
   font-weight: 700;
   font-style: italic;
 }
-
