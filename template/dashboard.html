@@ -23,24 +23,27 @@
         "XROT" 0,
         "YROT" 0;
     }
-    
+  
     #title {
       font-size: 1em;
       transition: 0.3s ease all;
     }
-    @media (max-width: 405px){
+  
+    @media (max-width: 405px) {
       #title {
-        font-size: calc(0.6 * 1em); /* 0.5 times current size*/
+        font-size: calc(0.6 * 1em);
+        /* 0.5 times current size*/
         transition: 0.3s ease all;
       }
     }
+  
     .text-gradient {
       background: linear-gradient(90deg, #7209b7, #f72585);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    
+  
     /* Tiles from about us renamed */
     .tiles {
       background: rgba(0, 0, 0, 0.527);
@@ -50,12 +53,12 @@
       color: #fff;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
+  
     .tiles:hover {
       transform: translateY(-5px);
       box-shadow: 0 0 25px rgba(0, 0, 0, 0.568);
     }
-
+  
     .profile-card {
       background: rgba(0, 0, 0, 0.45);
       border-radius: 15px;
@@ -64,10 +67,10 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 2.5rem;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(8px);
     }
-
+  
     #profileImg {
       width: 100px;
       height: 100px;
@@ -75,42 +78,45 @@
       object-fit: cover;
       border: 3px solid #f72585;
     }
-
+  
     .scrollable-list::-webkit-scrollbar {
       width: 8px;
     }
+  
     .scrollable-list::-webkit-scrollbar-thumb {
       background: linear-gradient(180deg, #7209b7, #f72585);
       border-radius: 4px;
     }
+  
     .scrollable-list::-webkit-scrollbar-track {
       background: rgba(255, 255, 255, 0.1);
     }
-
-      .underline {
-    position: relative;
-    display: block;           /* makes it full-width block element */
-    text-align: center;
-  }
-
+  
+    .underline {
+      position: relative;
+      display: block;
+      /* makes it full-width block element */
+      text-align: center;
+    }
+  
     .underline::before {
       content: "";
       position: absolute;
       left: 50%;
       bottom: -4px;
       transform: translateX(-50%) scaleX(0);
-      width: 60%;               /* centered underline */
+      width: 60%;
+      /* centered underline */
       height: 3px;
       background: white;
       border-radius: 2px;
       transition: transform 0.3s ease;
     }
-
+  
     .tiles:hover .underline::before {
       transform: translateX(-50%) scaleX(1);
     }
-
-
+  
     .modal-content {
       background: rgba(0, 0, 0, 0.486);
       color: #fff;
@@ -253,7 +259,7 @@
         </div>
       </div>
       <div class="col-md-4 d-flex">
-        <div class="tiles flex-grow-1 px-3">
+        <div class="tiles flex-grow-1">
           <h5 class="underline mb-4"><i class="fa-solid fa-bookmark me-2"></i>Bookmarked Events</h5>
           <ul class="list-unstyled">
             <li>Green Earth Fair</li>
@@ -266,15 +272,42 @@
 
     <!-- Achievements -->
     <div class="tiles text-center">
-      <h5 class="underline mb-4"><i class="fa-solid fa-trophy me-2"></i>Achievements & Badges</h5>
-      <div class="d-inline-flex justify-content-center gap-4 flex-wrap">
-        <div><i class="fa-solid fa-star fa-beat text-gradient fa-2x"></i><p>Event Explorer</p></div>
-        <div><i class="fa-solid fa-ticket fa-beat text-gradient fa-2x"></i><p>Frequent Booker</p></div>
-        <div><i class="fa-solid fa-heart fa-beat text-gradient fa-2x"></i><p>Community Supporter</p></div>
-        <div><i class="fa-solid fa-gem fa-beat text-gradient fa-2x"></i><p>Premium Member</p></div>
+      <h5 class="underline mb-4">
+        <i class="fa-solid fa-trophy"></i>
+        Achievements & Badges
+      </h5>
+    
+      <div class="container px-4">
+        <div class="row gy-4">
+          <div class="col-12 col-md-6">
+            <div class="p-3">
+              <i class="fa-solid fa-star fa-beat text-gradient fa-2x mb-2"></i>
+              <p class="mb-0">Event Explorer</p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="p-3">
+              <i class="fa-solid fa-ticket fa-beat text-gradient fa-2x mb-2"></i>
+              <p class="mb-0">Frequent Booker</p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="p-3">
+              <i class="fa-solid fa-heart fa-beat text-gradient fa-2x mb-2"></i>
+              <p class="mb-0">Community Supporter</p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="p-3">
+              <i class="fa-solid fa-gem fa-beat text-gradient fa-2x mb-2"></i>
+              <p class="mb-0">Premium Member</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </section>
+    
+    </section>
 
   <!-- Modal for Wallet -->
   <div class="modal fade" id="walletModal" tabindex="-1">
