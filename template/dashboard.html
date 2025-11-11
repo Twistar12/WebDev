@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bristol Community Events</title>
+  <link rel="stylesheet" href="../index.css">
+  <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
+  
+    .tilt-prism-regular {
+      font-family: "Tilt Prism", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 400;
+      font-style: normal;
+      font-variation-settings:
+        "XROT" 0,
+        "YROT" 0;
+    }
+    
+    #title {
+      font-size: 1em;
+      transition: 0.3s ease all;
+    }
+    @media (max-width: 405px){
+      #title {
+        font-size: calc(0.6 * 1em); /* 0.5 times current size*/
+        transition: 0.3s ease all;
+      }
+    }
+    .text-gradient {
+      background: linear-gradient(90deg, #7209b7, #f72585);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    /* Tiles from about us renamed */
+    .tiles {
+      background: rgba(0, 0, 0, 0.527);
+      border-radius: 15px;
+      padding: 2rem;
+      backdrop-filter: blur(8px);
+      color: #fff;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .tiles:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.568);
+    }
+
+    .profile-card {
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 15px;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2.5rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+    }
+
+    #profileImg {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #f72585;
+    }
+
+    .scrollable-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    .scrollable-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #7209b7, #f72585);
+      border-radius: 4px;
+    }
+    .scrollable-list::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+      .underline {
+    position: relative;
+    display: block;           /* makes it full-width block element */
+    text-align: center;
+  }
+
+    .underline::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -4px;
+      transform: translateX(-50%) scaleX(0);
+      width: 60%;               /* centered underline */
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+      transition: transform 0.3s ease;
+    }
+
+    .tiles:hover .underline::before {
+      transform: translateX(-50%) scaleX(1);
+    }
+
+
+    .modal-content {
+      background: rgba(0, 0, 0, 0.486);
+      color: #fff;
+      border-radius: 10px;
+      border: none;
+      backdrop-filter: blur(15px);
+    }
+  </style>
+</head>
+
+<body class="ubuntu-regular animated-gradient">
+  <!-- Navbar -->
+  <header class="py-2 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+      <div class="container">
+        <!-- Logo -->
+        <a href="../index.html" class="navbar-brand d-flex align-items-center">
+          <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo d-inline-block align-items-center me-2"
+            style="height: 55px;">
+          <span class="tilt-prism-regular mt-2 me-2" id="title">Bristol Community Events</span>
+        </a>
+        <!-- Mobile Toggle Button triggers when width < 992px -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu"
+          aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Collapsible Menu -->
+        <div class="collapse navbar-collapse" id="navbarMenu">
+         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-center">
+            <li class="nav-item me-2">
+              <a class="nav-link button px-2 rounded-1" href="dashboard.html">Dashboard</a>
+            </li>
+            <li class="nav-item me-2">
+              <a class="nav-link button px-2 rounded-1 " href="events.html">Events</a>
+            </li>
+            <li class="nav-item me-2">
+              <a class="nav-link button px-2 rounded-1" href="about.html">About Us</a>
+            </li>
+          </ul>
+          <!-- Auth Buttons -->
+          <div class="d-flex justify-content-center mt-3 mt-lg-0">
+            <a href="../auth/login.html" class="login-btn me-2">Login</a>
+            <a href="../auth/sign-up.html" class="signup-btn text-dark">Sign-up</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Dashboard Elements -->
+  <section class="container py-5">
+    <h1 class="text-center style-script-regular mb-5">Your Dashboard</h1>
+
+    <!-- Profile Card -->
+    <div class="tiles mb-4">
+      <div class="d-inline-flex align-items-center">
+        <img src="../files/ProfilePic.png" alt="User Avatar" id="profileImg">
+        <div class="ms-3">
+          <h4 class="mb-1">Steven Smith</h4>
+          <p class="text-muted mb-1">Member since: March 2023</p>
+          <span class="badge bg-gradient">Premium Member</span>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Summary Cards -->
+      <div class="row g-4 mb-5 text-center">
+        <div class="col-md-4 d-flex align-items-stretch">
+          <div class="tiles flex-grow-1">
+            <i class="fa-solid fa-calendar-check fa-2x mb-3 text-gradient"></i>
+            <h5 class="mt-3 underline mb-4">Events Booked</h5>
+            <h2 id="eventsBooked">8</h2>
+          </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-stretch">
+          <div class="tiles flex-grow-1">
+            <i class="fa-solid fa-wallet fa-2x mb-3 text-gradient"></i>
+            <h5 class="mt-3 underline mb-4">Wallet Balance</h5>
+            <h2 id="walletBalance">£125.00</h2>
+            <button class="btn btn-sm btn-outline-light clear-btn mt-3" data-bs-toggle="modal" data-bs-target="#walletModal" id="addMoneyBtn">
+              <i class="fa-solid fa-plus me-1"></i> Add Money
+            </button>
+          </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-stretch">
+          <div class="tiles flex-grow-1">
+            <i class="fa-solid fa-chart-line fa-2x mb-3 text-gradient"></i>
+            <h5 class="mt-3 underline mb-4">Spent (Last 90 Days)</h5>
+            <h2 id="moneySpent">£210.00</h2>
+          </div>
+        </div>
+      </div>
+    
+    <!-- Spending Chart -->
+    <div class="tiles mb-5">
+      <h5 class="mb-4"><i class="fa-solid fa-chart-pie me-2"></i>Spending Overview (Last 6 Months)</h5>
+      <canvas id="spendingChart" height="120"></canvas>
+    </div>
+  
+  
+    <!-- Event & Bookmark Section -->
+    <div class="row g-4 mb-4 align-items-stretch">
+      <!-- Tickets Purchased -->
+      <div class="col-md-4 d-flex">
+        <div class="tiles flex-grow-1">
+          <h5 class="underline mb-4"><i class="fa-solid fa-ticket me-2"></i>Tickets Purchased</h5>
+          <!-- Scrollable ticket list -->
+          <div class="scrollable-list" style="max-height: 200px; overflow-y: auto; padding-right: 5px;">
+            <ul class="list-unstyled mb-0">
+              <li><strong>Summer Jazz Night</strong> – 2 tickets – £60</li>
+              <li><strong>Art Expo 2025</strong> – 1 ticket – £10</li>
+              <li><strong>Community Food Fair</strong> – 3 tickets – Free</li>
+              <li><strong>Rock Festival</strong> – 2 tickets – £150</li>
+              <li><strong>Winter Gala</strong> – 2 tickets – £80</li>
+              <li><strong>Outdoor Theatre Night</strong> – 1 ticket – £25</li>
+              <li><strong>Bristol Beer & Music Fest</strong> – 4 tickets – £120</li>
+              <li><strong>Green Earth Fair</strong> – 2 tickets – £20</li>
+              <li><strong>Street Art Live</strong> – 1 ticket – £18</li>
+              <li><strong>Film & Chill Marathon</strong> – 3 tickets – £45</li>
+              <li><strong>Summer Beats Concert</strong> – 2 tickets – £70</li>
+              <li><strong>Bristol Food Fiesta</strong> – 4 tickets – £0</li>
+              <li><strong>Night of Lights</strong> – 2 tickets – £50</li>
+              <li><strong>Charity Comedy Night</strong> – 1 ticket – £25</li>
+              <li><strong>Maritime Heritage Tour</strong> – 2 tickets – £30</li>
+              <li><strong>Tech Innovators Meetup</strong> – 1 ticket – £15</li>
+              <li><strong>Latin Dance Workshop</strong> – 2 tickets – £40</li>
+              <li><strong>Autumn Jazz Sessions</strong> – 1 ticket – £25</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 d-flex">
+        <div class="tiles flex-grow-1">
+          <h5 class="underline mb-4"><i class="fa-solid fa-calendar-days me-2"></i>Upcoming Events</h5>
+          <ul class="list-unstyled">
+            <li>Summer Jam – Dec 15</li>
+            <li>Art & Soul Expo – Dec 29</li>
+            <li>Bristol Food Fest – Jan 10</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-4 d-flex">"
+        <div class="tiles flex-grow-1 px-3">
+          <h5 class="underline mb-4"><i class="fa-solid fa-bookmark me-2"></i>Bookmarked Events</h5>
+          <ul class="list-unstyled">
+            <li>Green Earth Fair</li>
+            <li>Open Mic Night</li>
+            <li>Bristol Film Gala</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="tiles text-center">
+      <h5 class="underline mb-4"><i class="fa-solid fa-trophy me-2"></i>Achievements & Badges</h5>
+      <div class="d-inline-flex justify-content-center gap-4 flex-wrap">
+        <div><i class="fa-solid fa-star fa-beat text-gradient fa-2x"></i><p>Event Explorer</p></div>
+        <div><i class="fa-solid fa-ticket fa-beat text-gradient fa-2x"></i><p>Frequent Booker</p></div>
+        <div><i class="fa-solid fa-heart fa-beat text-gradient fa-2x"></i><p>Community Supporter</p></div>
+        <div><i class="fa-solid fa-gem fa-beat text-gradient fa-2x"></i><p>Premium Member</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal for Wallet -->
+  <div class="modal fade" id="walletModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Add Money to Wallet</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <label for="amountInput" class="form-label">Enter amount (£)</label>
+          <input type="number" id="amountInput" class="form-control" min="1" max="300" placeholder="Max £300">
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-outline-light clear-btn" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-outline-info search-btn" id="confirmAdd">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- FOOTER -->
+    <footer class="footer-dark text-light pt-5 pb-3 mt-5">
+    <div class="container">
+      <div class="row gy-4">
+
+        <!-- Company Info -->
+        <div class="col-12 col-md-4">
+          <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
+          <p class="text-muted">
+            Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.  
+            Discover and create local events with us!
+          </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-6 col-md-4">
+          <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
+          <ul class="list-unstyled">
+            <li><a href="../index.html" class="footer-link">Home</a></li>
+            <li><a href="dashboard.html" class="footer-link">Dashboard</a></li>
+            <li><a href="events.html" class="footer-link">Events</a></li>
+            <li><a href="about.html" class="footer-link">About Us</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="col-6 col-md-4">
+          <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
+          <ul class="list-unstyled">
+            <li><i class="fa-solid fa-phone me-2 mb-2"></i> +44 117 123 4567</li>
+            <li><i class="fa-solid fa-envelope me-2 mb-2"></i> info@bristolevents.co.uk</li>
+            <li><i class="fa-solid fa-location-dot me-2 mb-2"></i> 10 Park Street, Bristol, UK</li>
+          </ul>
+        </div>
+        <div class="text-center small mt-0 text-muted">Follow us on our socials</div>
+        <div class="social-icons mt-0 justify-content-center">
+            <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
+            <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
+            <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i class="fa-brands fa-whatsapp"></i></a>
+          </div>
+      </div>
+
+      <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
+      <div class="text-center small text-muted">
+        © 2025 Bristol Community Events. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+  <script>
+    // Chart.js
+    // Populate spendingChart and find context of the canvas tag (here it is 2d)
+    const ctx = document.getElementById('spendingChart').getContext('2d');
+    // Create chart
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['June', 'July', 'Aug', 'Sept', 'Oct', 'Nov'],
+        datasets: [{
+          label: 'Amount Spent (£)',
+          data: [120, 95, 180, 140, 210, 260],
+          borderColor: '#f72585',
+          backgroundColor: 'rgba(247, 37, 133, 0.3)',
+          tension: 0.3, // How the lines bend
+          fill: true,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+          x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+        }
+      }
+    });
+  </script>
+  </body>
+</html>

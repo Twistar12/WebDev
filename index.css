@@ -166,8 +166,9 @@ header {
   overflow: visible;
 }
 /* Larger screens get larger buttons */
-@media (min-width: 340px) {
+@media (min-width: 320px) {
   .login-btn, .signup-btn {
+    font-size: 0.6rem;
     height: 36px;
     /* standard height */
     min-width: 90px;

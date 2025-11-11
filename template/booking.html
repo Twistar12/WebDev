@@ -21,6 +21,17 @@
       font-weight: 400;
     }
 
+    #title {
+      font-size: 1em;
+      transition: 0.3s ease all;
+    }
+    @media (max-width: 405px){
+      #title {
+        font-size: calc(0.6 * 1em); /* 0.5 times current size*/
+        transition: 0.3s ease all;
+      }
+    }
+
     .booking-container {
       max-width: 1000px;
       margin: 80px auto;
@@ -106,7 +117,7 @@
         <a href="../index.html" class="navbar-brand d-flex align-items-center">
           <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo"
             class="brand-logo d-inline-block align-items-center me-2" style="height: 55px;">
-          <span class="tilt-prism-regular mt-2 me-2">Bristol Community Events</span>
+          <span class="tilt-prism-regular mt-2 me-2" id="title">Bristol Community Events</span>
         </a>
         <!-- Mobile Toggle Button triggers when width < 992px -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu"
@@ -117,10 +128,10 @@
         <div class="collapse navbar-collapse" id="navbarMenu">
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-center">
             <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1 " href="events.html">Events</a>
+              <a class="nav-link button px-2 rounded-1" href="dashboard.html">Dashboard</a>
             </li>
             <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1" href="create.html">Create Event</a>
+              <a class="nav-link button px-2 rounded-1 " href="events.html">Events</a>
             </li>
             <li class="nav-item me-2">
               <a class="nav-link button px-2 rounded-1" href="about.html">About Us</a>
@@ -233,9 +244,9 @@
           <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
           <ul class="list-unstyled">
             <li><a href="../index.html" class="footer-link">Home</a></li>
+            <li><a href="dashboard.html" class="footer-link">Dashboard</a></li>
             <li><a href="events.html" class="footer-link">Events</a></li>
-            <li><a href="create.html" class="footer-link">Create Event</a></li>
-            <li><a href="about.html" class="footer-link">About</a></li>
+            <li><a href="about.html" class="footer-link">About Us</a></li>
           </ul>
         </div>
         <div class="col-6 col-md-4">
