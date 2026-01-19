@@ -12,7 +12,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
-  
+
     .tilt-prism-regular {
       font-family: "Tilt Prism", sans-serif;
       font-weight: 400;
@@ -21,12 +21,12 @@
         "XROT" 0,
         "YROT" 0;
     }
-  
+
     #title {
       font-size: 1em;
       transition: 0.3s ease all;
     }
-  
+
     @media (max-width: 405px) {
       #title {
         font-size: calc(0.6 * 1em);
@@ -34,12 +34,12 @@
         transition: 0.3s ease all;
       }
     }
-  
+
     .secondary-hero {
       margin: 0 auto;
       max-width: 600px;
     }
-  
+
     @media (max-width: 992px) {
       .container {
         width: 100% !important;
@@ -47,19 +47,34 @@
         margin: 0 !important;
         padding: 0 !important;
       }
-  
+
       .secondary-hero {
         border-radius: 0;
         box-shadow: none;
       }
     }
-  
+
     @media (max-width: 576px) {
       .secondary-hero {
         max-width: 100%;
         padding: 1.5rem !important;
       }
     }
+
+    .form-control.is-valid,
+    .was-validated .form-control:valid {
+      background-image: none !important;
+      padding-right: 0.75rem !important;
+      border-color: default !important;
+      box-shadow: none !important;
+    }
+
+    .form-check-input.is-invalid,
+    .was-validated .form-check-input:valid {
+      border-color: default !important;
+      box-shadow: none !important;
+    }
+
   </style>
 </head>
 
@@ -70,8 +85,8 @@
       <div class="container">
         <!-- Logo -->
         <a href="../index.html" class="navbar-brand d-flex align-items-center">
-          <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo d-inline-block align-items-center me-2"
-            style="height: 55px;">
+          <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo"
+            class="brand-logo d-inline-block align-items-center me-2" style="height: 55px;">
           <span class="tilt-prism-regular mt-2 me-2" id="title">Bristol Community Events</span>
         </a>
         <!-- Mobile Toggle Button triggers when width < 992px -->
@@ -103,104 +118,121 @@
   </header>
 
   <div class="container my-5 px-3 px-md-5 d-flex justify-content-center">
-    <section class="secondary-hero p-4 p-md-5 text-white rounded-3 shadow-lg w-100 w-md-75" style="box-shadow: 0 0 5px rgba(0, 0, 0, 255); border: none; align-self: center;">
-            <div class="row mt-3">
-                <!-- Sign Up Form --> 
-                <div class="col-12 text-center flex-column mx-auto">
-                    <h2 class="ubuntu-medium mb-4 text-center">Create Account</h2>
-                    <form action="#" method="post" class="needs-validation" novalidate>
-                        <!-- Name Input Group -->
-                        <div class="row g-3 mb-3">
-                          <div class="col-md-6 col-12">
-                            <div class="form-floating">
-                              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" required>
-                              <label for="firstName" class="text-dark">First Name</label>
-                            </div>
-                          </div>
-                          <div class="col-md-6 col-12">
-                            <div class="form-floating">
-                              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" required>
-                              <label for="lastName" class="text-dark">Last Name</label>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row g-3 mb-3">
-                          <div class="col-md-6 col-12">
-                            <div class="form-floating">
-                              <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
-                              <label for="username" class="text-dark">Username*</label>
-                            </div>
-                          </div>
-                          <div class="col-md-6 col-12">
-                            <div class="form-floating">
-                              <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
-                              <label for="email" class="text-dark">Email Address*</label>
-                            </div>
-                          </div>  
-                        </div>
-                        <!-- Password Input -->
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="password" name="password" 
-                                placeholder="Password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                                title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">
-                            <label for="password" class="text-dark">Password*</label>
-                        </div>
-
-                        <!-- Confirm Password -->
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
-                                placeholder="Confirm Password" required>
-                            <label for="confirmPassword" class="text-dark">Confirm Password*</label>
-                        </div>
-
-                        <!-- Phone Number (Optional) -->
-                        <div class="form-floating mb-3">
-                            <input type="tel" class="form-control" id="phone" name="phone" 
-                                placeholder="Phone Number (Optional)" pattern="[0-9]{11}">
-                            <label for="phone" class="text-dark">Phone Number</label>
-                        </div>
-
-                        <!-- Avatar Upload -->
-                        <div class="mb-3">
-                            <label for="avatar" class="form-label">Profile Picture (Optional)</label>
-                            <input type="file" class="form-control" id="avatar" name="avatar" 
-                                accept="image/*">
-                        </div>
-
-                        <!-- Terms and Conditions -->
-                        <div class="form-check mb-3 d-inline-block">
-                            <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
-                            <label class="form-check-label" for="terms">
-                                I agree to the <a href="#" class="text-white">Terms and Conditions</a> <!-- Add a modal of terms and conditions -->
-                            </label>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn btn-outline-light w-100 search-btn mb-3">Create Account</button>
-                        <hr>
-                        <!-- Social Login Options -->
-                        <div class="text-center">
-                            <p class="mb-3">Or sign up with:</p>
-                            <div class="d-flex justify-content-center gap-3 mb-3">
-                                <button type="button" class="btn btn-outline-light">
-                                    <i class="fab fa-google"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-light">
-                                    <i class="fab fa-apple"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-light">
-                                    <i class="fab fa-facebook-f"></i>
-                                </button>
-                            </div>
-                            <div>
-                                <a href="login.html" class="text-white">Already have an account? Login</a>
-                            </div>
-                        </div>
-                    </form>
+    <section class="secondary-hero p-4 p-md-5 text-white rounded-3 shadow-lg w-100 w-md-75"
+      style="box-shadow: 0 0 5px rgba(0, 0, 0, 255); border: none; align-self: center;">
+      <div class="row mt-3">
+        <!-- Sign Up Form -->
+        <div class="col-12 text-center flex-column mx-auto">
+          <h2 class="ubuntu-medium mb-4 text-center">Create Account</h2>
+          <form action="#" method="post" class="needs-validation" novalidate>
+            <!-- Add validation using Bootstrap's validation classes -->
+            <!-- Name Input Group -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6 col-12">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name">
+                  <label for="firstName" class="text-dark">First Name</label>
                 </div>
+              </div>
+              <div class="col-md-6 col-12">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name">
+                  <label for="lastName" class="text-dark">Last Name</label>
+                </div>
+              </div>
             </div>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6 col-12">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                  <label for="username" class="text-dark">Username*</label>
+                  <div class="invalid-feedback">
+                    Please choose a username.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-12">
+                <div class="form-floating">
+                  <label for="email" class="form-label"></label>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com"
+                    required>
+                  <label for="email" class="text-dark">Email Address*</label>
+                  <div class="invalid-feedback">
+                    Please provide a valid email address.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Password Input -->
+            <div class="form-floating mb-3">
+              <input type="password" class="form-control" id="password" name="password" placeholder="Password" required
+                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">
+              <label for="password" class="text-dark">Password*</label>
+              <div class="invalid-feedback">
+                Please provide a valid password.
+              </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <!-- Add validation for confirm password to match the password -->
+            <div class="form-floating mb-3">
+              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                placeholder="Confirm Password" required>
+              <label for="confirmPassword" class="text-dark">Confirm Password*</label>
+              <div class="invalid-feedback">
+                Please confirm your password.
+              </div>
+            </div>
+
+            <!-- Phone Number (Optional) -->
+            <div class="form-floating mb-3">
+              <input type="tel" class="form-control" id="phone" name="phone" placeholder="Phone Number (Optional)"
+                pattern="[0-9]{11}">
+              <label for="phone" class="text-dark">Phone Number</label>
+            </div>
+
+            <!-- Avatar Upload -->
+            <div class="mb-3">
+              <label for="avatar" class="form-label">Profile Picture (Optional)</label>
+              <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="form-check mb-3 d-inline-block">
+              <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+              <label class="form-check-label" for="terms">
+                <span class="text-white">I agree to the <a href="#" class="text-white">Terms and Conditions</a></span>
+                <!-- Add a modal of terms and conditions -->
+              </label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-outline-light w-100 search-btn mb-3">Create Account</button>
+            <hr>
+            <!-- Social Login Options -->
+            <div class="text-center">
+              <p class="mb-3">Or sign up with:</p>
+              <div class="d-flex justify-content-center gap-3 mb-3">
+                <button type="button" class="btn btn-outline-light">
+                  <i class="fab fa-google"></i>
+                </button>
+                <button type="button" class="btn btn-outline-light">
+                  <i class="fab fa-apple"></i>
+                </button>
+                <button type="button" class="btn btn-outline-light">
+                  <i class="fab fa-facebook-f"></i>
+                </button>
+              </div>
+              <div>
+                <a href="login.html" class="text-white">Already have an account? Login</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </section>
-</div>
+  </div>
 
 
   <!-- FOOTER -->
@@ -212,7 +244,7 @@
         <div class="col-12 col-md-4">
           <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
           <p class="text-muted">
-            Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.  
+            Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.
             Discover and create local events with us!
           </p>
         </div>
@@ -239,12 +271,13 @@
         </div>
         <div class="text-center small mt-0 text-muted">Follow us on our socials</div>
         <div class="social-icons mt-0 justify-content-center">
-            <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
-            <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
-            <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
-            <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i class="fa-brands fa-whatsapp"></i></a>
-          </div>
+          <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
+          <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
+          <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i
+              class="fa-brands fa-whatsapp"></i></a>
+        </div>
       </div>
 
       <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
@@ -254,7 +287,31 @@
     </div>
   </footer>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Form Validation Script -->
+  <!-- Placeholder, add better validation -->
+  <script>
+    (function () {
+      'use strict'
+
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      var forms = document.querySelectorAll('.needs-validation')
+
+      // Loop over them and prevent submission
+      Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+          form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+              event.preventDefault()
+              event.stopPropagation()
+            }
+
+            form.classList.add('was-validated')
+          }, false)
+        })
+    })()
+  </script>
+</body>
+
 </html>
