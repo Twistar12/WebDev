@@ -1,0 +1,9 @@
+1. Add a date range to choose for each event
+    Must be validated range through backend
+
+2. Add page to view tickets
+
+3. Add page just for admins to add, delete and modify events, categories and venues
+    Backend validation must be added
+
+4. May be add a waiting list page or card, to then notify the user of any events that have freed up 
