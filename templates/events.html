@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>All Events | Bristol Community Events</title>
-  <link rel="icon" type="image/x-icon" href="../files/Bristol_Community_Events_icon.ico">
-  <link rel="stylesheet" href="../index.css">
+  <link rel="icon" type="image/x-icon" href="../static/img/Bristol_Community_Events_icon.ico">
+  <link rel="stylesheet" href="../static/css/index.css">
   <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
@@ -114,7 +114,7 @@
       <div class="container">
         <!-- Logo -->
         <a href="index.html" class="navbar-brand d-flex align-items-center">
-          <img src="../files/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo d-inline-block align-items-center me-2"
+          <img src="../static/img/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo d-inline-block align-items-center me-2"
             style="height: 55px;">
           <span class="tilt-prism-regular mt-2 me-2" id="title">Bristol Community Events</span>
         </a>
@@ -138,8 +138,8 @@
           </ul>
           <!-- Auth Buttons -->
           <div class="d-flex justify-content-center mt-3 mt-lg-0">
-            <a href="../auth/login.html" class="login-btn me-2">Login</a>
-            <a href="../auth/sign-up.html" class="signup-btn text-dark">Sign-up</a>
+            <a href="login.html" class="login-btn me-2">Login</a>
+            <a href="sign-up.html" class="signup-btn text-dark">Sign-up</a>
           </div>
         </div>
       </div>
@@ -329,7 +329,7 @@
         // `...` for multi-line strings
         card.innerHTML = `    
           <div class="event-card card h-100 d-flex flex-column justify-content-between">
-            <img src="../files/${ev.image}" class="card-img-top rounded-1" alt="${ev.title}" loading="lazy" style="max-height: 199px; object-fit: cover;">
+            <img src="../static/img/${ev.image}" class="card-img-top rounded-1" alt="${ev.title}" loading="lazy" style="max-height: 199px; object-fit: cover;">
             <div class="card-body p-4">
               <h4 class="underline">${ev.title}</h4>
               <p class="mb-1"><i class="fa fa-calendar me-2"></i>${ev.date}</p> 
