@@ -76,67 +76,121 @@
       font-weight: 600;
       transform: scale(1.02);
     }
+    
+    /* Range Slider Styling */
+    .price-input-container {
+      width: 100%;
+      position: relative;
+      height: 40px;
+    }
+    .price-input-container input[type="range"] {
+      position: absolute;
+      width: 100%;
+      height: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      pointer-events: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    /* Style the handles for Chrome/Safari */
+    input[type="range"]::-webkit-slider-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #f72585; /* BCE Pink */
+      pointer-events: auto;
+      -webkit-appearance: none;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+    /* Style the handles for Firefox */
+    input[type="range"]::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #f72585;
+      pointer-events: auto;
+      cursor: pointer;
+      border: 2px solid #fff;
+    }
+    /* The track background */
+    .slider-track {
+      width: 100%;
+      height: 5px;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 5px;
+    }
   </style>
 {% endblock %}
 
 {% block content %}
-  <section class="container py-5">
-    <h1 class="text-center mb-4 style-script-regular" style="font-size: 3.5rem;">Upcoming Events</h1>
-    <!-- Filters -->
-    <div class="search-container p-4 rounded-3 shadow-lg mx-auto col-12 col-md-12 col-lg-12 w-100 mb-5">
-      <form id="filterForm" class="row g-3 align-items-end">
-        <div class="col-md-6 col-lg-3">
-          <label for="venueFilter" class="form-label"><i class="fa-solid fa-location-dot me-2"></i>Venue</label>
-          <select class="form-select" name="venue" id="venueFilter">
-            <option value="">All Venues</option>
-            {% for v in venues %}
-              <option value="{{ v }}" {% if request.args.get('venue') == v %}selected{% endif %}>{{ v }}</option>
-            {% endfor %}
-          </select>
+<!-- Hidden script to pass events data from Flask to JavaScript -->
+<script id="events-data-bridge" type="application/json">
+  {{ events | tojson | safe }}
+</script> 
+
+<section class="container py-5">
+  <h1 class="text-center mb-4 style-script-regular" style="font-size: 3.5rem;">Upcoming Events</h1>
+  <!-- Filters -->
+  <div class="search-container p-4 rounded-3 shadow-lg mx-auto col-12 col-md-12 col-lg-12 w-100 mb-5">
+    <form id="filterForm" class="row g-3 align-items-end">
+      <div class="col-md-6 col-lg-3">
+        <label for="venueFilter" class="form-label"><i class="fa-solid fa-location-dot me-2"></i>Venue</label>
+        <select class="form-select" name="venue" id="venueFilter">
+          <option value="">All Venues</option>
+          {% for v in venues %}
+            <option value="{{ v }}" {% if request.args.get('venue') == v %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <label for="priceFilter" class="form-label"><i class="fa-solid fa-sterling-sign me-2"></i>Price Range</label>
+        <select class="form-select" name="price_range" id="priceFilter">
+          <option value="">Any</option>
+          <option value="free" {% if request.args.get('price_range') == 'free' %}selected{% endif %}>Free</option>
+          <option value="low" {% if request.args.get('price_range') == 'low' %}selected{% endif %}>£0 - £20</option>
+          <option value="mid" {% if request.args.get('price_range') == 'mid' %}selected{% endif %}>£20 - £50</option>
+          <option value="high" {% if request.args.get('price_range') == 'high' %}selected{% endif %}>£50+</option>
+        </select>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <label for="dateFilter" class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Dates</label>
+        <div class="input-group">
+          <input type="date" name="start_date" class="form-control px-2" value="{{ request.args.get('date', '') }}" id="dateFilterStart">
+          <span class="input-group-text px-2 text-dark border-secondary">to</span>
+          <input type="date" name="end_date" class="form-control px-2" value="{{ request.args.get('end_date', '') }}" id="dateFilterEnd">
         </div>
+      </div>
 
-        <div class="col-md-6 col-lg-3">
-          <label for="priceFilter" class="form-label"><i class="fa-solid fa-sterling-sign me-2"></i>Price Range</label>
-          <select class="form-select" name="price_range" id="priceFilter">
-            <option value="">Any</option>
-            <option value="free" {% if request.args.get('price_range') == 'free' %}selected{% endif %}>Free</option>
-            <option value="low" {% if request.args.get('price_range') == 'low' %}selected{% endif %}>£0 - £20</option>
-            <option value="mid" {% if request.args.get('price_range') == 'mid' %}selected{% endif %}>£20 - £50</option>
-            <option value="high" {% if request.args.get('price_range') == 'high' %}selected{% endif %}>£50+</option>
-          </select>
-        </div>
+      <div class="col-md-6 col-lg-3">
+        <label for="categoryFilter" class="form-label"><i class="fa fa-tags me-2"></i>Category</label>
+        <select class="form-select" name="category" id="categoryFilter">
+              <option value="">Any Category</option>
+              {% for c in categories %}
+                <option value="{{ c }}" {% if request.args.get('category') == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select> 
+      </div>
 
-        <div class="col-md-6 col-lg-3">
-          <label for="dateFilter" class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Dates</label>
-          <div class="input-group">
-            <input type="date" name="start_date" class="form-control px-2" value="{{ request.args.get('start_date', '') }}" id="dateFilterStart">
-            <span class="input-group-text px-2 bg-dark text-white border-secondary">to</span>
-            <input type="date" name="end_date" class="form-control px-2" value="{{ request.args.get('end_date', '') }}" id="dateFilterEnd">
-          </div>
-        </div>
+      <div class="col-md-4 col-lg-3 mx-auto">
+        <button type="button" class="btn btn-outline-light w-100 clear-btn" id="clearFilters">Clear Filters</button>
+      </div>
+    </form>
+  </div>
 
-        <div class="col-md-6 col-lg-3">
-          <label for="categoryFilter" class="form-label"><i class="fa fa-tags me-2"></i>Category</label>
-          <select class="form-select" name="category" id="categoryFilter">
-                <option value="">Any Category</option>
-                {% for c in categories %}
-                  <option value="{{ c }}" {% if request.args.get('category') == c %}selected{% endif %}>{{ c }}</option>
-                {% endfor %}
-              </select> 
-        </div>
-
-        <div class="col-md-4 col-lg-3 mx-auto">
-          <button type="button" class="btn btn-outline-light w-100 clear-btn" id="clearFilters">Clear Filters</button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Events Grid -->
-    <div class="row" id="eventsContainer">
-      <!-- JavaScript injection of contents -->
-    </div>
-
-  </section>
+  <!-- Events Grid -->
+  <div class="row" id="eventsContainer">
+    <!-- JavaScript injection of contents -->
+  </div>
+</section>
 
   <!-- Event Modal -->
   <div class="modal fade" id="eventModal" tabindex="-1">
@@ -171,25 +225,16 @@
   </div>
 
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const events = [
-      { title: "Summer Jazz Night", date: "2025-06-20", venue: "Bristol Hippodrome", image:"bristol-hippodrome.png", price: 30, category: "Music", capacity: 200, slots: 50, desc: "An evening of smooth jazz performances by local artists." },
-      { title: "Art Expo 2025", date: "2025-07-10", venue: "Arnolfini", price: 10, image:"Arnolfini.jpg", category: "Art", capacity: 300, slots: 120, desc: "Showcasing Bristol’s most creative visual artists." },
-      { title: "Rock Festival", date: "2025-08-15", venue: "Ashton Gate Stadium", image:"ashton-gate.png", price: 75, category: "Sports", capacity: 5000, slots: 2000, desc: "A full-day outdoor rock music festival." },
-      { title: "Community Food Fair", date: "2025-05-12", venue: "Bristol Beacon", image:"bristol-beacon.jpg", price: 0, category: "Food", capacity: 1000, slots: 450, desc: "Taste amazing food from around the community." },
-      { title: "West Country Sports Expo", date: "2025-09-03", venue: "Ashton Gate Stadium", image: "ashton-gate.png", price: 25, category: "Sports", capacity: 150, slots: 130, desc: "An exhibition bringing together local sports clubs and athletes." },
-      { title: "Contemporary Art Showcase", date: "2025-10-10", venue: "Royal West of England Academy", image: "bristol-oldvic.jpg", price: 12, category: "Art", capacity: 100, slots: 90, desc: "Modern art installations and sculptures from emerging artists." },
-      { title: "Shakespeare in the City", date: "2025-06-05", venue: "Bristol Old Vic", image: "bristol-oldvic.jpg", price: 20, category: "Theatre", capacity: 110, slots: 95, desc: "A reimagined performance of Hamlet at the historic Old Vic." },
-      { title: "Bristol Book Exhibition", date: "2025-09-21", venue: "Bristol Central Library", image: "bristol-beacon.jpg", price: 8, category: "Culture", capacity: 50, slots: 40, desc: "A literary exhibition celebrating Bristol’s reading community." },
-      { title: "Photography for Beginners", date: "2025-11-12", venue: "Creative Space A", image: "Arnolfini.jpg", price: 15, category: "Workshop", capacity: 30, slots: 25, desc: "A hands-on photography workshop for beginners." },
-      { title: "Ceramics Workshop", date: "2025-11-25", venue: "Creative Space B", image: "Arnolfini.jpg", price: 18, category: "Workshop", capacity: 50, slots: 40, desc: "Create your own ceramic pieces guided by local artisans." },
-      { title: "UWE Business Conference", date: "2025-07-05", venue: "UWE Exhibition Centre", image: "bristol-beacon.jpg", price: 40, category: "Conference", capacity: 300, slots: 260, desc: "A professional networking conference for entrepreneurs and startups." },
-      { title: "Wedding & Lifestyle Expo", date: "2025-08-02", venue: "UWE Exhibition Centre", image: "bristol-beacon.jpg", price: 0, category: "Exhibition", capacity: 300, slots: 200, desc: "Discover wedding planners, designers, and venues in one place." },
-      { title: "Cultural Dance Night", date: "2025-09-18", venue: "Community Centre A", image: "bristol-hippodrome.png", price: 10, category: "Culture", capacity: 60, slots: 50, desc: "A celebration of global music and dance styles by Bristol communities." },
-      { title: "Mindfulness & Meditation", date: "2025-10-05", venue: "Creative Space B", image: "Arnolfini.jpg", price: 12, category: "Workshop", capacity: 50, slots: 35, desc: "A calming guided meditation and wellness workshop." },
-      { title: "Theatre Night: Phantom Echoes", date: "2025-12-10", venue: "Bristol Hippodrome", image: "bristol-hippodrome.png", price: 35, category: "Theatre", capacity: 120, slots: 100, desc: "A thrilling new stage performance blending mystery and music." }
-    ];
+    // take string from hidden div and convert to JS object 
+    // Prevent XSS by using Flask's tojson filter and safe to ensure it's properly escaped and parsed as JSON
+    const dataBridgeText = document.getElementById('events-data-bridge').textContent;
+    const fetchedEvents = JSON.parse(dataBridgeText);
+
+    const staticImgPath = "{{ url_for('static', filename='img/venue_carousel/') }}";
+
+    // Move modal to body to prevent stacking context issues (dark unclickable screen)
+    document.body.appendChild(document.getElementById("eventModal"));
 
     // Insert event cards in .container with #eventsContainer
     const container = document.getElementById("eventsContainer");
@@ -212,61 +257,100 @@
       list.forEach(ev => {                   
         const card = document.createElement("div"); // Start to create cards in this container
         card.className = "col-md-6 col-lg-4 mb-4";
+
+        // format multi-day dates for cards
+        let displayDate = ev.date;
+        if (ev.end_date && ev.end_date !== ev.date) {
+          displayDate += ` to ${ev.end_date}`;
+        }
+
+        // sold out status for UI
+        const slotDisplay = ev.slots === 0 ? `<span class="text-danger fw-bold">SOLD OUT</span>` : `${ev.slots} left`;
+
         // `...` for multi-line strings
         card.innerHTML = `    
           <div class="event-card card h-100 d-flex flex-column justify-content-between">
-            <img src="../static/img/${ev.image}" class="card-img-top rounded-1" alt="${ev.title}" loading="lazy" style="max-height: 199px; object-fit: cover;">
+            <img src="${staticImgPath}${ev.image}" class="card-img-top rounded-1" alt="${ev.title}" loading="lazy" style="max-height: 199px; object-fit: cover;">
             <div class="card-body p-4">
               <h4 class="underline">${ev.title}</h4>
-              <p class="mb-1"><i class="fa fa-calendar me-2"></i>${ev.date}</p> 
+              <p class="mb-1"><i class="fa fa-calendar me-2"></i>${displayDate}</p> 
               <p class="mb-1"><i class="fa fa-location-dot me-2"></i>${ev.venue}</p>
               <p class="mb-1"><i class="fa fa-ticket me-2"></i>£${ev.price}</p>
               <p class="mb-1"><i class="fa fa-tags me-2"></i>${ev.category}</p>
-              <small>Capacity: ${ev.capacity} | Available Slots: ${ev.slots}</small>
-              <p class="mt-2">${ev.desc}</p>
+              <small>Capacity: ${ev.capacity} | Available Slots: ${slotDisplay}</small>
+              <p class="mt-2">${ev.desc.substring(0, 70)}...</p>
             </div>
-            <button class="btn btn-outline-light m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick='openEvent(${JSON.stringify(ev)})'>View More</button> <!-- Convert to JS String -->
+            <button class="btn btn-outline-light m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openEvent(${fetchedEvents.indexOf(ev)})">View More</button> <!-- Pass JS Index instead of object -->
           </div>`;
         container.appendChild(card);
       });
     }
 
     // Populate the modal
-    function openEvent(ev) {
+    function openEvent(eventIndex) {
+      const ev = fetchedEvents[eventIndex];
       document.getElementById("eventTitle").textContent = ev.title;
-      document.getElementById("eventDate").textContent = ev.date;
+
+      let displayDate = ev.date;
+      if (ev.end_date && ev.end_date !== ev.date) {
+        displayDate += ` to ${ev.end_date}`;
+      }
+      document.getElementById("eventDate").textContent = displayDate;
+
       document.getElementById("eventVenue").textContent = ev.venue;
       document.getElementById("eventPrice").textContent = ev.price;
-      document.getElementById("eventCategory").textContent = ev.category
+      document.getElementById("eventCategory").textContent = ev.category;
       document.getElementById("eventCapacity").textContent = ev.capacity;
-      document.getElementById("eventSlots").textContent = ev.slots;
+      document.getElementById("eventSlots").textContent = ev.slots === 0 ? "SOLD OUT" : ev.slots; // Show sold out if slots = 0
       document.getElementById("eventDesc").textContent = ev.desc;
 
       // Add event image
       const img = document.getElementById("eventImage");
-      img.src = `../files/${ev.image}`;
+      img.src = `${staticImgPath}${ev.image}`;
       img.alt = ev.title;
 
       // Book Now button
       const bookNowBtn = document.getElementById("bookNowBtn");
-      bookNowBtn.href = `booking.html?event=${encodeURIComponent(ev.title)}`; // Change title to a safe URL to execute
+      if (ev.slots === 0) {
+        bookNowBtn.classList.add("disabled", "btn-secondary", "border-secondary");
+        bookNowBtn.textContent = "Sold Out";
+        bookNowBtn.href = "#";
+      } else {
+        bookNowBtn.classList.remove("disabled", "btn-secondary", "border-secondary");
+        bookNowBtn.textContent = "Book Now";
+        // bookNowBtn.classList.add("book-btn");
+        bookNowBtn.href = `booking.html?event=${encodeURIComponent(ev.title)}`; // Safe URL encoding for event title in query string
+      }
     }
 
     function filterEvents() {
       const venue = document.getElementById("venueFilter").value;
       const price = document.getElementById("priceFilter").value;
-      const date = document.getElementById("dateFilter").value;
+      const startDate = document.getElementById("dateFilterStart").value;
+      const endDate = document.getElementById("dateFilterEnd").value;
       const category = document.getElementById("categoryFilter").value;
-      let filtered = events;
+
+      let filtered = fetchedEvents;
 
       if (venue) filtered = filtered.filter(e => e.venue === venue); // Check for filters applied and add only those satisfying the filter in 'filtered'
+
       if (price) {
-        if (price === "free") filtered = filtered.filter(e => e.price === 0); // Filter events with price value = 0
-        else if (price === "low") filtered = filtered.filter(e => e.price <= 20 && e.price > 0); // Filter events with price value <=20 and > 0
-        else if (price === "mid") filtered = filtered.filter(e => e.price > 20 && e.price <= 50); // Filter events with price value > 20 and <= 50
-        else if (price === "high") filtered = filtered.filter(e => e.price > 50); // Filter events with price > 50
+        // parsefloat converts argument to string, parses it as a floating point number and returns the result or Nan if cannot be converted.
+        if (price === "free") filtered = filtered.filter(e => parseFloat(e.price) === 0); 
+        else if (price === "low") filtered = filtered.filter(e => parseFloat(e.price) <= 20 && parseFloat(e.price) > 0); 
+        else if (price === "mid") filtered = filtered.filter(e => parseFloat(e.price) > 20 && parseFloat(e.price) <= 50); 
+        else if (price === "high") filtered = filtered.filter(e => parseFloat(e.price) > 50); 
       }
-      if (date) filtered = filtered.filter(e => e.date === date); // Filter events based on the date provided
+      if (startDate && endDate) {
+        filtered = filtered.filter(e => {
+          const eventStart = new Date(e.date);
+          const eventEnd = e.end_date ? new Date(e.end_date) : eventStart; // If no end date, use start date
+          return (eventStart >= new Date(startDate) && eventStart <= new Date(endDate)) ||
+                 (eventEnd >= new Date(startDate) && eventEnd <= new Date(endDate)) ||
+                 (eventStart <= new Date(startDate) && eventEnd >= new Date(endDate)); // Check if event overlaps with filter range
+        });
+      }
+
       if (category) filtered = filtered.filter(e => e.category === category); // Filter events that satisfy the category
 
       renderEvents(filtered); // Render all events populated in 'filtered' that satisfy the following filters
@@ -275,14 +359,15 @@
     // Add event listener to listen for a value change in the respective ids and apply filterEvents function
     document.getElementById("venueFilter").addEventListener("change", filterEvents); 
     document.getElementById("priceFilter").addEventListener("change", filterEvents);
-    document.getElementById("dateFilter").addEventListener("change", filterEvents);
+    document.getElementById("dateFilterStart").addEventListener("change", filterEvents);
+    document.getElementById("dateFilterEnd").addEventListener("change", filterEvents);
     document.getElementById("categoryFilter").addEventListener("change", filterEvents);
+
     document.getElementById("clearFilters").addEventListener("click", () => { // Clear filters button
       document.getElementById("filterForm").reset(); 
-      renderEvents(events); // After clearing, render events again this time with no filters applied
+      renderEvents(fetchedEvents); // After clearing, render events again this time with no filters applied
     });
 
-    renderEvents(events); // Display filtered events
+    renderEvents(fetchedEvents); // Display filtered fetchedEvents
   </script>
-</body>
-</html>
+{% endblock %}

@@ -59,7 +59,7 @@
               <a class="nav-link button px-2 rounded-1" href="dashboard.html">Dashboard</a>
             </li>
             <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1 " href="events.html">Events</a>
+              <a class="nav-link button px-2 rounded-1 " href="{{ url_for('events') }}">Events</a>
             </li>
             <li class="nav-item me-2">
               <a class="nav-link button px-2 rounded-1" href="about.html">About Us</a>
@@ -99,7 +99,7 @@
           <ul class="list-unstyled">
             <li><a href="{{ url_for('index') }}" class="footer-link">Home</a></li>
             <li><a href="dashboard.html" class="footer-link">Dashboard</a></li>
-            <li><a href="events.html" class="footer-link">Events</a></li>
+            <li><a href="{{ url_for('events') }}" class="footer-link">Events</a></li>
             <li><a href="about.html" class="footer-link">About Us</a></li>
           </ul>
         </div>
