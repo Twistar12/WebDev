@@ -3,7 +3,7 @@ import mysql.connector
 from mysql.connector import errorcode
 
 hostname = 'localhost'
-passw = 'Bokunoheroacademia@1'
+password = 'Bokunoheroacademia@1'
 db = 'bristol_events_db'
 username = 'root'
 
@@ -12,7 +12,7 @@ def getConnection():
     try:
         conn = mysql.connector.connect(host=hostname,
                                 user=username,
-                                password=passw,
+                                password=password,
                                 database=db)
 
     except mysql.connector.Error as err:
@@ -22,5 +22,5 @@ def getConnection():
             print('Database does not exist')
         else:  
             print(err)
-    else:
-        return conn     # returns connection object if connection is successful, otherwise returns None
+    else: # Will execute if connection is successful
+        return conn    
