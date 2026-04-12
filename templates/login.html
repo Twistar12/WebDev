@@ -8,7 +8,7 @@
       style="box-shadow: 0 0 5px rgba(0, 0, 0, 255); border: none;">
       <div class="container">
         <div class="row align-items-center">
-          
+          <!-- Image Carousel -->
           <div class="col-12 col-lg-6 me-0 mb-4 mb-lg-0" id="carousel">
             <div class="carousel slide rounded-3 overflow-hidden me-3" data-bs-ride="carousel">
               <div class="carousel-inner">
@@ -34,7 +34,7 @@
 
           <div class="col-12 col-lg-6 mb-4 mb-lg-0">
             <h2 class="ubuntu-medium mb-4 text-center">Login</h2>
-            
+            <!-- Login Form -->
             <form id="loginForm" action="{{ url_for('login') }}" class="needs-validation" method="post" novalidate>
               <div class="form-floating mb-3">
                 <input type="email" class="form-control" id="floatingEmail" name="email" placeholder="name@example.com"
@@ -56,7 +56,7 @@
                 <button type="submit" class="btn btn-outline-light clear-btn w-100 mt-3">Login</button>
               </div>
             </form>
-            
+            <!-- Remember Me and Sign Up Link -->
             <div class="d-flex justify-content-between align-items-center my-3">
               <div class="form-check me-3">
                 <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" form="loginForm">
@@ -88,21 +88,60 @@
       </div>
     </section>
   </div>
-  
+
   <script>
-    (function () {
-      'use strict'
-      var forms = document.querySelectorAll('.needs-validation')
-      Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-          form.addEventListener('submit', function (event) {
-            if (!form.checkValidity()) {
-              event.preventDefault()
-              event.stopPropagation()
-            }
-            form.classList.add('was-validated')
-          }, false)
-        })
-    })()
+    document.getElementById('loginForm').addEventListener('submit', function (event) {
+      // Stop form from submitting and reloading the page
+      event.preventDefault(); 
+      
+      const form = this; // Get form element for validationa and data extraction
+
+      // Client-side validation - Boostrap validation classes
+      if (!form.checkValidity()) {
+        event.stopPropagation();
+        form.classList.add('was-validated');
+        return;
+      }
+
+      // Extract all form data to send via AJAX
+      const formData = new FormData(form);
+
+      // Send AJAX POST request to login route with form data
+      fetch("{{ url_for('login') }}", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest" // Tells Flask this is an AJAX request
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // If login is correct, instantly redirect them to the dashboard/index
+          window.location.href = data.redirect;
+        } else {
+          // If login fails, inject the error message and pop up the toast!
+          document.getElementById('toastMessage').textContent = data.message;
+          const toastElement = document.getElementById('loginToast');
+          
+          let toast = bootstrap.Toast.getInstance(toastElement);
+          if (!toast) {
+            toast = new bootstrap.Toast(toastElement, { delay: 4000 }); // Stays on screen for 4 seconds
+          }
+          toast.show();
+        }
+      })
+      .catch(error => {
+        console.error("Error during login:", error);
+        // Show the toast even on network or server errors
+        document.getElementById('toastMessage').textContent = "An error occurred connecting to the server.";
+        const toastElement = document.getElementById('Toast');
+        let toast = bootstrap.Toast.getInstance(toastElement);
+        if (!toast) {
+          toast = new bootstrap.Toast(toastElement, { delay: 4000 });
+        }
+        toast.show();
+      });
+    });
   </script>
 {% endblock %}

@@ -56,7 +56,7 @@
         <div class="col-12 text-center flex-column mx-auto">
           <h2 class="ubuntu-medium mb-4 text-center">Join the Community</h2>
 
-          <form action="{{ url_for('signup') }}" method="POST" class="needs-validation" novalidate>
+          <form id="signupForm" action="{{ url_for('signup') }}" method="POST" class="needs-validation" novalidate>
             <!-- Add validation using Bootstrap's validation classes -->
             <!-- Name Input Group -->
             <div class="row g-3 mb-3">
@@ -131,7 +131,7 @@
 
             <!-- Terms and Conditions -->
             <div class="form-check mb-3 d-inline-block">
-              <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+              <input class="form-check-input" type="checkbox" id="terms" name="terms" value="1" required>
               <label class="form-check-label" for="terms">
                 <span class="text-white">I agree to the <a href="#" class="text-white">Terms and Conditions</a></span>
                 <!-- Add a modal of terms and conditions -->
@@ -167,25 +167,74 @@
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Form Validation Script -->
-  <!-- Placeholder, add better validation -->
+
+  <!-- Form Validation and AJAX Submission Script -->
   <script>
     (function () {
       'use strict'
-      // Fetch all the forms we want to apply custom Bootstrap validation styles to
-      var forms = document.querySelectorAll('.needs-validation')
-      // Loop over them and prevent submission
-      Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-          form.addEventListener('submit', function (event) {
-            if (!form.checkValidity()) {
-              event.preventDefault()
-              event.stopPropagation()
-            }
+      
+      const form = document.querySelector('.needs-validation')
+      form.addEventListener('submit', function (event) {
+        event.preventDefault()
+        
+        if (!form.checkValidity()) {
+          event.stopPropagation()
+          form.classList.add('was-validated')
+          return
+        }
 
-            form.classList.add('was-validated')
-          }, false)
+        const formData = new FormData(form)
+
+        fetch("{{ url_for('signup') }}", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-Requested-With": "XMLHttpRequest"
+          }
         })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Display success message replacing error message and colour of toast
+            document.getElementById('toastMessage').textContent = data.message || "Account created successfully! Redirecting..."
+            const toastElement = document.getElementById('Toast')
+            toastElement.classList.remove('bg-danger')
+            toastElement.classList.add('bg-success')
+            let toast = bootstrap.Toast.getInstance(toastElement)
+            if (!toast) {
+              toast = new bootstrap.Toast(toastElement, { delay: 2000 }) // Stays on screen for 2 seconds
+            }
+            toast.show()
+
+            setTimeout(() => {
+              window.location.href = data.redirect
+            }, 2000)
+          } else {
+            console.log("Signup failed:", data.message)
+            document.getElementById('toastMessage').textContent = data.message  
+            const toastElement = document.getElementById('signupToast')
+            toastElement.classList.remove('bg-success')
+            toastElement.classList.add('bg-danger')
+            let toast = bootstrap.Toast.getInstance(toastElement)
+            if (!toast) {
+              toast = new bootstrap.Toast(toastElement, { delay: 4000 })
+            }
+            toast.show()
+          }
+        })
+        .catch(error => {
+          console.error("Error during signup:", error)
+          document.getElementById('toastMessage').textContent = "An error occurred connecting to the server."
+          const toastElement = document.getElementById('signupToast')
+          toastElement.classList.remove('bg-success')
+          toastElement.classList.add('bg-danger')
+          let toast = bootstrap.Toast.getInstance(toastElement)
+          if (!toast) {
+            toast = new bootstrap.Toast(toastElement, { delay: 4000 }) // Stays on screen for 4 seconds
+          }
+          toast.show()
+        })
+      }, false)
     })()
   </script>
 {% endblock %}
