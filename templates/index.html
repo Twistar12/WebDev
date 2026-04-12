@@ -1,313 +1,171 @@
-<!-- <!doctype html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bristol Community Events</title>
+{% block title %}Home | Bristol Community Events{% endblock %}
 
-  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/Bristol_Community_Events_icon.ico') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-  <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block content %}
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
-  
-    .tilt-prism-regular {
-      font-family: "Tilt Prism", sans-serif;
-      font-weight: 400;
-      font-style: normal;
-    }
-  
-    #title {
-      font-size: 1em;
-      transition: 0.3s ease all;
-    }
-  
-    @media (max-width: 405px) {
-      #title {
-        font-size: calc(0.6 * 1em);
-        transition: 0.3s ease all;
-      }
-    }
-  </style>
-</head> -->
+<!-- HERO SECTION -->
+<section class="hero position-relative text-white text-center">
+  <div class="hero-background"></div>
+  <div class="container py-5 position-relative z-2">
+    <h1 class="display-3 mb-3 style-script-regular">Discover Amazing Events in Bristol</h1>
+    <p class="lead mb-5 ubuntu-bold"><strong>Find and book the perfect event — from concerts to exhibitions</strong>
+    </p>
 
-<!-- <body class="ubuntu-regular animated-gradient">
-   Navbar 
-  <header class="py-2 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-      <div class="container">
-         Logo 
-        <a href="{{ url_for('index') }}" class="navbar-brand d-flex align-items-center">
-          <img src="{{ url_for('static', filename='img/BCE_Logo_Dark.png') }}" alt="Bristol Community Events logo" class="brand-logo d-inline-block align-items-center me-2" style="height: 55px;">
-          <span class="tilt-prism-regular mt-2 me-2" id="title">Bristol Community Events</span>
-        </a>
-         Mobile Toggle Button triggers when width < 992px
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu"
-          aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-         Collapsible Menu 
-        <div class="collapse navbar-collapse" id="navbarMenu">
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-center">
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1" href="dashboard.html">Dashboard</a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1 " href="events.html">Events</a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1" href="about.html">About Us</a>
-            </li>
-          </ul>
-           Auth Buttons
-          <div class="d-flex justify-content-center mt-3 mt-lg-0">
-            <a href="login.html" class="login-btn me-2">Login</a>
-            <a href="sign-up.html" class="signup-btn text-dark">Sign-up</a>
+    <!-- Search Form -->
+    <div class="search-container p-4 rounded-3 shadow-lg mx-auto col-12 col-md-12 col-lg-12 ubuntu-light w-100">
+      <form class="event-search-form text-white">
+        <div class="row g-3">
+          <!-- Location -->
+          <div class="col-md-6 col-lg-3">
+            <label class="form-label"><i class="fa-solid fa-map-location-dot me-2"></i>Location</label>
+            <select class="form-select" name="location">
+              <option value="" selected>Any Location</option>
+              {% for location in locations %}
+              <option value="{{ location }}">{{ location }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Dates -->
+          <div class="col-md-6 col-lg-3">
+            <label class="form-label"><i class="fa fa-calendar me-2"></i>Dates</label>
+            <div class="input-group">
+              <input type="date" class="form-control">
+              <span class="input-group-text">to</span>
+              <input type="date" class="form-control">
+            </div>
+          </div>
+
+          <!-- Category -->
+          <div class="col-md-6 col-lg-3">
+            <label class="form-label"><i class="fa fa-tags me-2"></i>Category</label>
+            <select class="form-select" name="category">
+              <option value="" selected>Any Category</option>
+              {% for category in categories %}
+              <option value="{{ category }}"> {{ category }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Price -->
+          <div class="col-md-6 col-lg-3">
+            <label class="form-label"><i class="fa fa-gbp me-2"></i>Price Range</label>
+            <select class="form-select" name="price_range">
+              <option selected>Any Price</option>
+              <option>Free</option>
+              <option>£0 - £20</option>
+              <option>£20 - £50</option>
+              <option>£50+</option>
+            </select>
+          </div>
+
+          <!-- Buttons -->
+          <div class="col-md-6 col-lg-4 mx-auto">
+            <button type="reset" class="btn btn-outline-light w-100 clear-btn"><i
+                class="fa fa-eraser me-2"></i>Clear</button>
+          </div>
+          <div class="col-md-6 col-lg-4 mx-auto">
+            <button type="submit" class="btn btn-outline-primary w-100 search-btn"><i
+                class="fa fa-search me-2"></i>Search</button>
           </div>
         </div>
-      </div>
-    </nav>
-  </header> -->
 
-  {% extends "base.html" %}
+        <!-- Advanced Filters (Collapsible) -->
+        <div class="row mt-3">
+          <div class="col-12 text-center">
+            <a class="text-decoration-none text-white mb-3 d-inline-block" style="font-weight: 500;"
+              data-bs-toggle="collapse" href="#advancedFilters" role="button" aria-controls="advancedFilters"
+              aria-expanded="false">
+              <i class="fa fa-sliders me-2"></i>Advanced Filters
+            </a>
 
-  {% block title %}Home | Bristol Community Events{% endblock %}
+            <div class="collapse mt-3" id="advancedFilters">
+              <div class="advanced-filters-card text-white rounded-3 p-4 mx-auto" style="max-width: 600px;">
+                <div class="row g-3">
+                  <!-- Venue Type -->
+                  <div class="col-12">
+                    <label class="form-label">Venue Type</label>
+                    <select class="form-select">
+                      <option value="" selected>All Venues</option>
+                      {% for vt in venue_types %}
+                      <option value="{{ vt }}">{{ vt }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
 
-  {% block content %}
-
-  <!-- HERO SECTION -->
-  <section class="hero position-relative text-white text-center">
-    <div class="hero-background"></div>
-    <div class="container py-5 position-relative z-2">
-      <h1 class="display-3 mb-3 style-script-regular">Discover Amazing Events in Bristol</h1>
-      <p class="lead mb-5 ubuntu-bold"><strong>Find and book the perfect event — from concerts to exhibitions</strong>
-      </p>
-
-      <!-- Search Form -->
-      <div class="search-container p-4 rounded-3 shadow-lg mx-auto col-12 col-md-12 col-lg-12 ubuntu-light w-100">
-        <form class="event-search-form text-white">
-          <div class="row g-3">
-            <!-- Location -->
-            <div class="col-md-6 col-lg-3">
-              <label class="form-label"><i class="fa-solid fa-map-location-dot me-2"></i>Location</label>
-              <select class="form-select" name="location">
-                <option value="" selected>Any Location</option>
-                {% for location in locations %}
-                  <option value="{{ location }}">{{ location }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Dates -->
-            <div class="col-md-6 col-lg-3">
-              <label class="form-label"><i class="fa fa-calendar me-2"></i>Dates</label>
-              <div class="input-group">
-                <input type="date" class="form-control">
-                <span class="input-group-text">to</span>
-                <input type="date" class="form-control">
-              </div>
-            </div>
-
-            <!-- Category -->
-            <div class="col-md-6 col-lg-3">
-              <label class="form-label"><i class="fa fa-tags me-2"></i>Category</label>
-              <select class="form-select" name="category">
-                <option value="" selected>Any Category</option>
-                {% for category in categories %}
-                  <option value= "{{ category }}"> {{ category }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Price -->
-            <div class="col-md-6 col-lg-3">
-              <label class="form-label"><i class="fa fa-gbp me-2"></i>Price Range</label>
-              <select class="form-select" name="price_range">
-                <option selected>Any Price</option>
-                <option>Free</option>
-                <option>£0 - £20</option>
-                <option>£20 - £50</option>
-                <option>£50+</option>
-              </select>
-            </div>
-
-            <!-- Buttons -->
-            <div class="col-md-6 col-lg-4 mx-auto">
-              <button type="reset" class="btn btn-outline-light w-100 clear-btn"><i
-                  class="fa fa-eraser me-2"></i>Clear</button>
-            </div>
-            <div class="col-md-6 col-lg-4 mx-auto">
-              <button type="submit" class="btn btn-outline-primary w-100 search-btn"><i
-                  class="fa fa-search me-2"></i>Search</button>
-            </div>
-          </div>
-
-          <!-- Advanced Filters (Collapsible) -->
-          <div class="row mt-3">
-            <div class="col-12 text-center">
-              <a class="text-decoration-none text-white mb-3 d-inline-block" style="font-weight: 500;"
-                data-bs-toggle="collapse" href="#advancedFilters" role="button" aria-controls="advancedFilters"
-                aria-expanded="false">
-                <i class="fa fa-sliders me-2"></i>Advanced Filters
-              </a>
-
-              <div class="collapse mt-3" id="advancedFilters">
-                <div class="advanced-filters-card text-white rounded-3 p-4 mx-auto" style="max-width: 600px;">
-                  <div class="row g-3">
-                    <!-- Venue Type -->
-                    <div class="col-12">
-                      <label class="form-label">Venue Type</label>
-                      <select class="form-select">
-                        <option value="" selected>All Venues</option>
-                        {% for vt in venue_types %}
-                          <option value="{{ vt }}">{{ vt }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-
-                    <!-- Event Type
-                    <div class="col-12">
-                      <label class="form-label">Event Type</label>
-                      <select class="form-select">
-                        <option value="" selected>All Types</option>
-                        <option value="music">Music</option>
-                        <option value="sports">Sports</option>
-                        <option value="art">Art & Culture</option>
-                        <option value="food">Food & Drink</option>
-                      </select>
-                    </div> -->
-
-                    <!-- Accessibility -->
-                    <div class="col-12">
-                      <div class="form-check d-inline-block">
-                        <input class="form-check-input" type="checkbox" value="" id="wheelchairAccess">
-                        <label class="form-check-label" for="wheelchairAccess">
-                          Wheelchair Accessible
-                        </label>
-                      </div>
+                  <!-- Accessibility -->
+                  <div class="col-12">
+                    <div class="form-check d-inline-block">
+                      <input class="form-check-input" type="checkbox" value="" id="wheelchairAccess">
+                      <label class="form-check-label" for="wheelchairAccess">
+                        Wheelchair Accessible
+                      </label>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </form>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECONDARY HERO WITH CAROUSEL -->
+<div class="container my-5">
+  <section class="secondary-hero py-5 position-relative text-white">
+    <div class="container">
+      <div class="row align-items-center">
+        <!-- Text Content -->
+        <div class="col-12 col-lg-6 mb-4 mb-lg-0">
+          <div class="text-center text-lg-start">
+            <h2 class="display-4 mb-3">Experience Bristol's Best Venues</h2>
+            <p class="lead mb-4">From historic theatres to modern arenas, discover the perfect space for your next
+              event.</p>
+            <div class="d-flex justify-content-center justify-content-lg-start gap-3">
+              <!-- Hide Explore Venues for later implementation -->
+              <a href="events.html" class="button rounded-pill border border-1 border-light" hidden>Explore Venues</a>
+              <a href="events.html" class="btn btn-outline-light clear-btn rounded-pill">Book Events</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carousel -->
+        <div class="col-12 col-lg-6">
+          <div id="venueCarousel" class="carousel slide carousel-fade shadow-lg rounded-3 overflow-hidden"
+            data-bs-ride="carousel">
+            <div class="carousel-indicators">
+              {% for venue in venue_carousel %}
+              <button type="button" data-bs-target="#venueCarousel" data-bs-slide-to="{{ loop.index0 }}"
+                class="{% if loop.first %}active{% endif %}"></button>
+              {% endfor %}
+            </div>
+            <div class="carousel-inner">
+              {% for venue in venue_carousel %}
+              <div class="carousel-item {% if loop.first %}active{% endif %}">
+                <img src="{{ url_for('static', filename='img/venue_carousel/' ~ venue.Image_URL) }}"
+                  alt="{{ venue.Name }}" class="d-block w-100" style="height:400px;object-fit:cover;">
+                <div class="carousel-caption">
+                  <h5>{{ venue.Name }}</h5>
+                  <p>{{ venue.Description }}</p>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <button class="carousel-control-prev " type="button" data-bs-target="#venueCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#venueCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
-
-
-  <!-- SECONDARY HERO WITH CAROUSEL -->
-  <div class="container my-5">
-    <section class="secondary-hero py-5 position-relative text-white">
-      <div class="container">
-        <div class="row align-items-center">
-          <!-- Text Content -->
-          <div class="col-12 col-lg-6 mb-4 mb-lg-0">
-            <div class="text-center text-lg-start">
-              <h2 class="display-4 mb-3">Experience Bristol's Best Venues</h2>
-              <p class="lead mb-4">From historic theatres to modern arenas, discover the perfect space for your next
-                event.</p>
-              <div class="d-flex justify-content-center justify-content-lg-start gap-3">
-                <!-- Hide Explore Venues for later implementation -->
-                <a href="events.html" class="button rounded-pill border border-1 border-light" hidden>Explore Venues</a>
-                <a href="events.html" class="btn btn-outline-light clear-btn rounded-pill">Book Events</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Carousel -->
-          <div class="col-12 col-lg-6">
-            <div id="venueCarousel" class="carousel slide carousel-fade shadow-lg rounded-3 overflow-hidden"
-              data-bs-ride="carousel">
-              <div class="carousel-indicators">
-                {% for venue in venue_carousel %}
-                <button type="button" data-bs-target="#venueCarousel" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}"></button>
-                {% endfor %}
-              </div>
-              <div class="carousel-inner">
-                {% for venue in venue_carousel %}
-                <div class="carousel-item {% if loop.first %}active{% endif %}">
-                  <img src="{{ url_for('static', filename='img/venue_carousel/' ~ venue.Image_URL) }}" alt="{{ venue.Name }}" class="d-block w-100"
-                    style="height:400px;object-fit:cover;">
-                  <div class="carousel-caption">
-                    <h5>{{ venue.Name }}</h5>
-                    <p>{{ venue.Description }}</p>
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-
-              <button class="carousel-control-prev " type="button" data-bs-target="#venueCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-              </button>
-              <button class="carousel-control-next" type="button" data-bs-target="#venueCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
+</div>
 {% endblock %}
-<!-- FOOTER
-  <footer class="footer-dark text-light pt-5 pb-3 px-4 mt-5">
-    <div class="container">
-      <div class="row gy-4">
-        Company Info 
-        <div class="col-12 col-md-4">
-          <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
-          <p class="text-muted">
-            Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.  
-            Discover and create local events with us!
-          </p>
-        </div>
-
-        Quick Links
-        <div class="col-6 col-md-4">
-          <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
-          <ul class="list-unstyled">
-            <li><a href="{{ url_for('index') }}" class="footer-link">Home</a></li>
-            <li><a href="dashboard.html" class="footer-link">Dashboard</a></li>
-            <li><a href="events.html" class="footer-link">Events</a></li>
-            <li><a href="about.html" class="footer-link">About Us</a></li>
-          </ul>
-        </div>
-
-        Contact Info
-        <div class="col-6 col-md-4">
-          <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
-          <ul class="list-unstyled">
-            <li><i class="fa-solid fa-phone me-2 mb-2"></i> +44 117 123 4567</li>
-            <li><i class="fa-solid fa-envelope me-2 mb-2"></i> info@bristolevents.co.uk</li>
-            <li><i class="fa-solid fa-location-dot me-2 mb-2"></i> 10 Park Street, Bristol, UK</li>
-          </ul>
-        </div>
-        <div class="text-center small mt-0 text-muted">Follow us on our socials</div>
-        <div class="social-icons mt-0 justify-content-center">
-            <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
-            <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
-            <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
-            <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i class="fa-brands fa-whatsapp"></i></a>
-          </div>
-      </div>
-
-      <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
-      <div class="text-center small text-muted">
-        © 2025 Bristol Community Events. All rights reserved.
-      </div>
-    </div>
-  </footer>
-
-  Bootstrap JS Bundle
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
--->
