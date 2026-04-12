@@ -28,14 +28,14 @@
           </div>
 
           <!-- Dates -->
-          <div class="col-md-6 col-lg-3">
-            <label class="form-label"><i class="fa fa-calendar me-2"></i>Dates</label>
-            <div class="input-group">
-              <input type="date" class="form-control">
-              <span class="input-group-text">to</span>
-              <input type="date" class="form-control">
-            </div>
+        <div class="col-md-6 col-lg-3">
+          <label for="dateFilter" class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Dates</label>
+          <div class="input-group">
+            <input type="date" name="start_date" class="form-control px-2" value="{{ request.args.get('start_date', '') }}" id="dateFilterStart">
+            <span class="input-group-text px-2 bg-dark text-white border-secondary">to</span>
+            <input type="date" name="end_date" class="form-control px-2" value="{{ request.args.get('end_date', '') }}" id="dateFilterEnd">
           </div>
+        </div>
 
           <!-- Category -->
           <div class="col-md-6 col-lg-3">
