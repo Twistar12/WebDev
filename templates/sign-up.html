@@ -1,40 +1,9 @@
-<!doctype html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bristol Community Events</title>
-  <link rel="icon" type="image/x-icon" href="../static/img/Bristol_Community_Events_icon.ico">
-  <link rel="stylesheet" href="../static/css/index.css">
-  <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block title %}Sign Up | Bristol Community Events{% endblock %}
+
+{% block styles %}
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
-
-    .tilt-prism-regular {
-      font-family: "Tilt Prism", sans-serif;
-      font-weight: 400;
-      font-style: normal;
-      font-variation-settings:
-        "XROT" 0,
-        "YROT" 0;
-    }
-
-    #title {
-      font-size: 1em;
-      transition: 0.3s ease all;
-    }
-
-    @media (max-width: 405px) {
-      #title {
-        font-size: calc(0.6 * 1em);
-        /* 0.5 times current size*/
-        transition: 0.3s ease all;
-      }
-    }
-
     .secondary-hero {
       margin: 0 auto;
       max-width: 600px;
@@ -76,68 +45,31 @@
     }
 
   </style>
-</head>
+{% endblock %}
 
-<body class="ubuntu-regular animated-gradient">
-  <!-- Navbar -->
-  <header class="py-2 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-      <div class="container">
-        <!-- Logo -->
-        <a href="index.html" class="navbar-brand d-flex align-items-center">
-          <img src="../static/img/BCE_Logo_Dark.png" alt="Bristol Community Events logo"
-            class="brand-logo d-inline-block align-items-center me-2" style="height: 55px;">
-          <span class="tilt-prism-regular mt-2 me-2" id="title">Bristol Community Events</span>
-        </a>
-        <!-- Mobile Toggle Button triggers when width < 992px -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu"
-          aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- Collapsible Menu -->
-        <div class="collapse navbar-collapse" id="navbarMenu">
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-center">
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1" href="dashboard.html">Dashboard</a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1 " href="events.html">Events</a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1" href="about.html">About Us</a>
-            </li>
-          </ul>
-          <!-- Auth Buttons -->
-          <div class="d-flex justify-content-center mt-3 mt-lg-0">
-            <a href="login.html" class="login-btn me-2">Login</a>
-            <a href="sign-up.html" class="signup-btn text-dark">Sign-up</a>
-          </div>
-        </div>
-      </div>
-    </nav>
-  </header>
-
+{% block content %}
   <div class="container my-5 px-3 px-md-5 d-flex justify-content-center">
     <section class="secondary-hero p-4 p-md-5 text-white rounded-3 shadow-lg w-100 w-md-75"
       style="box-shadow: 0 0 5px rgba(0, 0, 0, 255); border: none; align-self: center;">
       <div class="row mt-3">
         <!-- Sign Up Form -->
         <div class="col-12 text-center flex-column mx-auto">
-          <h2 class="ubuntu-medium mb-4 text-center">Create Account</h2>
-          <form action="#" method="post" class="needs-validation" novalidate>
+          <h2 class="ubuntu-medium mb-4 text-center">Join the Community</h2>
+
+          <form action="{{ url_for('signup') }}" method="POST" class="needs-validation" novalidate>
             <!-- Add validation using Bootstrap's validation classes -->
             <!-- Name Input Group -->
             <div class="row g-3 mb-3">
               <div class="col-md-6 col-12">
                 <div class="form-floating">
-                  <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name">
-                  <label for="firstName" class="text-dark">First Name</label>
+                  <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" required>
+                  <label for="first_name" class="text-dark">First Name</label>
                 </div>
               </div>
               <div class="col-md-6 col-12">
                 <div class="form-floating">
-                  <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name">
-                  <label for="lastName" class="text-dark">Last Name</label>
+                  <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" required>
+                  <label for="last_name" class="text-dark">Last Name</label>
                 </div>
               </div>
             </div>
@@ -154,8 +86,7 @@
               <div class="col-md-6 col-12">
                 <div class="form-floating">
                   <label for="email" class="form-label"></label>
-                  <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com"
-                    required>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com"required>
                   <label for="email" class="text-dark">Email Address*</label>
                   <div class="invalid-feedback fw-bold">
                     Please provide a valid email address.
@@ -175,11 +106,11 @@
             </div>
 
             <!-- Confirm Password -->
-            <!-- Add validation for confirm password to match the password -->
+            <!-- Validation for confirm password to match the password -->
             <div class="form-floating mb-3">
-              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+              <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                 placeholder="Confirm Password" required>
-              <label for="confirmPassword" class="text-dark">Confirm Password*</label>
+              <label for="confirm_password" class="text-dark">Confirm Password*</label>
               <div class="invalid-feedback fw-bold">
                 Please confirm your password.
               </div>
@@ -187,15 +118,15 @@
 
             <!-- Phone Number (Optional) -->
             <div class="form-floating mb-3">
-              <input type="tel" class="form-control" id="phone" name="phone" placeholder="Phone Number (Optional)"
+              <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="Phone Number (Optional)"
                 pattern="[0-9]{11}">
-              <label for="phone" class="text-dark">Phone Number</label>
+              <label for="phone_number" class="text-dark">Phone Number</label>
             </div>
 
             <!-- Avatar Upload -->
             <div class="mb-3">
-              <label for="avatar" class="form-label">Profile Picture (Optional)</label>
-              <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+              <label for="avatar_url" class="form-label">Profile Picture (Optional)</label>
+              <input type="file" class="form-control" id="avatar_url" name="avatar_url" accept="image/*">
             </div>
 
             <!-- Terms and Conditions -->
@@ -225,7 +156,7 @@
                 </button>
               </div>
               <div>
-                <a href="login.html" class="text-white">Already have an account? Login</a>
+                <a href="{{ url_for('login') }}" class="text-white">Already have an account? Login</a>
               </div>
             </div>
           </form>
@@ -234,59 +165,6 @@
     </section>
   </div>
 
-
-  <!-- FOOTER -->
-  <footer class="footer-dark text-light pt-5 pb-3 px-4">
-    <div class="container">
-      <div class="row gy-4">
-
-        <!-- Company Info -->
-        <div class="col-12 col-md-4">
-          <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
-          <p class="text-muted">
-            Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.
-            Discover and create local events with us!
-          </p>
-        </div>
-
-        <!-- Quick Links -->
-        <div class="col-6 col-md-4">
-          <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
-          <ul class="list-unstyled">
-            <li><a href="index.html" class="footer-link">Home</a></li>
-            <li><a href="dashboard.html" class="footer-link">Dashboard</a></li>
-            <li><a href="events.html" class="footer-link">Events</a></li>
-            <li><a href="about.html" class="footer-link">About</a></li>
-          </ul>
-        </div>
-
-        <!-- Contact Info -->
-        <div class="col-6 col-md-4">
-          <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
-          <ul class="list-unstyled">
-            <li><i class="fa-solid fa-phone me-2 mb-2"></i> +44 117 123 4567</li>
-            <li><i class="fa-solid fa-envelope me-2 mb-2"></i> info@bristolevents.co.uk</li>
-            <li><i class="fa-solid fa-location-dot me-2 mb-2"></i> 10 Park Street, Bristol, UK</li>
-          </ul>
-        </div>
-        <div class="text-center small mt-0 text-muted">Follow us on our socials</div>
-        <div class="social-icons mt-0 justify-content-center">
-          <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
-          <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
-          <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
-          <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
-          <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i
-              class="fa-brands fa-whatsapp"></i></a>
-        </div>
-      </div>
-
-      <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
-      <div class="text-center small text-muted">
-        © 2025 Bristol Community Events. All rights reserved.
-      </div>
-    </div>
-  </footer>
-
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Form Validation Script -->
@@ -294,10 +172,8 @@
   <script>
     (function () {
       'use strict'
-
       // Fetch all the forms we want to apply custom Bootstrap validation styles to
       var forms = document.querySelectorAll('.needs-validation')
-
       // Loop over them and prevent submission
       Array.prototype.slice.call(forms)
         .forEach(function (form) {
@@ -312,6 +188,4 @@
         })
     })()
   </script>
-</body>
-
-</html>
+{% endblock %}

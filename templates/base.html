@@ -55,9 +55,15 @@
         <!-- Collapsible Menu -->
         <div class="collapse navbar-collapse" id="navbarMenu">
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-center">
+            {% if 'user_id' in session %}
+              <li class="nav-item me-2">
+                <a class="nav-link button px-2 rounded-1" href="#">Dashboard</a>
+              </li>
+            {% else %}
             <li class="nav-item me-2">
               <a class="nav-link button px-2 rounded-1" href="dashboard.html">Dashboard</a>
             </li>
+            {% endif %}
             <li class="nav-item me-2">
               <a class="nav-link button px-2 rounded-1 " href="{{ url_for('events') }}">Events</a>
             </li>
@@ -66,18 +72,35 @@
             </li>
           </ul>
           <!-- Auth Buttons -->
-          <div class="d-flex justify-content-center mt-3 mt-lg-0">
-            <a href="login.html" class="login-btn me-2">Login</a>
-            <a href="sign-up.html" class="signup-btn text-dark">Sign-up</a>
+          <div class="d-flex justify-content-center mt-3 mt-lg-0 align-items-center">
+            {% if 'user_id' in session %}
+            <span class="me-3 text-light"><i class="fa-solid fa-user-circle me-1"></i> {{ session['username'] }}</span>
+              <a href="{{ url_for('logout') }}" class="btn btn-outline-light clear-btn px-4 py-2">Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="login-btn me-2">Login</a>
+            <a href="{{ url_for('signup') }}" class="signup-btn text-dark">Sign-up</a>
+            {% endif %}
           </div>
         </div>
       </div>
     </nav>
   </header>
 
+<div class="container mt-3 position-absolute top-0 start-50 translate-middle-x" style="z-index: 1050;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
   <main>
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
   </main>
 
 <!-- FOOTER -->
@@ -98,7 +121,7 @@
           <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
           <ul class="list-unstyled">
             <li><a href="{{ url_for('index') }}" class="footer-link">Home</a></li>
-            <li><a href="dashboard.html" class="footer-link">Dashboard</a></li>
+            <li><a href="#" class="footer-link">Dashboard</a></li>
             <li><a href="{{ url_for('events') }}" class="footer-link">Events</a></li>
             <li><a href="{{ url_for('about') }}" class="footer-link">About Us</a></li>
           </ul>
