@@ -77,53 +77,65 @@
       transform: scale(1.02);
     }
     
-    /* Range Slider Styling */
+    /* Box to enclose the slider - mimics Bootstrap form fields */
+    .slider-box {
+      display: flex;
+      align-items: center;
+      height: 38px; /* Standard Bootstrap form height */
+      padding: 0 12px;
+      background-color: #fff; /* Match your other fields' background */
+      border: 1px solid #ced4da; /* Standard Bootstrap border */
+      border-radius: 0.25rem;
+      width: 100%;
+    }
+
+    /* Container for the range inputs inside the box */
     .price-input-container {
       width: 100%;
       position: relative;
-      height: 40px;
+      height: 5px; /* Height of the track */
     }
+
     .price-input-container input[type="range"] {
       position: absolute;
       width: 100%;
       height: 5px;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 0;
       background: none;
       pointer-events: none;
       -webkit-appearance: none;
       appearance: none;
     }
-    /* Style the handles for Chrome/Safari */
+
+    /* Styling the handles (thumbs) */
     input[type="range"]::-webkit-slider-thumb {
-      height: 18px;
-      width: 18px;
+      height: 16px;
+      width: 16px;
       border-radius: 50%;
-      background: #f72585; /* BCE Pink */
+      background: #7209b7; 
       pointer-events: auto;
       -webkit-appearance: none;
       cursor: pointer;
       border: 2px solid #fff;
-      box-shadow: 0 0 5px rgba(0,0,0,0.3);
     }
-    /* Style the handles for Firefox */
+
     input[type="range"]::-moz-range-thumb {
-      height: 18px;
-      width: 18px;
+      height: 16px;
+      width: 16px;
       border-radius: 50%;
-      background: #f72585;
+      background: #7209b7;
       pointer-events: auto;
       cursor: pointer;
       border: 2px solid #fff;
     }
-    /* The track background */
+
+    /* The visual track line */
     .slider-track {
       width: 100%;
       height: 5px;
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: rgba(255,255,255,0.2);
+      top: 0;
+      background-color: #dee2e6; /* Light grey track */
       border-radius: 5px;
     }
   </style>
@@ -151,15 +163,18 @@
       </div>
 
       <div class="col-md-6 col-lg-3">
-        <label for="priceFilter" class="form-label"><i class="fa-solid fa-sterling-sign me-2"></i>Price Range</label>
-        <select class="form-select" name="price_range" id="priceFilter">
-          <option value="">Any</option>
-          <option value="free" {% if request.args.get('price_range') == 'free' %}selected{% endif %}>Free</option>
-          <option value="low" {% if request.args.get('price_range') == 'low' %}selected{% endif %}>£0 - £20</option>
-          <option value="mid" {% if request.args.get('price_range') == 'mid' %}selected{% endif %}>£20 - £50</option>
-          <option value="high" {% if request.args.get('price_range') == 'high' %}selected{% endif %}>£50+</option>
-        </select>
-      </div>
+          <label class="form-label d-flex justify-content-between">
+            <span><i class="fa-solid fa-sterling-sign me-2"></i>Price Range</span>
+            <span id="priceLabel" class="fw-bold">£0 - £50</span>
+          </label>
+          <div class="slider-box">
+            <div class="price-input-container">
+              <div class="slider-track" id="track"></div>
+              <input type="range" id="minPrice" min="0" max="50" value="0" step="5">
+              <input type="range" id="maxPrice" min="0" max="50" value="50" step="5">
+            </div>
+          </div>
+        </div>
 
       <div class="col-md-6 col-lg-3">
         <label for="dateFilter" class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Dates</label>
@@ -231,13 +246,30 @@
     const dataBridgeText = document.getElementById('events-data-bridge').textContent;
     const fetchedEvents = JSON.parse(dataBridgeText);
 
-    const staticImgPath = "{{ url_for('static', filename='img/venue_carousel/') }}";
+    const staticImgPath = "{{ url_for('static', filename='img/event_cards/') }}";
 
     // Move modal to body to prevent stacking context issues (dark unclickable screen)
     document.body.appendChild(document.getElementById("eventModal"));
 
     // Insert event cards in .container with #eventsContainer
     const container = document.getElementById("eventsContainer");
+
+    // Slider logic
+    const minSlider = document.getElementById("minPrice");
+    const maxSlider = document.getElementById("maxPrice");
+    const track = document.getElementById("track");
+
+    function updateTrack() {
+      const min = parseInt(minSlider.value);
+      const max = parseInt(maxSlider.value);
+
+      // Calculate percentage positions for the track fill
+      const percent1 = (min / minSlider.max) * 100;
+      const percent2 = (max / maxSlider.max) * 100; 
+
+      // Update the track background using a linear gradient
+      track.style.background = `linear-gradient(to right, #dee2e6 ${percent1}%, #FC5637 ${percent1}%, #FC5637 ${percent2}%, #dee2e6 ${percent2}%)`;
+    }
 
     function renderEvents(list) {
       container.innerHTML = "";
@@ -325,22 +357,33 @@
 
     function filterEvents() {
       const venue = document.getElementById("venueFilter").value;
-      const price = document.getElementById("priceFilter").value;
       const startDate = document.getElementById("dateFilterStart").value;
       const endDate = document.getElementById("dateFilterEnd").value;
       const category = document.getElementById("categoryFilter").value;
 
+      let minPrice = parseInt(document.getElementById("minPrice").value);
+      let maxPrice = parseInt(document.getElementById("maxPrice").value);
+
+      if (minPrice > maxPrice) { // If sliders cross, swap values and update labels
+        [minPrice, maxPrice] = [maxPrice, minPrice];
+        document.getElementById("minPrice").value = minPrice;
+        document.getElementById("maxPrice").value = maxPrice;
+      }
+
+      updateTrack();
+      // Update label text
+      document.getElementById("priceLabel").textContent = `£${minPrice} - £${maxPrice}`;
+
       let filtered = fetchedEvents;
 
       if (venue) filtered = filtered.filter(e => e.venue === venue); // Check for filters applied and add only those satisfying the filter in 'filtered'
+      if (category) filtered = filtered.filter(e => e.category === category); // Filter events that satisfy the category
 
-      if (price) {
-        // parsefloat converts argument to string, parses it as a floating point number and returns the result or Nan if cannot be converted.
-        if (price === "free") filtered = filtered.filter(e => parseFloat(e.price) === 0); 
-        else if (price === "low") filtered = filtered.filter(e => parseFloat(e.price) <= 20 && parseFloat(e.price) > 0); 
-        else if (price === "mid") filtered = filtered.filter(e => parseFloat(e.price) > 20 && parseFloat(e.price) <= 50); 
-        else if (price === "high") filtered = filtered.filter(e => parseFloat(e.price) > 50); 
-      }
+      filtered = filtered.filter(e => {
+        const p = parseFloat(e.price.replace('£', '')); // Remove £ sign and parse price as float for comparison
+        return p >= minPrice && p <= maxPrice; // Check if event price is within selected range
+      });
+
       if (startDate && endDate) {
         filtered = filtered.filter(e => {
           const eventStart = new Date(e.date);
@@ -351,20 +394,26 @@
         });
       }
 
-      if (category) filtered = filtered.filter(e => e.category === category); // Filter events that satisfy the category
-
       renderEvents(filtered); // Render all events populated in 'filtered' that satisfy the following filters
     }
 
+    // Listen for slider input change
+    minSlider.addEventListener("input", filterEvents);
+    maxSlider.addEventListener("input", filterEvents);
+    updateTrack(); // Initialize track on page load
+
     // Add event listener to listen for a value change in the respective ids and apply filterEvents function
     document.getElementById("venueFilter").addEventListener("change", filterEvents); 
-    document.getElementById("priceFilter").addEventListener("change", filterEvents);
+    // document.getElementById("priceFilter").addEventListener("change", filterEvents);
     document.getElementById("dateFilterStart").addEventListener("change", filterEvents);
     document.getElementById("dateFilterEnd").addEventListener("change", filterEvents);
     document.getElementById("categoryFilter").addEventListener("change", filterEvents);
 
     document.getElementById("clearFilters").addEventListener("click", () => { // Clear filters button
       document.getElementById("filterForm").reset(); 
+      document.getElementById("minPrice").value = 0; // Reset price sliders to default
+      document.getElementById("maxPrice").value = 50;
+      document.getElementById("priceLabel").textContent = "£0 - £50"; // Reset price label
       renderEvents(fetchedEvents); // After clearing, render events again this time with no filters applied
     });
 
