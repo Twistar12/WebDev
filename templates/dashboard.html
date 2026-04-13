@@ -1,416 +1,406 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bristol Community Events</title>
-  <link rel="icon" type="image/x-icon" href="../static/img/Bristol_Community_Events_icon.ico">
-  <link rel="stylesheet" href="../static/css/index.css">
-  <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
-  
-    .tilt-prism-regular {
-      font-family: "Tilt Prism", sans-serif;
-      font-weight: 400;
-      font-style: normal;
-      font-variation-settings:
-        "XROT" 0,
-        "YROT" 0;
-    }
-  
-    #title {
-      font-size: 1em;
-      transition: 0.3s ease all;
-    }
-  
-    @media (max-width: 405px) {
-      #title {
-        font-size: calc(0.6 * 1em);
-        /* 0.5 times current size*/
-        transition: 0.3s ease all;
-      }
-    }
-  
-    .text-gradient {
-      background: linear-gradient(90deg, #7209b7, #f72585);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-  
-    /* Tiles from about us renamed */
-    .tiles {
-      background: rgba(0, 0, 0, 0.527);
-      border-radius: 15px;
-      padding: 2rem;
-      backdrop-filter: blur(8px);
-      color: #fff;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-  
-    .tiles:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.568);
-    }
-  
-    .profile-card {
-      background: rgba(0, 0, 0, 0.45);
-      border-radius: 15px;
-      padding: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 2.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(8px);
-    }
-  
-    #profileImg {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #f72585;
-    }
-  
-    .scrollable-list::-webkit-scrollbar {
-      width: 8px;
-    }
-  
-    .scrollable-list::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #7209b7, #f72585);
-      border-radius: 4px;
-    }
-  
-    .scrollable-list::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  
-    .underline {
-      position: relative;
-      display: block;
-      /* makes it full-width block element */
-      text-align: center;
-    }
-  
-    .underline::before {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: -4px;
-      transform: translateX(-50%) scaleX(0);
-      width: 60%;
-      /* centered underline */
-      height: 3px;
-      background: white;
-      border-radius: 2px;
-      transition: transform 0.3s ease;
-    }
-  
-    .tiles:hover .underline::before {
-      transform: translateX(-50%) scaleX(1);
-    }
-  
-    .modal-content {
-      background: rgba(0, 0, 0, 0.486);
-      color: #fff;
-      border-radius: 10px;
-      border: none;
-      backdrop-filter: blur(15px);
-    }
-  </style>
-</head>
+{% extends "base.html" %}
 
-<body class="ubuntu-regular animated-gradient">
-  <!-- Navbar -->
-  <header class="py-2 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-      <div class="container">
-        <!-- Logo -->
-        <a href="index.html" class="navbar-brand d-flex align-items-center">
-          <img src="../static/img/BCE_Logo_Dark.png" alt="Bristol Community Events logo" class="brand-logo d-inline-block align-items-center me-2"
-            style="height: 55px;">
-          <span class="tilt-prism-regular mt-2 me-2" id="title">Bristol Community Events</span>
-        </a>
-        <!-- Mobile Toggle Button triggers when width < 992px -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu"
-          aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- Collapsible Menu -->
-        <div class="collapse navbar-collapse" id="navbarMenu">
-         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-center">
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1" href="dashboard.html">Dashboard</a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1 " href="events.html">Events</a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1" href="about.html">About Us</a>
-            </li>
-          </ul>
-          <!-- Auth Buttons -->
-          <div class="d-flex justify-content-center mt-3 mt-lg-0">
-            <a href="login.html" class="login-btn me-2">Login</a>
-            <a href="sign-up.html" class="signup-btn text-dark">Sign-up</a>
-          </div>
-        </div>
-      </div>
-    </nav>
-  </header>
+{% block title %}Dashboard | Bristol Community Events{% endblock %}
 
-  <!-- Dashboard Elements -->
-  <section class="container py-5">
-    <h1 class="text-center style-script-regular mb-5">Your Dashboard</h1>
+{% block styles %}
+<style>
+  .dashboard-card {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    color: #fff;
+    height: 100%;
+    transition: transform 0.3s ease;
+  }
+  .dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  }
+  .card-header-custom {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #f72585; /* BCE Pink */
+  }
+  .scrollable-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
+  }
+  /* Custom scrollbar for webkit */
+  .scrollable-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollable-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .badge-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+  .achievement-badge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(193, 2, 183, 0.3);
+    border-radius: 10px;
+    padding: 15px 10px;
+    text-align: center;
+  }
+  .modal-content {
+    background: rgba(20, 20, 20, 0.95);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
 
-    <!-- Profile Card -->
-    <div class="tiles mb-4">
-      <div class="d-inline-flex align-items-center">
-        <img src="../static/img/ProfilePic.png" alt="User Avatar" id="profileImg">
-        <div class="ms-3">
-          <h4 class="mb-1">Steven Smith</h4>
-          <p class="text-muted mb-1">Member since: March 2023</p>
-          <span class="badge bg-gradient">Premium Member</span>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Summary Cards -->
-      <div class="row g-4 mb-5 text-center">
-        <div class="col-md-4 d-flex align-items-stretch">
-          <div class="tiles flex-grow-1">
-            <i class="fa-solid fa-calendar-check fa-2x mb-3 text-gradient"></i>
-            <h5 class="mt-3 mb-4">Events Booked</h5>
-            <h2 id="eventsBooked">8</h2>
+{% block content %}
+<div class="container py-5">
+  <h1 class="style-script-regular text-center text-white mb-5" style="font-size: 3.5rem;">My Dashboard</h1>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="dashboard-card p-4 d-flex flex-column justify-content-between">
+        <div>
+          <h4 class="card-header-custom"><i class="fa-solid fa-id-card me-2"></i>User Profile</h4>
+          <div class="d-flex align-items-center mb-3">
+            <img src="{{ profile.Avatar_URL if profile.Avatar_URL else url_for('static', filename='img/ProfilePic.png') }}" alt="Avatar" class="rounded-circle border border-2 border-light me-4" style="width: 80px; height: 80px; object-fit: cover;">
+            <div>
+              <h3 class="mb-0">{{ profile.First_name }} {{ profile.Last_name }}</h3>
+              <p class="text-muted mb-0">@{{ profile.Username }}</p>
+              <small class="text-info"><i class="fa-solid fa-calendar-days me-1"></i> Joined: {{ profile.Join_date }}</small>
+            </div>
           </div>
         </div>
-        <div class="col-md-4 d-flex align-items-stretch">
-          <div class="tiles flex-grow-1">
-            <i class="fa-solid fa-wallet fa-2x mb-3 text-gradient"></i>
-            <h5 class="mt-3 mb-4">Wallet Balance</h5>
-            <h2 id="walletBalance">£125.00</h2>
-            <button class="btn btn-sm btn-outline-light clear-btn mt-3" data-bs-toggle="modal" data-bs-target="#walletModal" id="addMoneyBtn">
-              <i class="fa-solid fa-plus me-1"></i> Add Money
-            </button>
-          </div>
-        </div>
-        <div class="col-md-4 d-flex align-items-stretch">
-          <div class="tiles flex-grow-1">
-            <i class="fa-solid fa-chart-line fa-2x mb-3 text-gradient"></i>
-            <h5 class="mt-3 mb-4">Spent (Last 90 Days)</h5>
-            <h2 id="moneySpent">£210.00</h2>
-          </div>
-        </div>
-      </div>
-    
-    <!-- Spending Chart -->
-    <div class="tiles mb-5">
-      <h5 class="mb-4"><i class="fa-solid fa-chart-pie me-2"></i>Spending Overview (Last 6 Months)</h5>
-      <canvas id="spendingChart" height="120"></canvas>
-    </div>
-  
-  
-    <!-- Event & Bookmark Section -->
-    <div class="row g-4 mb-4 align-items-stretch">
-      <!-- Tickets Purchased -->
-      <div class="col-md-4 d-flex">
-        <div class="tiles flex-grow-1">
-          <h5 class="mb-4"><i class="fa-solid fa-ticket me-2"></i>Tickets Purchased</h5>
-          <!-- Scrollable ticket list -->
-          <div class="scrollable-list" style="max-height: 200px; overflow-y: auto; padding-right: 5px;">
-            <ul class="list-unstyled mb-0">
-              <li><strong>Summer Jazz Night</strong> – 2 tickets – £60</li>
-              <li><strong>Art Expo 2025</strong> – 1 ticket – £10</li>
-              <li><strong>Community Food Fair</strong> – 3 tickets – Free</li>
-              <li><strong>Rock Festival</strong> – 2 tickets – £150</li>
-              <li><strong>Winter Gala</strong> – 2 tickets – £80</li>
-              <li><strong>Outdoor Theatre Night</strong> – 1 ticket – £25</li>
-              <li><strong>Bristol Beer & Music Fest</strong> – 4 tickets – £120</li>
-              <li><strong>Green Earth Fair</strong> – 2 tickets – £20</li>
-              <li><strong>Street Art Live</strong> – 1 ticket – £18</li>
-              <li><strong>Film & Chill Marathon</strong> – 3 tickets – £45</li>
-              <li><strong>Summer Beats Concert</strong> – 2 tickets – £70</li>
-              <li><strong>Bristol Food Fiesta</strong> – 4 tickets – £0</li>
-              <li><strong>Night of Lights</strong> – 2 tickets – £50</li>
-              <li><strong>Charity Comedy Night</strong> – 1 ticket – £25</li>
-              <li><strong>Maritime Heritage Tour</strong> – 2 tickets – £30</li>
-              <li><strong>Tech Innovators Meetup</strong> – 1 ticket – £15</li>
-              <li><strong>Latin Dance Workshop</strong> – 2 tickets – £40</li>
-              <li><strong>Autumn Jazz Sessions</strong> – 1 ticket – £25</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 d-flex">
-        <div class="tiles flex-grow-1">
-          <h5 class="mb-4"><i class="fa-solid fa-calendar-days me-2"></i>Upcoming Events</h5>
-          <ul class="list-unstyled">
-            <li>Summer Jam – Dec 15</li>
-            <li>Art & Soul Expo – Dec 29</li>
-            <li>Bristol Food Fest – Jan 10</li>
-          </ul>
-        </div>
-      </div>
-      <div class="col-md-4 d-flex">
-        <div class="tiles flex-grow-1">
-          <h5 class="mb-4"><i class="fa-solid fa-bookmark me-2"></i>Bookmarked Events</h5>
-          <ul class="list-unstyled">
-            <li>Green Earth Fair</li>
-            <li>Open Mic Night</li>
-            <li>Bristol Film Gala</li>
-          </ul>
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-outline-light flex-grow-1" data-bs-toggle="modal" data-bs-target="#editProfileModal">Update Profile</button>
+          <button class="btn btn-outline-danger flex-grow-1" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
         </div>
       </div>
     </div>
 
-    <!-- Achievements -->
-    <div class="tiles text-center">
-      <h5 class=" mb-4">
-        <i class="fa-solid fa-trophy"></i>
-        Achievements & Badges
-      </h5>
-    
-      <div class="container px-4">
-        <div class="row gy-4">
-          <div class="col-12 col-md-6">
-            <div class="p-3">
-              <i class="fa-solid fa-star fa-beat text-gradient fa-2x mb-2"></i>
-              <p class="mb-0">Event Explorer</p>
-            </div>
-          </div>
-          <div class="col-12 col-md-6">
-            <div class="p-3">
-              <i class="fa-solid fa-ticket fa-beat text-gradient fa-2x mb-2"></i>
-              <p class="mb-0">Frequent Booker</p>
-            </div>
-          </div>
-          <div class="col-12 col-md-6">
-            <div class="p-3">
-              <i class="fa-solid fa-heart fa-beat text-gradient fa-2x mb-2"></i>
-              <p class="mb-0">Community Supporter</p>
-            </div>
-          </div>
-          <div class="col-12 col-md-6">
-            <div class="p-3">
-              <i class="fa-solid fa-gem fa-beat text-gradient fa-2x mb-2"></i>
-              <p class="mb-0">Premium Member</p>
-            </div>
+    <div class="col-lg-6">
+      <div class="row g-4 h-100">
+        <div class="col-md-6">
+          <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-center">
+            <h6 class="text-uppercase text-muted mb-2">Wallet Balance</h6>
+            <div class="stat-value text-success mb-3">£{{ "%.2f"|format(wallet_balance) }}</div>
+            <button class="btn btn-sm btn-success w-75 mx-auto rounded-pill" data-bs-toggle="modal" data-bs-target="#addMoneyModal">Add Money</button>
           </div>
         </div>
-      </div>
-    </div>
-    
-    </section>
-
-  <!-- Modal for Wallet -->
-  <div class="modal fade" id="walletModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header border-0">
-          <h5 class="modal-title">Add Money to Wallet</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="col-md-6">
+          <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-center">
+            <h6 class="text-uppercase text-muted mb-2">Events Booked</h6>
+            <div class="stat-value text-info">{{ events_booked }}</div>
+          </div>
         </div>
-        <div class="modal-body">
-          <label for="amountInput" class="form-label">Enter amount (£)</label>
-          <input type="number" id="amountInput" class="form-control" min="1" max="300" placeholder="Max £300">
-        </div>
-        <div class="modal-footer border-0">
-          <button class="btn btn-outline-light clear-btn" data-bs-dismiss="modal">Cancel</button>
-          <button class="btn btn-outline-info search-btn" id="confirmAdd">Add</button>
+        <div class="col-12">
+          <div class="dashboard-card p-3 text-center d-flex align-items-center justify-content-between px-4">
+            <h6 class="text-uppercase text-muted mb-0">Spent (Last 90 Days)</h6>
+            <div class="fs-3 fw-bold text-danger">£{{ "%.2f"|format(spent_90_days) }}</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-
-
-  <!-- FOOTER -->
-    <footer class="footer-dark text-light pt-5 pb-3 px-4 mt-5">
-    <div class="container">
-      <div class="row gy-4">
-
-        <!-- Company Info -->
-        <div class="col-12 col-md-4">
-          <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
-          <p class="text-muted">
-            Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.  
-            Discover and create local events with us!
-          </p>
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="dashboard-card p-4">
+        <h4 class="card-header-custom"><i class="fa-solid fa-chart-line me-2"></i>Spending Overview (6 Months)</h4>
+        <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
+          {% if has_spending_activity %}
+            <canvas id="spendingChart"></canvas>
+          {% else %}
+            <div class="text-center text-muted">
+              <i class="fa-solid fa-wallet fa-3x mb-3 opacity-50"></i>
+              <h5>No spending activity yet.</h5>
+              <p>Book an event to see your spending trends!</p>
+            </div>
+          {% endif %}
         </div>
-
-        <!-- Quick Links -->
-        <div class="col-6 col-md-4">
-          <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
-          <ul class="list-unstyled">
-            <li><a href="index.html" class="footer-link">Home</a></li>
-            <li><a href="dashboard.html" class="footer-link">Dashboard</a></li>
-            <li><a href="events.html" class="footer-link">Events</a></li>
-            <li><a href="about.html" class="footer-link">About Us</a></li>
-          </ul>
-        </div>
-
-        <!-- Contact Info -->
-        <div class="col-6 col-md-4">
-          <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
-          <ul class="list-unstyled">
-            <li><i class="fa-solid fa-phone me-2 mb-2"></i> +44 117 123 4567</li>
-            <li><i class="fa-solid fa-envelope me-2 mb-2"></i> info@bristolevents.co.uk</li>
-            <li><i class="fa-solid fa-location-dot me-2 mb-2"></i> 10 Park Street, Bristol, UK</li>
-          </ul>
-        </div>
-        <div class="text-center small mt-0 text-muted">Follow us on our socials</div>
-        <div class="social-icons mt-0 justify-content-center">
-            <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
-            <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
-            <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
-            <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i class="fa-brands fa-whatsapp"></i></a>
-          </div>
-      </div>
-
-      <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
-      <div class="text-center small text-muted">
-        © 2025 Bristol Community Events. All rights reserved.
       </div>
     </div>
-  </footer>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="col-lg-4">
+      <div class="dashboard-card p-4" style="cursor: pointer;" onclick="window.location.href='#'"> <h4 class="card-header-custom"><i class="fa-solid fa-ticket me-2"></i>Ticket History</h4>
+        <div class="scrollable-list">
+          {% if ticket_history %}
+            <ul class="list-group list-group-flush bg-transparent">
+              {% for t in ticket_history %}
+                <li class="list-group-item bg-transparent text-white px-0 border-secondary">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h6 class="mb-1">{{ t.Title }}</h6>
+                      <small class="text-muted">{{ t.Tickets_Purchased }} Ticket(s)</small>
+                    </div>
+                    <div class="text-end">
+                      <div class="fw-bold">£{{ "%.2f"|format(t.Total_Price) }}</div>
+                      <span class="badge {% if t.Live_Status == 'Valid' %}bg-success{% elif t.Live_Status == 'Expired' %}bg-secondary{% else %}bg-warning{% endif %} rounded-pill">{{ t.Live_Status }}</span>
+                    </div>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted text-center mt-4">No tickets purchased yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 
-    
-  <script>
-    // Chart.js
-    // Populate spendingChart and find context of the canvas tag (here it is 2d)
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="dashboard-card p-4" style="cursor: pointer;" onclick="window.location.href='{{ url_for('events') }}'">
+        <h4 class="card-header-custom"><i class="fa-solid fa-calendar-star me-2"></i>Discover Upcoming</h4>
+        <div class="scrollable-list">
+          {% if upcoming_events %}
+            {% for ev in upcoming_events %}
+              <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
+                <img src="{{ url_for('static', filename='img/event_cards/' ~ ev.image) }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                <div>
+                  <h6 class="mb-0 text-truncate" style="max-width: 200px;">{{ ev.title }}</h6>
+                  <small class="text-info">{{ ev.date }}</small>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted text-center mt-4">No upcoming events right now.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="dashboard-card p-4">
+        <h4 class="card-header-custom"><i class="fa-solid fa-hourglass-half me-2"></i>Waiting List</h4>
+        <div class="scrollable-list">
+          {% if waiting_list %}
+            <ul class="list-group list-group-flush bg-transparent">
+              {% for w in waiting_list %}
+                <li class="list-group-item bg-transparent text-white px-0 border-secondary">
+                  <h6 class="mb-1">{{ w.Title }}</h6>
+                  <small class="text-warning"><i class="fa-regular fa-clock me-1"></i>Event Date: {{ w.date }}</small>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted text-center mt-4">You are not on any waiting lists.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="dashboard-card p-4">
+        <h4 class="card-header-custom"><i class="fa-solid fa-trophy me-2"></i>Badges</h4>
+        <div class="scrollable-list">
+          {% if achievements %}
+            <div class="badge-grid">
+              {% for badge in achievements %}
+                <div class="achievement-badge">
+                  <i class="{{ badge.Icon_class }} fa-2x mb-2" style="color: #f72585;"></i>
+                  <h6 class="mb-1" style="font-size: 0.9rem;">{{ badge.Achievement_name }}</h6>
+                  <small class="text-muted" style="font-size: 0.75rem;">{{ badge.Description }}</small>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center text-muted mt-4">
+              <i class="fa-solid fa-medal fa-3x mb-3 opacity-25"></i>
+              <p>Attend events to earn badges!</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Update Profile</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="updateProfileForm" action="{{ url_for('update_profile') }}" method="POST">
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label text-light">First Name</label>
+              <input type="text" class="form-control" name="first_name" value="{{ profile.First_name }}" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label text-light">Last Name</label>
+              <input type="text" class="form-control" name="last_name" value="{{ profile.Last_name }}" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-light">Email</label>
+            <input type="email" class="form-control" name="email" value="{{ profile.Email }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-light">Phone Number</label>
+            <input type="text" class="form-control" name="phone_number" value="{{ profile.Phone_number }}">
+          </div>
+          <div class="mb-4">
+            <label class="form-label text-light">Avatar URL (Optional)</label>
+            <input type="text" class="form-control" name="avatar_url" value="{{ profile.Avatar_URL if profile.Avatar_URL else '' }}">
+          </div>
+          <button type="submit" class="btn btn-outline-light w-100">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Change Password</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="changePasswordForm" action="{{ url_for('change_password') }}" method="POST">
+          <div class="mb-3">
+            <label class="form-label text-light">Current Password</label>
+            <input type="password" class="form-control" name="current_password" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-light">New Password</label>
+            <input type="password" class="form-control" name="new_password" required minlength="8">
+          </div>
+          <div class="mb-4">
+            <label class="form-label text-light">Confirm New Password</label>
+            <input type="password" class="form-control" name="confirm_password" required minlength="8">
+          </div>
+          <button type="submit" class="btn btn-danger w-100">Update Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addMoneyModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Top Up Wallet</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addMoneyForm" action="{{ url_for('add_money') }}" method="POST">
+          <div class="mb-4">
+            <label class="form-label text-light">Amount (£)</label>
+            <input type="number" class="form-control" name="amount" min="1" max="300" step="0.01" required placeholder="e.g. 50.00">
+            <small class="text-muted">Max £300 per transaction.</small>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Confirm Payment</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 1. Initialize Chart.js if data exists
+  {% if has_spending_activity %}
     const ctx = document.getElementById('spendingChart').getContext('2d');
-    // Create chart
+    
+    // Inject python lists safely into JS
+    const chartLabels = {{ chart_labels | tojson | safe }};
+    const chartValues = {{ chart_values | tojson | safe }};
+
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ['June', 'July', 'Aug', 'Sept', 'Oct', 'Nov'],
+        labels: chartLabels,
         datasets: [{
-          label: 'Amount Spent (£)',
-          data: [120, 95, 180, 140, 210, 260],
+          label: 'Spent (£)',
+          data: chartValues,
           borderColor: '#f72585',
-          backgroundColor: 'rgba(247, 37, 133, 0.3)',
-          tension: 0.3, // How the lines bend
+          backgroundColor: 'rgba(247, 37, 133, 0.2)',
+          borderWidth: 3,
+          pointBackgroundColor: '#7209b7',
+          pointRadius: 5,
           fill: true,
+          tension: 0.3 // Smooth curves
         }]
       },
       options: {
-        plugins: { legend: { display: false } },
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
-          y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-          x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+          y: { 
+            beginAtZero: true, 
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#ccc' }
+          },
+          x: { 
+            grid: { display: false },
+            ticks: { color: '#ccc' }
+          }
+        },
+        plugins: {
+          legend: { display: false }
         }
       }
     });
-  </script>
-  </body>
-</html>
+  {% endif %}
+
+  // 2. Generic Function to Handle AJAX Form Submissions
+  function handleFormSubmit(formId, modalId) {
+    document.getElementById(formId).addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = this;
+      const formData = new FormData(form);
+
+      fetch(form.action, {
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Find the global toast from base.html
+        const toastEl = document.getElementById('loginToast');
+        const msgEl = document.getElementById('toastMessage');
+        
+        msgEl.textContent = data.message;
+        toastEl.classList.remove('bg-danger', 'bg-success');
+        toastEl.classList.add(data.success ? 'bg-success' : 'bg-danger');
+        
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
+
+        if (data.success) {
+          // Close the modal
+          const modalInstance = bootstrap.Modal.getInstance(document.getElementById(modalId));
+          modalInstance.hide();
+          // Reload page to reflect new data (like updated wallet balance) after a brief delay
+          setTimeout(() => window.location.reload(), 1500);
+        }
+      })
+      .catch(err => console.error("Error submitting form:", err));
+    });
+  }
+
+  // Attach AJAX handler to all three modals
+  handleFormSubmit('updateProfileForm', 'editProfileModal');
+  handleFormSubmit('changePasswordForm', 'changePasswordModal');
+  handleFormSubmit('addMoneyForm', 'addMoneyModal');
+
+</script>
+{% endblock %}
