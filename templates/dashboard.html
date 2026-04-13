@@ -5,24 +5,26 @@
 {% block styles %}
 <style>
   .dashboard-card {
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.527);
     border-radius: 15px;
+    padding: 2rem;
+    backdrop-filter: blur(8px);
+    /* border: 1px solid rgba(255, 255, 255, 0.1); */
     color: #fff;
     height: 100%;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s, box-shadow 0.3s ease;
   }
+
   .dashboard-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    transform: translateY(-5px);
+    box-shadow: 0 0px 25px rgba(0, 0, 0, 0.568);
   }
   .card-header-custom {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 10px;
     margin-bottom: 15px;
     font-weight: 600;
-    color: #f72585; /* BCE Pink */
+    color: #e7b3f7; /* BCE Pink */
   }
   .scrollable-list {
     max-height: 300px;
@@ -76,8 +78,8 @@
             <img src="{{ profile.Avatar_URL if profile.Avatar_URL else url_for('static', filename='img/ProfilePic.png') }}" alt="Avatar" class="rounded-circle border border-2 border-light me-4" style="width: 80px; height: 80px; object-fit: cover;">
             <div>
               <h3 class="mb-0">{{ profile.First_name }} {{ profile.Last_name }}</h3>
-              <p class="text-muted mb-0">@{{ profile.Username }}</p>
-              <small class="text-info"><i class="fa-solid fa-calendar-days me-1"></i> Joined: {{ profile.Join_date }}</small>
+              <p class="text-info mb-0">@{{ profile.Username }}</p>
+              <small class="text-warning"><i class="fa-solid fa-calendar-days me-1"></i> Joined: {{ profile.Join_date }}</small>
             </div>
           </div>
         </div>
@@ -92,20 +94,20 @@
       <div class="row g-4 h-100">
         <div class="col-md-6">
           <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-center">
-            <h6 class="text-uppercase text-muted mb-2">Wallet Balance</h6>
+            <h6 class="text-uppercase text-success mb-2">Wallet Balance</h6>
             <div class="stat-value text-success mb-3">£{{ "%.2f"|format(wallet_balance) }}</div>
             <button class="btn btn-sm btn-success w-75 mx-auto rounded-pill" data-bs-toggle="modal" data-bs-target="#addMoneyModal">Add Money</button>
           </div>
         </div>
         <div class="col-md-6">
           <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-center">
-            <h6 class="text-uppercase text-muted mb-2">Events Booked</h6>
+            <h6 class="text-uppercase text-info mb-2">Events Booked</h6>
             <div class="stat-value text-info">{{ events_booked }}</div>
           </div>
         </div>
         <div class="col-12">
           <div class="dashboard-card p-3 text-center d-flex align-items-center justify-content-between px-4">
-            <h6 class="text-uppercase text-muted mb-0">Spent (Last 90 Days)</h6>
+            <h6 class="text-uppercase text-secondary mb-0">Spent (Last 90 Days)</h6>
             <div class="fs-3 fw-bold text-danger">£{{ "%.2f"|format(spent_90_days) }}</div>
           </div>
         </div>
@@ -315,6 +317,7 @@
 </div>
 
 <script>
+  document.querySelectorAll('.modal').forEach(modal => document.body.appendChild(modal));
   // 1. Initialize Chart.js if data exists
   {% if has_spending_activity %}
     const ctx = document.getElementById('spendingChart').getContext('2d');
