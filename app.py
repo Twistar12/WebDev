@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
-import mysql.connector, dbfunc, sys
+from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify, make_response
+import mysql.connector, dbfunc, sys, csv
 from mysql.connector import errorcode
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from io import StringIO
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure secret key in production
@@ -186,11 +188,11 @@ def login():
             session['role'] = user['Role']
 
             if is_ajax:
-                return jsonify({'success': True, 'message': 'Login successful', 'redirect': url_for('index')}) # data.success hold result, data.message holds message in AJAX response
+                return jsonify({'success': True, 'message': 'Login successful', 'redirect': url_for('dashboard')}) # data.success hold result, data.message holds message in AJAX response
             
             # Fallback for non-AJAX login
             flash('Login successful! Welcome back, {}.'.format(user['First_name']), 'success')
-            return redirect(url_for('index')) # change to dashboard later when implemented
+            return redirect(url_for('dashboard')) # change to dashboard later when implemented
         else:
             if is_ajax:
                 return jsonify({'success': False, 'message': 'Invalid email or password.'})
@@ -337,6 +339,24 @@ def dashboard():
                      WHERE ua.User_ID = %s''', (user_id,))
     achievements = dbcursor.fetchall()
 
+    # Admin card fetch details (only show if user is admin)
+    admin_stats = {}
+    if session.get('role') == 'admin':
+        # Caluclate total Revenue (abs sum of all negative transactions)
+        dbcursor.execute('SELECT ABS(SUM(Amount)) AS Revenue FROM Transactions WHERE Amount < 0')
+        rev = dbcursor.fetchone()['Revenue']
+        admin_stats['revenue'] = float(rev) if rev else 0.00
+
+        # Calculate total users
+        dbcursor.execute('SELECT COUNT(*) AS Total_Users FROM Users')
+        users = dbcursor.fetchone()['Total_Users']
+        admin_stats['total_users'] = users if users else 0.00
+
+        # Count current active events
+        dbcursor.execute('SELECT COUNT(*) AS Total_Events FROM Events WHERE Start_date >= CURDATE()')
+        events = dbcursor.fetchone()['Total_Events']
+        admin_stats['active_events'] = events if events else 0.00
+
 
     dbcursor.close()
     conn.close()
@@ -353,7 +373,8 @@ def dashboard():
                            ticket_history=ticket_history,
                            upcoming_events=upcoming_events,
                            waiting_list=waiting_list,
-                           achievements=achievements)
+                           achievements=achievements,
+                           admin_stats=admin_stats)
 
 
 # POST ROUTES for Dashboard Modals
@@ -437,7 +458,7 @@ def delete_account():
         conn.close()
 
 
-        
+
 
 # Change Password
 @app.route('/change_password', methods=['POST'])
@@ -496,6 +517,224 @@ def add_money():
     conn.close()
 
     return jsonify({'success': True, 'message': f'£{amount:.2f} added to your wallet!'})
+
+
+
+@app.route('/admin_portal')
+def admin_portal():
+    # only access if admin is logged in, otherwise redirect to homepage
+    if session.get('role') != 'admin':
+        flash('Access denied. Requires admin privileges.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+
+    # Fetch all users for User Management card
+    dbcursor.execute('''SELECT User_ID, Username, First_name, Last_name, Email, Role, Join_date
+                     FROM Users
+                     ORDER BY Role DESC, Join_date DESC''')
+    all_users = dbcursor.fetchall()
+
+    # Fetch basic event info for Event Status Card
+    dbcursor.execute('''SELECT  e.Event_ID, e.Title, v.Name as Venue, e.Start_date, SUM(ed.Day_Capacity) AS Total_Capacity
+                     FROM Events e
+                     JOIN Venues v on e.Venue_ID = v.Venue_ID
+                     JOIN Event_Days ed on e.Event_ID = ed.Event_ID
+                     GROUP BY e.Event_ID, e.Title, v.Name, e.Start_date
+                     ORDER BY e.Start_date ASC''')
+    all_events = dbcursor.fetchall()
+
+    # Fetch venues for creating event
+    dbcursor.execute('SELECT Venue_ID, Name FROM Venues ORDER BY Name ASC')
+    all_venues = dbcursor.fetchall()
+
+    # Fetch categories for creating event
+    dbcursor.execute('SELECT Category_ID, Category_name FROM Categories ORDER BY Category_name ASC')
+    all_categories = dbcursor.fetchall()
+
+    dbcursor.close()
+    conn.close()
+
+    return render_template('admin_portal.html', all_users=all_users, all_events=all_events, all_venues=all_venues, all_categories=all_categories)
+
+
+# Update user (admin only version)
+@app.route('/admin_update_user', methods=['POST'])
+def admin_update_user():
+    if session.get('role') != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorised'})
+    
+    target_user_id = int(request.form.get('user_id'))
+    current_user_id = int(session['user_id']) # to prevent admins from accidentally demoting themselves, add check 
+
+    first_name = request.form.get('first_name', '').strip()
+    last_name= request.form.get('last_name', '').strip()
+    role = request.form.get('role', '').strip()
+
+    # prevent admin from changin their own role to user
+    if target_user_id == current_user_id and role != 'admin':
+        return jsonify({'success': False, 'message': 'Action Denied: Cannot change your own admin role. Please contact another admin to make this change.'})
+    
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor()
+    dbcursor.execute('''UPDATE Users
+                     SET First_name = %s, Last_name = %s, Role = %s
+                     WHERE User_ID = %s''', (first_name, last_name, role, target_user_id))
+    conn.commit()
+    dbcursor.close()
+    conn.close()
+
+    return jsonify({'success': True, 'message': 'User updated successfully!', 'user_id': target_user_id, 'first_name': first_name, 'last_name': last_name, 'role': role})
+
+
+# Generate CSV Reports
+@app.route('/admin/generate_report', methods=['POST'])
+def generate_report():
+    if session.get('role') != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorised', 'redirect': url_for('dashboard')})
+    
+    report_type = request.form.get('report_type')
+
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor()
+
+    # Create in memory string buffer to store the CSV data
+    # then use csv.writer to write data to buffer and return as response with appropriate headers
+
+    si = StringIO()
+    cw = csv.writer(si)
+
+    # Profit by event report
+    if report_type == 'profit_by_event':
+        dbcursor.execute('''SELECT e.Title, v.Name as Venue, e.Start_date, SUM(ABS(t.Amount)) as Total_Revenue
+                         FROM Events e
+                         JOIN Bookings b ON e.Event_ID = b.Event_ID
+                         JOIN Transactions t ON b.Booking_ID = t.Booking_ID
+                         JOIN Venues v on e.Venue_ID = v.Venue_ID
+                         WHERE t.Amount < 0
+                         GROUP BY e.Event_ID
+                         ORDER BY Total_Revenue DESC''')
+        data = dbcursor.fetchall()
+        
+        # Write headers and data to CSV
+        headers = ['Event Title', 'Venue', 'Start Date', 'Total Revenue (£)']
+        cw.writerow(headers)
+        for row in data:
+            cw.writerow([row[0], row[1], row[2].strftime('%Y-%m-%d'), row[3]])
+        
+        filename = 'profit_by_event_report.csv'
+
+    # Bookings per event report
+    elif report_type == 'bookings_per_event':
+        dbcursor.execute('''SELECT e.Title, v.Name as Venue, e.Start_date, COUNT(DISTINCT b.Booking_ID) as Total_Bookings
+                         FROM Events e
+                         JOIN Bookings b ON e.Event_ID = b.Event_ID
+                         JOIN Venues v on e.Venue_ID = v.Venue_ID
+                         GROUP BY e.Event_ID
+                         ORDER BY Total_Bookings DESC''')
+        data = dbcursor.fetchall()
+
+        # Write headers and data to CSV
+        headers = ['Event Title', 'Venue', 'Start Date', 'Total Bookings']
+        cw.writerow(headers)
+        for row in data:
+            cw.writerow([row[0], row[1], row[2].strftime('%Y-%m-%d'), row[3]])
+        filename = 'bookings_per_event_report.csv'
+        
+    # Revenue by venue
+    elif report_type == 'revenue_by_venue':
+        dbcursor.execute('''SELECT v.Name as Venue, SUM(ABS(t.Amount)) as Total_Revenue
+                         FROM Venues v
+                         JOIN Events e ON v.Venue_ID = e.Venue_ID
+                         JOIN Bookings b ON e.Event_ID = b.Event_ID
+                         JOIN Transactions t ON b.Booking_ID = t.Booking_ID
+                         WHERE t.Amount < 0
+                         GROUP BY v.Venue_ID, v.Name''')
+        data = dbcursor.fetchall()
+
+        # Write headers and data to CSV
+        headers = ['Venue', 'Total Revenue (£)']
+        cw.writerow(headers)
+        for row in data:
+            cw.writerow([row[0], row[1]])
+        filename = 'revenue_by_venue_report.csv'
+    else:
+        return jsonify({'success': False, 'message': 'Invalid report type selected.'})
+
+    # Send the CSV data as a response (make_response allows us to add headers for file download)
+    output = make_response(si.getvalue()) # make response object containing CSV data from string buffer
+    output.headers["Content-Disposition"] = f"attachment; filename={filename}"  # header tells browser to download (attachment) file with specifed filename, inline for opening in browser
+    output.headers["Content-type"] = "text/csv" # header tells browser the file type
+    return output
+
+
+# Create Event (admin only)
+@app.route('/admin/create_event', methods=['POST'])
+def create_event():
+    if session.get('role') != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorised', 'redirect': url_for('dashboard')})
+    
+    # Get form fields
+    title = request.form.get('title', '').strip()
+    venue_id = request.form.get('venue_id')
+    category_id = request.form.get('category_id')
+    description = request.form.get('description', '').strip()
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    price = request.form.get('price')
+    capacity = request.form.get('capacity')
+    
+    # time fields
+    start_date_only = request.form.get('start_date')
+    start_time = request.form.get('start_time')
+    end_date_only = request.form.get('end_date')
+    end_time = request.form.get('end_time')
+
+    # HTML time excludes seconds, append them for SQL required format
+    if len(start_time) == 5:
+        start_time += ':00'
+    if len(end_time) == 5:
+        end_time += ':00'
+
+
+    # Stich date and time for DATETIME format
+    start_datetime = f"{start_date_only} {start_time}"
+    end_datetime = f"{end_date_only} {end_time}"
+
+
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor()
+
+    try:
+        dbcursor.execute('''INSERT INTO Events (Venue_ID, Category_ID, Title, Description, Start_date, End_date, Price, Accessibility_flag)
+                         VALUES (%s, %s, %s, %s, %s, %s, %s, 1)''', (venue_id, category_id, title, description, start_datetime, end_datetime, price))
+
+        event_id = dbcursor.lastrowid # Get the ID of the newly created Event_ID to insert into Event_Days
+
+        # Convert start and end date strings to datetime objects for looping
+        start_dt = datetime.strptime(start_date_only, '%Y-%m-%d')
+        end_dt = datetime.strptime(end_date_only, '%Y-%m-%d')
+
+        # Get length of event in days to loop and insert a record for each day with same capacity
+        length = end_dt - start_dt
+        
+        for i in range(length.days + 1): # Loop through each day of the event, including end date
+            day = start_dt + timedelta(days=i) # add day according to iteration to start date
+            dbcursor.execute('''INSERT INTO Event_Days (Event_ID, Date, Start_Time, End_Time, Day_Capacity)
+                             VALUES (%s, %s, %s, %s, %s)''', (event_id, day.strftime('%Y-%m-%d'), start_time, end_time, capacity))
+        
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Event created successfully!'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
+    finally:
+        dbcursor.close()
+        conn.close()
+
+
+
 
 @app.route('/about')
 def about():

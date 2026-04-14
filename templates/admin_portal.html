@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+{% block title %}Admin Portal | Bristol Community Events{% endblock %}
+
+{% block styles %}
+<style>
+  .admin-card {
+    background: rgba(20, 20, 30, 0.8);
+    backdrop-filter: blur(8px);
+    padding: 2rem;
+    border-radius: 15px;
+    color: #fff;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .admin-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0px 25px rgba(0, 0, 0, 0.568);
+  }
+  .table-dark-custom {
+    background-color: transparent;
+    color: white;
+  }
+  .table-dark-custom:hover {
+    background-color: transparent;
+    color: white;
+  }
+  .table-dark-custom th { color: #ffc107; border-bottom: 1px solid #ffc107; }
+  .table-dark-custom td { border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: middle; }
+
+.scrollable-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
+  }
+  /* Custom scrollbar for webkit */
+  .scrollable-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollable-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+  .modal-content {
+    background: rgba(0, 0, 0, 0.486);
+    color: #fff;
+    border-radius: 10px;
+    border: none;
+    backdrop-filter: blur(15px);
+    box-shadow: #ffc107 0px 0px 5px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <h1 class="style-script-regular " style="font-size: 3.5rem;">Admin Portal</h1>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light clear-btn"><i class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard</a>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="admin-card p-4">
+        <h4 class="mb-4 text-warning"><i class="fa-solid fa-users me-2"></i>User Management</h4>
+        <div class="scrollable-list">
+          <table class="table table-dark-custom table-hover">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for u in all_users %}
+              <tr id="user-row-{{ u.User_ID }}" style="color: white;">
+                <td>@{{ u.Username }}</td>
+                <td class="user-name-col">{{ u.First_name }} {{ u.Last_name }}</td>
+                <td class="user-role-col">
+                  <span class="badge {% if u.Role == 'admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                    {{ u.Role | upper }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-light edit-user-btn" 
+                          data-bs-toggle="modal" data-bs-target="#editUserModal"
+                          data-id="{{ u.User_ID }}" data-fname="{{ u.First_name }}" 
+                          data-lname="{{ u.Last_name }}" data-role="{{ u.Role }}">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="admin-card p-4 d-flex flex-column justify-content-between">
+        <div>
+          <h4 class="mb-4 text-warning"><i class="fa-solid fa-file-invoice-dollar me-2"></i>Reports</h4>
+          <p>Generate financial and booking reports.</p>
+          <form action="{{ url_for('generate_report') }}" method="POST">
+            <select class="form-select bg-dark text-light mb-3" name="report_type">
+                <option value="profit_by_event">Profit by Event</option>
+                <option value="bookings_per_event">Bookings per Event</option>
+                <option value="revenue_by_venue">Revenue by Venue</option>
+            </select>
+            <button class="btn btn-warning warning-btn text-dark fw-bold w-100"><i class="fa-solid fa-download me-2"></i> Generate Report</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="admin-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="text-warning mb-0"><i class="fa-solid fa-calendar-check me-2"></i>Event & Venue Logistics</h4>
+          <button class="btn btn-sm btn-success success-btn" data-bs-toggle="modal" data-bs-target="#createEventModal"><i class="fa-solid fa-plus me-1"></i> Create New Event</button>
+        </div>
+        <div class="scrollable-list">
+          <table class="table table-dark-custom table-hover">
+            <thead>
+              <tr>
+                <th>Event Title</th>
+                <th>Venue</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody">
+              {% for e in all_events %}
+              <tr style="color: white;">
+                <td>{{ e.Title }}</td>
+                <td>{{ e.Venue }}</td>
+                <td>{{ e.Start_date }}</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>
+                  <button class="btn btn-sm btn-outline-info search-btn">Manage</button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-warning">Edit User Privileges</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-light">
+        <form id="adminUpdateUserForm" action="{{ url_for('admin_update_user') }}" method="POST">
+          <input type="hidden" id="modal_user_id" name="user_id">
+          <div class="row mb-3">
+            <div class="col">
+              <label>First Name</label>
+              <input type="text" class="form-control" id="modal_fname" name="first_name" required>
+            </div>
+            <div class="col">
+              <label>Last Name</label>
+              <input type="text" class="form-control" id="modal_lname" name="last_name" required>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label>System Role</label>
+            <select class="form-select" id="modal_role" name="role">
+              <option value="user">User</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-warning warning-btn w-100 text-dark fw-bold">Update User</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="createEventModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-warning"><i class="fa-solid fa-calendar-plus me-2"></i>Create New Event</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-light">
+        <form id="createEventForm" action="{{ url_for('create_event') }}" method="POST">
+          <div class="mb-3">
+            <label>Event Title</label>
+            <input type="text" class="form-control" name="title" placeholder="Event Title" required>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label>Venue</label>
+              <select class="form-select" name="venue_id" required>
+                {% for v in all_venues %}
+                  <option value="{{ v.Venue_ID }}">{{ v.Name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label>Category</label>
+              <select class="form-select" name="category_id" required>
+                {% for c in all_categories %}
+                  <option value="{{ c.Category_ID }}">{{ c.Category_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label>Start Date</label>
+              <input type="date" class="form-control" name="start_date" required>
+            </div>
+            <div class="col-md-3">
+              <label>Start Time</label>
+              <input type="time" class="form-control" name="start_time" required>
+            </div>
+            <div class="col-md-3">
+              <label>End Date</label>
+              <input type="date" class="form-control" name="end_date" required>
+            </div>
+            <div class="col-md-3">
+              <label>End Time</label>
+              <input type="time" class="form-control" name="end_time" required>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label>Ticket Price (£)</label>
+              <input type="number" step="1" class="form-control" name="price" min="1" max="50" placeholder="Enter Ticket Price" required>
+            </div>
+            <div class="col-md-6">
+              <label>Capacity</label>
+              <input type="number" class="form-control" name="capacity" placeholder="Enter Capacity" required>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label>Description</label>
+            <textarea class="form-control" name="description" rows="2" placeholder="Enter Event Description" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-success success-btn w-100 fw-bold">Publish Event</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Teleport modals to body
+  document.querySelectorAll('.modal').forEach(modal => document.body.appendChild(modal));
+
+  // Get current logged in admin's user ID
+  const currentAdminId = {{ session['user_id'] }};
+
+  // Populate User Modal when an "Edit" button is clicked
+  document.querySelectorAll('.edit-user-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const targetUserId = parseInt(this.getAttribute('data-id'));
+        
+        document.getElementById('modal_user_id').value = this.getAttribute('data-id');
+        document.getElementById('modal_fname').value = this.getAttribute('data-fname');
+        document.getElementById('modal_lname').value = this.getAttribute('data-lname');
+        document.getElementById('modal_role').value = this.getAttribute('data-role');
+
+        const roleSelect = document.getElementById('modal_role');
+        const userOption = roleSelect.querySelector(`option[value="user"]`);
+
+        if (targetUserId === currentAdminId) {
+          // If admin is editing their own account, disable role change
+          userOption.disabled = true;
+          userOption.textContent = 'User (Cannot change own role)';
+        } else {
+          userOption.disabled = false;
+        }
+    });
+  });
+
+  // Handle Form Submit via AJAX 
+  document.getElementById('adminUpdateUserForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    fetch(this.action, {
+      method: 'POST',
+      body: new FormData(this),
+      headers: { "X-Requested-With": "XMLHttpRequest" }
+    })
+    .then(r => r.json())
+    .then(data => {
+        // Find the global toast from base.html
+        const toastEl = document.getElementById('Toast');
+        const msgEl = document.getElementById('toastMessage');
+        
+        msgEl.textContent = data.message;
+        toastEl.classList.remove('bg-danger', 'bg-success');
+        toastEl.classList.add(data.success ? 'bg-success' : 'bg-danger');
+        
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
+    
+        if (data.success) {
+            // Hide modal
+            bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+
+            // find row in table
+            const row = document.getElementById('user-row-' + data.user_id);
+
+            // Update row data
+            row.querySelector('.user-name-col').textContent = data.first_name + ' ' + data.last_name;
+
+            // update role bade
+            const badge = row.querySelector('.user-role-col .badge');
+            badge.textContent = data.role.toUpperCase();
+            if (data.role === 'admin') {
+                badge.className = 'badge bg-warning text-dark';
+            } else {
+                badge.className = 'badge bg-secondary';
+            }
+
+            // update button's hidden data attributes
+            const editBtn = row.querySelector('.edit-user-btn');
+            editBtn.setAttribute('data-fname', data.first_name);
+            editBtn.setAttribute('data-lname', data.last_name);
+            editBtn.setAttribute('data-role', data.role);
+        }
+    });
+  });
+
+  document.getElementById('createEventForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    fetch(this.action, {
+      method: 'POST',
+      body: new FormData(this),
+      headers: { "X-Requested-With": "XMLHttpRequest" }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const toastEl = document.getElementById('Toast');
+        const msgEl = document.getElementById('toastMessage');
+        
+        msgEl.textContent = data.message;
+        toastEl.classList.remove('bg-danger', 'bg-success');
+        toastEl.classList.add(data.success ? 'bg-success' : 'bg-danger');
+        
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
+
+        if (data.success) {
+            // Hide modal
+            bootstrap.Modal.getInstance(document.getElementById('createEventModal')).hide();
+            
+            // Append new event to the list without page refresh
+            const form = document.getElementById('createEventForm');
+            const title = form.querySelector('[name="title"]').value;
+            const venueSelect = form.querySelector('[name="venue_id"]');
+            const venueName = venueSelect.options[venueSelect.selectedIndex].text;
+            // Get time and date in correct format
+            const rawDate = form.querySelector('[name="start_date"]').value;
+            const rawTime = form.querySelector('[name="start_time"]').value;
+            const startDate = rawDate + ' ' + rawTime + ':00'; // SQL format
+
+            const tbody = document.getElementById('eventsTableBody');
+            const tr = document.createElement('tr');
+            tr.style.color = 'white';
+            tr.innerHTML = `
+                <td>${title}</td>
+                <td>${venueName}</td>
+                <td>${startDate}</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>
+                  <button class="btn btn-sm btn-outline-info search-btn">Manage</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+
+            // Reset the form
+            form.reset();
+        }
+    });
+  });
+</script>
+{% endblock %}

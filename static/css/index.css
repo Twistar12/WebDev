@@ -277,7 +277,7 @@ header {
 }
 
 .search-btn, .clear-btn, .red-btn,
-.success-btn {
+.success-btn, .warning-btn {
   padding: 0.6rem 1.5rem;
   font-weight: 500;
   transition: all 0.3s ease-in-out;
@@ -300,8 +300,15 @@ header {
 
 .success-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0px 8px rgba(0, 255, 0, 0.6);
+  box-shadow: 0 0px 8px rgb(0, 121, 0);
 }
+
+.warning-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0px 8px rgba(255, 255, 0, 0.6);
+}
+
+
 
 /*Responsive adjustments for search form*/
 @media (max-width: 768px) {

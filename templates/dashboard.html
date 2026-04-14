@@ -9,7 +9,6 @@
     border-radius: 15px;
     padding: 2rem;
     backdrop-filter: blur(8px);
-    /* border: 1px solid rgba(255, 255, 255, 0.1); */
     color: #fff;
     height: 100%;
     transition: transform 0.3s, box-shadow 0.3s ease;
@@ -71,6 +70,66 @@
 <div class="container py-5">
   <h1 class="style-script-regular text-center text-white mb-5" style="font-size: 3.5rem;">My Dashboard</h1>
 
+  {% if session.role == 'admin' %}
+    
+    <div class="row g-4 mb-4">
+      <div class="col-lg-6">
+        <div class="dashboard-card p-4 d-flex flex-column justify-content-between">
+          <div>
+            <h4 class="card-header-custom"><i class="fa-solid fa-id-card me-2"></i>User Profile</h4>
+            <div class="d-flex align-items-center mb-3">
+              <img src="{{ profile.Avatar_URL if profile.Avatar_URL else url_for('static', filename='img/ProfilePic.png') }}" alt="Avatar" class="rounded-circle border border-2 border-light me-4" style="width: 80px; height: 80px; object-fit: cover;">
+              <div>
+                <h3 class="mb-0">{{ profile.First_name }} {{ profile.Last_name }}</h3>
+                <p class="text-info mb-0">@{{ profile.Username }}</p>
+                <small class="text-warning"><i class="fa-solid fa-calendar-days me-1"></i> Joined: {{ profile.Join_date }}</small>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-outline-light clear-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#editProfileModal">Update Profile</button>
+            <button class="btn btn-outline-danger red-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="dashboard-card p-4 d-flex flex-column justify-content-between border-warning">
+          <h4 class="card-header-custom text-warning" style="border-bottom-color: rgba(255,193,7,0.3);"><i class="fa-solid fa-shield-halved me-2"></i>Admin Command Center</h4>
+          <div class="d-flex justify-content-around my-3 text-center">
+            <div><h3 class="text-success mb-0">£{{ "%.2f"|format(admin_stats.revenue) }}</h3><small class="text-success fw-bold">Total Revenue</small></div>
+            <div><h3 class="text-info mb-0">{{ admin_stats.total_users }}</h3><small class="text-info fw-bold">Registered Users</small></div>
+            <div><h3 class="text-warning mb-0">{{ admin_stats.active_events }}</h3><small class="text-warning fw-bold">Active Events</small></div>
+          </div>
+          <a href="{{ url_for('admin_portal') }}" class="btn btn-warning warning-btn w-100 fw-bold mt-3 text-dark"><i class="fa-solid fa-gear me-2"></i>Enter Admin Portal</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-center">
+          <h6 class="text-uppercase text-success mb-2">Wallet Balance</h6>
+          <div class="stat-value text-success mb-3" id="walletBalance">£{{ "%.2f"|format(wallet_balance) }}</div>
+          <button class="btn btn-sm btn-success success-btn w-75 mx-auto rounded-pill" data-bs-toggle="modal" data-bs-target="#addMoneyModal">Add Money</button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-start">
+          <h6 class="text-uppercase text-info mb-3">Events Booked</h6>
+          <div class="stat-value text-info">{{ events_booked }}</div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="dashboard-card p-3 text-center d-flex align-items-center justify-content-between px-4">
+          <h6 class="text-uppercase  mb-0">Spent (Last 90 Days)</h6>
+          <div class="fs-3 fw-bold text-danger">£{{ "%.2f"|format(spent_90_days) }}</div>
+        </div>
+      </div>
+    </div>
+
+  {% else %}
+
   <div class="row g-4 mb-4">
     <div class="col-lg-6">
       <div class="dashboard-card p-4 d-flex flex-column justify-content-between">
@@ -116,6 +175,8 @@
       </div>
     </div>
   </div>
+
+  {% endif %}
 
   <div class="row g-4 mb-4">
     <div class="col-lg-8">
@@ -359,12 +420,13 @@
 </div>
 
 <script>
+  // Move modals to end of body for stacking issues
   document.querySelectorAll('.modal').forEach(modal => document.body.appendChild(modal));
   // 1. Initialize Chart.js if data exists
   {% if has_spending_activity %}
     const ctx = document.getElementById('spendingChart').getContext('2d');
     
-    // Inject python lists safely into JS
+    // Inject python lists into javascrtipt using tojson filter
     const chartLabels = {{ chart_labels | tojson | safe }};
     const chartValues = {{ chart_values | tojson | safe }};
 
@@ -405,7 +467,7 @@
     });
   {% endif %}
 
-  // 2. Generic Function to Handle AJAX Form Submissions
+  // Generic Function to Handle AJAX Form Submissions
   function handleFormSubmit(formId, modalId) {
     document.getElementById(formId).addEventListener('submit', function(e) {
       e.preventDefault();
@@ -455,11 +517,11 @@
             form.reset()
           }
           else if (data.redirect) {
-            // For account deletion, redirect to homepage after toast
+            // redirect to homepage after deletion toast
             setTimeout(() => window.location.href = data.redirect, 1500);
           }
           else {
-            // For Profile/Password changes, wait 1.5s for the user to read the toast, then reload
+            // wait 1.5s then reload
             setTimeout(() => window.location.reload(), 1500);
           }
         }
