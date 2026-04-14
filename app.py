@@ -438,7 +438,7 @@ def add_money():
 
     dbcursor.execute('''INSERT INTO Transactions
                      (User_ID, Amount, Payment_method)
-                     VALUES (%s, %s, %s)''', session['user_id'], amount, 'Wallet')
+                     VALUES (%s, %s, %s)''', (session['user_id'], amount, 'Wallet'))
     conn.commit()
     dbcursor.close()
     conn.close()

@@ -276,7 +276,8 @@ header {
   border: 2px solid rgba(255, 255, 255, 0.612);
 }
 
-.search-btn {
+.search-btn, .clear-btn, .red-btn,
+.success-btn {
   padding: 0.6rem 1.5rem;
   font-weight: 500;
   transition: all 0.3s ease-in-out;
@@ -287,15 +288,19 @@ header {
   box-shadow: 0 4px 20px rgba(9, 95, 215, 0.6);
 }
 
-.clear-btn {
-  padding: 0.6rem 1.5rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
 .clear-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+}
+
+.red-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(255, 0, 0, 0.6);
+}
+
+.success-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0px 8px rgba(0, 255, 0, 0.6);
 }
 
 /*Responsive adjustments for search form*/

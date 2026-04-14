@@ -57,9 +57,11 @@
     text-align: center;
   }
   .modal-content {
-    background: rgba(20, 20, 20, 0.95);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.486);
+    color: #fff;
+    border-radius: 10px;
+    border: none;
+    backdrop-filter: blur(15px);
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -84,8 +86,8 @@
           </div>
         </div>
         <div class="d-flex gap-2 mt-3">
-          <button class="btn btn-outline-light flex-grow-1" data-bs-toggle="modal" data-bs-target="#editProfileModal">Update Profile</button>
-          <button class="btn btn-outline-danger flex-grow-1" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
+          <button class="btn btn-outline-light clear-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#editProfileModal">Update Profile</button>
+          <button class="btn btn-outline-info search-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
         </div>
       </div>
     </div>
@@ -95,8 +97,8 @@
         <div class="col-md-6">
           <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-center">
             <h6 class="text-uppercase text-success mb-2">Wallet Balance</h6>
-            <div class="stat-value text-success mb-3">£{{ "%.2f"|format(wallet_balance) }}</div>
-            <button class="btn btn-sm btn-success w-75 mx-auto rounded-pill" data-bs-toggle="modal" data-bs-target="#addMoneyModal">Add Money</button>
+            <div class="stat-value text-success mb-3" id="walletBalance">£{{ "%.2f"|format(wallet_balance) }}</div>
+            <button class="btn btn-success success-btn w-75 mx-auto rounded-pill" data-bs-toggle="modal" data-bs-target="#addMoneyModal">Add Money</button>
           </div>
         </div>
         <div class="col-md-6">
@@ -107,7 +109,7 @@
         </div>
         <div class="col-12">
           <div class="dashboard-card p-3 text-center d-flex align-items-center justify-content-between px-4">
-            <h6 class="text-uppercase text-secondary mb-0">Spent (Last 90 Days)</h6>
+            <h6 class="text-uppercase mb-0">Spent (Last 90 Days)</h6>
             <div class="fs-3 fw-bold text-danger">£{{ "%.2f"|format(spent_90_days) }}</div>
           </div>
         </div>
@@ -164,7 +166,7 @@
   <div class="row g-4">
     <div class="col-lg-4">
       <div class="dashboard-card p-4" style="cursor: pointer;" onclick="window.location.href='{{ url_for('events') }}'">
-        <h4 class="card-header-custom"><i class="fa-solid fa-calendar-star me-2"></i>Discover Upcoming</h4>
+        <h4 class="card-header-custom"><i class="fa-solid fa-calendar-days me-2"></i>Discover Upcoming</h4>
         <div class="scrollable-list">
           {% if upcoming_events %}
             {% for ev in upcoming_events %}
@@ -211,7 +213,7 @@
             <div class="badge-grid">
               {% for badge in achievements %}
                 <div class="achievement-badge">
-                  <i class="{{ badge.Icon_class }} fa-2x mb-2" style="color: #f72585;"></i>
+                  <i class="fa-solid {{ badge.Icon_class }} fa-xl mb-3" style="color: #f72585;"></i>
                   <h6 class="mb-1" style="font-size: 0.9rem;">{{ badge.Achievement_name }}</h6>
                   <small class="text-muted" style="font-size: 0.75rem;">{{ badge.Description }}</small>
                 </div>
@@ -257,10 +259,10 @@
             <input type="text" class="form-control" name="phone_number" value="{{ profile.Phone_number }}">
           </div>
           <div class="mb-4">
-            <label class="form-label text-light">Avatar URL (Optional)</label>
-            <input type="text" class="form-control" name="avatar_url" value="{{ profile.Avatar_URL if profile.Avatar_URL else '' }}">
+            <label for="avatar_url" class="form-label text-light">Profile Picture (Optional)</label>
+            <input type="file" class="form-control" name="avatar_url" accept="image/*" value="{{ profile.Avatar_URL if profile.Avatar_URL else '' }}">
           </div>
-          <button type="submit" class="btn btn-outline-light w-100">Save Changes</button>
+          <button type="submit" class="btn btn-outline-light clear-btn w-100">Save Changes</button>
         </form>
       </div>
     </div>
@@ -288,7 +290,7 @@
             <label class="form-label text-light">Confirm New Password</label>
             <input type="password" class="form-control" name="confirm_password" required minlength="8">
           </div>
-          <button type="submit" class="btn btn-danger w-100">Update Password</button>
+          <button type="submit" class="btn btn-outline-danger red-btn w-100">Update Password</button>
         </form>
       </div>
     </div>
@@ -309,7 +311,7 @@
             <input type="number" class="form-control" name="amount" min="1" max="300" step="0.01" required placeholder="e.g. 50.00">
             <small class="text-muted">Max £300 per transaction.</small>
           </div>
-          <button type="submit" class="btn btn-success w-100">Confirm Payment</button>
+          <button type="submit" class="btn btn-success success-btn w-100">Confirm Payment</button>
         </form>
       </div>
     </div>
@@ -378,7 +380,7 @@
       .then(response => response.json())
       .then(data => {
         // Find the global toast from base.html
-        const toastEl = document.getElementById('loginToast');
+        const toastEl = document.getElementById('Toast');
         const msgEl = document.getElementById('toastMessage');
         
         msgEl.textContent = data.message;
@@ -390,10 +392,32 @@
 
         if (data.success) {
           // Close the modal
-          const modalInstance = bootstrap.Modal.getInstance(document.getElementById(modalId));
+          const modalEl = document.getElementById(modalId);
+          let modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (!modalInstance) {
+            modalInstance = new bootstrap.Modal(modalEl);
+          }
           modalInstance.hide();
-          // Reload page to reflect new data (like updated wallet balance) after a brief delay
-          setTimeout(() => window.location.reload(), 1500);
+
+          // Live DOM Updates without reload
+          if (formId === 'addMoneyForm') {
+            // get amount added
+            const addedAmount = parseFloat(formData.get('amount'));
+
+            // find wallet element, get current amount and add new amount to it
+            const balanceDiv = document.getElementById('walletBalance');
+            const currentBalance = parseFloat(balanceDiv.textContent.replace('£', ''));
+            const newBalance = currentBalance + addedAmount;
+
+            balanceDiv.textContent = '£' + newBalance.toFixed(2);
+
+            // Clear form input 
+            form.reset()
+          }
+          else {
+            // For Profile/Password changes, wait 1.5s for the user to read the toast, then reload
+            setTimeout(() => window.location.reload(), 1500);
+          }
         }
       })
       .catch(err => console.error("Error submitting form:", err));
