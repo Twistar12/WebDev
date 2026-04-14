@@ -251,8 +251,13 @@
             </div>
           </div>
           <div class="mb-3">
+            <label class="form-label text-light">Username</label>
+            <input type="text" class="form-control" name="username" value="{{ profile.Username }}" required>
+          </div>
+          <div class="mb-3">
             <label class="form-label text-light">Email</label>
-            <input type="email" class="form-control" name="email" value="{{ profile.Email }}" required>
+            <input type="email" class="form-control text-muted" name="email" value="{{ profile.Email }}" readonly>
+            <small class="text-muted">Email address cannot be changed. Contact admin for changes.</small>
           </div>
           <div class="mb-3">
             <label class="form-label text-light">Phone Number</label>
@@ -262,13 +267,48 @@
             <label for="avatar_url" class="form-label text-light">Profile Picture (Optional)</label>
             <input type="file" class="form-control" name="avatar_url" accept="image/*" value="{{ profile.Avatar_URL if profile.Avatar_URL else '' }}">
           </div>
-          <button type="submit" class="btn btn-outline-light clear-btn w-100">Save Changes</button>
+
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-danger red-btn w-50" data-bs-toggle="modal" data-bs-target="#deleteAccountModal" data-bs-dismiss="modal">Delete Account</button>
+            <button type="submit" class="btn btn-outline-success success-btn w-50">Save Changes</button>
+          </div>
+          {# <button type="submit" class="btn btn-outline-light clear-btn w-100">Save Changes</button> #}
         </form>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Permanently Delete Account</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-light">Warning: This action is irreversible. All your bookings, tickets, and wallet balance will be permanently lost.</p>
+        <form id="deleteAccountForm" action="{{ url_for('delete_account') }}" method="POST">
+          <div class="mb-3">
+            <label class="form-label text-light">Confirm Email</label>
+            <input type="email" class="form-control" name="email" placeholder="Enter your email" required>
+          </div>
+          <div class="mb-4">
+            <label class="form-label text-light">Enter Password</label>
+            <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-light clear-btn w-50" data-bs-toggle="modal" data-bs-target="#editProfileModal" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-outline-danger red-btn w-50">Confirm Deletion</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -414,6 +454,10 @@
             // Clear form input 
             form.reset()
           }
+          else if (data.redirect) {
+            // For account deletion, redirect to homepage after toast
+            setTimeout(() => window.location.href = data.redirect, 1500);
+          }
           else {
             // For Profile/Password changes, wait 1.5s for the user to read the toast, then reload
             setTimeout(() => window.location.reload(), 1500);
@@ -428,6 +472,7 @@
   handleFormSubmit('updateProfileForm', 'editProfileModal');
   handleFormSubmit('changePasswordForm', 'changePasswordModal');
   handleFormSubmit('addMoneyForm', 'addMoneyModal');
+  handleFormSubmit('deleteAccountForm', 'deleteAccountModal');
 
 </script>
 {% endblock %}

@@ -298,6 +298,7 @@ def dashboard():
     dbcursor.execute('''SELECT Title, Tickets_Purchased, Total_Price, Live_Status
                      FROM User_Ticket_Info
                      WHERE User_ID = %s
+                     GROUP BY Title, Tickets_Purchased, Total_Price, Live_Status, Start_date
                      ORDER BY Start_date DESC LIMIT 10''', (user_id,))
     ticket_history = dbcursor.fetchall()
 
@@ -365,7 +366,7 @@ def update_profile():
     
     first_name = request.form.get('first_name', '').strip()
     last_name= request.form.get('last_name', '').strip()
-    email = request.form.get('email', '').strip()
+    username = request.form.get('username', '').strip()
     phone = request.form.get('phone_number', '').strip()
     avatar_url = request.form.get('avatar_url', '').strip()
 
@@ -373,19 +374,70 @@ def update_profile():
     dbcursor = conn.cursor()
 
 
-    # Check if email and user_id exists
-    dbcursor.execute('SELECT User_ID FROM Users WHERE Email = %s AND User_ID = %s', (email, session['user_id']))
+    # Check if username and user_id exists
+    dbcursor.execute('SELECT User_ID FROM Users WHERE Username = %s AND User_ID = %s', (username, session['user_id']))
     if dbcursor.fetchone():     # If record found, return in use error
-        return jsonify({'success': False, 'message': 'Email already in use by another account.'})
+        return jsonify({'success': False, 'message': 'Username already in use by another account.'})
     
     dbcursor.execute('''UPDATE Users
-                     SET First_name = %s, Last_name = %s, Email = %s, Phone_Number = %s, Avatar_URL = %s
-                     WHERE User_ID = %s''', (first_name, last_name, email, phone, avatar_url, session['user_id']))
+                     SET First_name = %s, Last_name = %s, Username = %s, Phone_Number = %s, Avatar_URL = %s
+                     WHERE User_ID = %s''', (first_name, last_name, username, phone, avatar_url, session['user_id']))
     conn.commit()
     dbcursor.close()
     conn.close()
 
     return jsonify({'success': True, 'message': 'Profile updated successfully!'})
+
+# Delete Account
+@app.route('/delete_account', methods=['POST'])
+def delete_account():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorised'})
+    
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor()
+
+    # Verify email and password 
+    dbcursor.execute('SELECT Email, Password_hash FROM Users WHERE User_ID = %s', (session['user_id'],))
+    user = dbcursor.fetchone()
+
+    # Safely delete account and all associated data
+    # To avoid foreign key constraint errors, deletion is done bottom-up (child to parent)
+    try:
+        dbcursor.execute('DELETE FROM Transactions WHERE User_ID = %s', (session['user_id'],))
+        dbcursor.execute('DELETE FROM Waiting_list WHERE User_ID = %s', (session['user_id'],))
+        dbcursor.execute('DELETE FROM Bookmarks WHERE User_ID = %s', (session['user_id'],))
+        dbcursor.execute('DELETE FROM User_Achievements WHERE User_ID = %s', (session['user_id'],))
+        dbcursor.execute('DELETE FROM Social_Auth WHERE User_ID = %s', (session['user_id'],))
+        dbcursor.execute('DELETE FROM Sessions WHERE User_ID = %s', (session['user_id'],))
+
+        # Find bookings for user to delete associated tickets and days
+        dbcursor.execute('SELECT Booking_ID FROM Bookings WHERE User_ID = %s', (session['user_id'],))
+        user_bookings = dbcursor.fetchall()
+        for b in user_bookings:
+            dbcursor.execute('DELETE FROM Tickets WHERE Booking_ID = %s', (b['Booking_ID'],))
+            dbcursor.execute('DELETE FROM Booking_Days WHERE Booking_ID = %s', (b['Booking_ID'],))
+
+        # Delte bookings after associated data is deleted
+        dbcursor.execute('DELETE FROM Bookings WHERE User_ID = %s', (session['user_id'],))
+
+        # Delete user and clear session
+        dbcursor.execute('DELETE FROM Users WHERE User_ID = %s', (session['user_id'],))
+        conn.commit()
+
+        session.clear() # Logs out user
+
+        return jsonify({'success': True, 'message': 'Account deleted successfully. Redirecting...'})
+    
+    except Exception as e:
+        conn.rollback() # Rollback transaction if any error occurs during deletion
+        return jsonify({'success': False, 'message': f'An error occurred while deletion. {e}'})
+    finally:
+        dbcursor.close()
+        conn.close()
+
+
+        
 
 # Change Password
 @app.route('/change_password', methods=['POST'])
