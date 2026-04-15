@@ -1,310 +1,315 @@
-<!doctype html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book Event | Bristol Community Events</title>
-  <link rel="icon" type="image/x-icon" href="../static/img/Bristol_Community_Events_icon.ico">
-  <link rel="stylesheet" href="../static/css/index.css">
-  <script src="https://kit.fontawesome.com/3b03995670.js" crossorigin="anonymous"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
+{% block title %}Book Event | Bristol Community Events{% endblock %}
 
-    body {
-      color: #fff;
-    }
+{% block styles %}
+<style>
+  .booking-card {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 2rem;
+    color: white;
+  }
+  .receipt-modal .modal-content {
+    background: #1a1a1a;
+    border: 1px solid #f72585;
+    color: white;
+  }
+  .ticket-code {
+    font-family: monospace;
+    font-size: 1.2rem;
+    background: rgba(255,255,255,0.1);
+    padding: 5px 10px;
+    border-radius: 5px;
+    letter-spacing: 2px;
+  }
+  /* Payment Radio Button Styling */
+  .payment-method-label {
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .payment-method-label:hover { background: rgba(255,255,255,0.05); }
+  input[type="radio"]:checked + .payment-method-label {
+    border-color: #f72585;
+    background: rgba(247, 37, 133, 0.1);
+  }
+</style>
+{% endblock %}
 
-    .tilt-prism-regular {
-      font-family: "Tilt Prism", sans-serif;
-      font-weight: 400;
-    }
-
-    #title {
-      font-size: 1em;
-      transition: 0.3s ease all;
-    }
-    @media (max-width: 405px){
-      #title {
-        font-size: calc(0.6 * 1em); /* 0.5 times current size*/
-        transition: 0.3s ease all;
-      }
-    }
-
-    .booking-container {
-      max-width: 1000px;
-      margin: 80px auto;
-      background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      padding: 2.5rem;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-    }
-
-    .booking-container h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .btn-submit {
-      background: linear-gradient(90deg, #7209b7, #f72585);
-      border: none;
-      color: #fff;
-      transition: 0.3s ease;
-    }
-
-    .btn-submit:hover {
-      transform: scale(1.05);
-    }
-
-    .payment-options {
-      gap: 0.75rem;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .payment-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      padding: 0.5rem 1rem;
-      color: white;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-    }
-
-    .payment-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
-    }
-
-    /* Select just radio buttons with "adjacent(+)" label having payment class*/
-    input[type=radio]:checked+label.payment-btn {
-      background: linear-gradient(90deg, #7209b7, #f72585);
-      border-color: #f72585;
-      box-shadow: 0 0 10px rgba(247, 37, 133, 0.6);
-    }
-
-    #cardDetails {
-      background: rgba(0, 0, 0, 0.25);
-      padding: 1.5rem;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    #cardDetails label {
-      font-weight: 500;
-    }
-
-    #collapseCard {
-      transition: all 0.4s ease-in-out;
-    }
-  </style>
-</head>
-
-<body class="ubuntu-regular animated-gradient">
-  <!-- NAVBAR -->
-  <header class="py-2 gradient-custom text-white" id="topnav" style="position: sticky; top: 0; z-index: 1000;">
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-      <div class="container">
-        <!-- Logo -->
-        <a href="index.html" class="navbar-brand d-flex align-items-center">
-          <img src="../static/img/BCE_Logo_Dark.png" alt="Bristol Community Events logo"
-            class="brand-logo d-inline-block align-items-center me-2" style="height: 55px;">
-          <span class="tilt-prism-regular mt-2 me-2" id="title">Bristol Community Events</span>
-        </a>
-        <!-- Mobile Toggle Button triggers when width < 992px -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu"
-          aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- Collapsible Menu -->
-        <div class="collapse navbar-collapse" id="navbarMenu">
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-center">
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1" href="dashboard.html">Dashboard</a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1 " href="events.html">Events</a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link button px-2 rounded-1" href="about.html">About Us</a>
-            </li>
-          </ul>
-          <!-- Auth Buttons -->
-          <div class="d-flex justify-content-center mt-3 mt-lg-0">
-            <a href="login.html" class="login-btn me-2">Login</a>
-            <a href="sign-up.html" class="signup-btn text-dark">Sign-up</a>
-          </div>
-        </div>
-      </div>
-    </nav>
-  </header>
-
-  <div class="container booking-container">
-    <h2 class="tilt-prism-regular">Book Your Event</h2>
-
-    <form id="bookingForm">
-      <div class="mb-3">
-        <label for="eventName" class="form-label">Event Name</label>
-        <input type="text" id="eventName" class="form-control" readonly>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="fullName" class="form-label">Full Name</label>
-          <input type="text" id="fullName" class="form-control" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input type="email" id="email" class="form-control" required>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="phone" class="form-label">Phone Number</label>
-          <input type="tel" id="phone" class="form-control" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="tickets" class="form-label">Number of Tickets</label>
-          <input type="number" id="tickets" class="form-control" min="1" value="1" required>
-        </div>
-      </div>
-
-      <hr class="my-4">
-
-      <h5 class="mb-3 text-center">Choose Payment Method</h5>
-
-      <div class="container">
-        <div class="row align-items-stretch">
-          <div class="col-md-3 p-1 d-flex align-items-stretch">
-            <input type="radio" class="btn-check" name="payment" id="paypal">
-            <label class="payment-btn mb-3 flex-grow-1" for="paypal"><i class="fa-solid fa-wallet"></i>Pay with
-              Wallet</label>
-          </div>
-          <div class="col-md-3 p-1 d-flex align-items-stretch">
-            <input type="radio" class="btn-check" name="payment" id="card">
-            <label class="payment-btn mb-3 flex-grow-1" for="card">
-              <i class="fa-solid fa-credit-card"></i> Pay with Card</label>
-          </div>
-          <div class="col-md-3 p-1 d-flex align-items-stretch">
-            <input type="radio" class="btn-check" name="payment" id="gpay">
-            <label class="payment-btn mb-3 flex-grow-1" for="gpay"><i class="fa-brands fa-google-pay"></i>Pay with
-              Google Pay</label>
-          </div>
-          <div class="col-md-3 p-1 d-flex align-items-stretch">
-            <input type="radio" class="btn-check" name="payment" id="applepay">
-            <label class="payment-btn mb-3 flex-grow-1" for="applepay"><i class="fa-brands fa-apple-pay"></i>Pay with
-              Apple Pay</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Collapsible Card Details -->
-      <div class="collapse mt-3" id="collapseCard">
-        <div id="cardDetails">
-          <div class="mb-3">
-            <label for="cardNumber" class="form-label">Card Number</label>
-            <input type="text" id="cardNumber" class="form-control" placeholder="1234 5678 9012 3456">
-          </div>
-          <div class="row justify-content-center">
-            <div class="col-md-6 mb-3">
-              <label for="expiry" class="form-label">Expiry Date</label>
-              <input type="text" id="expiry" class="form-control" placeholder="MM/YY">
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h1 class="style-script-regular text-center text-warning mb-4" style="font-size: 3.5rem;">Secure Checkout</h1>
+      
+      <form id="bookingForm" action="{{ url_for('process_booking') }}" method="POST">
+        <input type="hidden" name="event_id" value="{{ event.Event_ID }}">
+        
+        <div class="booking-card mb-4">
+          <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i class="fa-solid fa-calendar-check me-2"></i>Event Details</h4>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="text-white small">Event Name</label>
+              <input type="text" class="form-control" value="{{ event.Title }}" readonly>
             </div>
-            <div class="col-md-6 mb-3">
-              <label for="cvv" class="form-label">CVV</label>
-              <input type="text" id="cvv" class="form-control" placeholder="123">
+            <div class="col-md-4">
+              <label class="text-white small">Price Per Day/Ticket</label>
+              <input type="text" class="form-control" id="price_per_day" value="£{{ '%.2f'|format(event.Price) }}" data-val="{{ event.Price }}" readonly>
+            </div>
+            
+            <div class="col-12 mt-3">
+              <label class="text-light mb-2">Select Days to Attend</label>
+              <div class="d-flex flex-wrap gap-3 p-3 border border-secondary rounded" style="background: rgba(0,0,0,0.3);">
+                {% if event_days|length == 1 %}
+                  <div class="form-check">
+                    <input class="form-check-input day-checkbox" type="checkbox" name="selected_days" value="{{ event_days[0].Date }}" checked onclick="return false;">
+                    <label class="form-check-label">{{ event_days[0].Date }} (Single Day Event)</label>
+                  </div>
+                {% else %}
+                  {% for day in event_days %}
+                  <div class="form-check">
+                    <input class="form-check-input day-checkbox" type="checkbox" name="selected_days" value="{{ day.Date }}" id="day_{{ loop.index }}">
+                    <label class="form-check-label" for="day_{{ loop.index }}">{{ day.Date }}</label>
+                  </div>
+                  {% endfor %}
+                {% endif %}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <button type="submit" class="btn btn-submit w-100 mt-3 py-2">Confirm Booking</button>
-    </form>
-  </div>
+        <div class="booking-card mb-4">
+          <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i class="fa-solid fa-user me-2"></i>Attendee Details</h4>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="full_name" value="{{ user.First_name }} {{ user.Last_name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email Address <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" name="email" value="{{ user.Email }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone Number (Optional)</label>
+              <input type="text" class="form-control" name="phone" value="{{ user.Phone_number or '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Number of Tickets <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="num_tickets" name="num_tickets" min="1" max="10" value="1" required>
+            </div>
+            <div class="col-12 mt-3">
+              <div class="form-check form-switch fs-5">
+                <input class="form-check-input" type="checkbox" id="student_discount" name="student_discount">
+                <label class="form-check-label fs-6 mt-1" for="student_discount">Apply 10% Student Discount</label>
+              </div>
+              <small class="text-danger d-block mt-1"><i class="fa-solid fa-circle-info me-1"></i>Valid Student ID must be presented at the venue.</small>
+            </div>
+          </div>
+        </div>
 
-  <!-- FOOTER -->
-  <footer class="footer-dark text-light pt-5 pb-3 px-4 mt-5">
-    <div class="container">
-      <div class="row gy-4">
-        <div class="col-12 col-md-4">
-          <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
-          <p class="text-muted">Bringing Bristol’s vibrant community together through concerts, workshops, food
-            festivals, and more.</p>
+        <div class="booking-card mb-4">
+          <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i class="fa-solid fa-credit-card me-2"></i>Payment & Summary</h4>
+          
+          <div class="bg-dark p-3 rounded mb-4 border border-secondary">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Base Price (<span id="summary_tickets">1</span> ticket(s) × <span id="summary_days">1</span> day(s)):</span>
+              <span id="summary_base">£0.00</span>
+            </div>
+            {% if disc_percent > 0 %}
+            <div class="d-flex justify-content-between mb-2 text-success">
+              <span>Advanced Booking Discount ({{ disc_percent }}%):</span>
+              <span id="summary_early">-£0.00</span>
+            </div>
+            {% endif %}
+            <div class="d-flex justify-content-between mb-2 text-info" id="student_row" style="display: none !important;">
+              <span>Student Discount (10%):</span>
+              <span id="summary_student">-£0.00</span>
+            </div>
+            <hr class="border-secondary">
+            <div class="d-flex justify-content-between fs-4 fw-bold text-warning">
+              <span>Total to Pay:</span>
+              <span id="summary_total">£0.00</span>
+            </div>
+          </div>
+
+          <div class="d-flex flex-column gap-3">
+            <div>
+              <input type="radio" class="btn-check" name="payment" id="wallet" value="wallet" checked>
+              <label class="payment-method-label w-100" for="wallet">
+                <i class="fa-solid fa-wallet fa-2x text-warning w-px-40 text-center"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-bold">My Wallet</div>
+                  <small class="text-muted">Available Balance: £{{ "%.2f"|format(wallet_balance) }}</small>
+                </div>
+              </label>
+            </div>
+            <div>
+              <input type="radio" class="btn-check" name="payment" id="card" value="card">
+              <label class="payment-method-label w-100" for="card">
+                <i class="fa-solid fa-credit-card fa-2x text-info w-px-40 text-center"></i>
+                <div class="fw-bold">Credit / Debit Card</div>
+              </label>
+              <div class="collapse mt-3" id="collapseCard">
+                <div class="card card-body bg-dark border-secondary">
+                  <div class="mb-3">
+                    <label>Card Number</label>
+                    <input type="text" class="form-control" placeholder="0000 0000 0000 0000">
+                  </div>
+                  <div class="row">
+                    <div class="col-6"><label>Expiry</label><input type="text" class="form-control" placeholder="MM/YY"></div>
+                    <div class="col-6"><label>CVV</label><input type="text" class="form-control" placeholder="123"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <input type="radio" class="btn-check" name="payment" id="paypal" value="paypal">
+              <label class="payment-method-label w-100" for="paypal">
+                <i class="fa-brands fa-paypal fa-2x text-primary w-px-40 text-center"></i>
+                <div class="fw-bold">PayPal</div>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-warning w-100 fw-bold fs-5 mt-5 p-3" id="confirmBtn">Confirm & Pay</button>
         </div>
-        <div class="col-6 col-md-4">
-          <h6 class="text-uppercase ubuntu-medium mb-3">Quick Links</h6>
-          <ul class="list-unstyled">
-            <li><a href="index.html" class="footer-link">Home</a></li>
-            <li><a href="dashboard.html" class="footer-link">Dashboard</a></li>
-            <li><a href="events.html" class="footer-link">Events</a></li>
-            <li><a href="about.html" class="footer-link">About Us</a></li>
-          </ul>
-        </div>
-        <div class="col-6 col-md-4">
-          <h6 class="text-uppercase ubuntu-medium mb-3">Contact Us</h6>
-          <ul class="list-unstyled">
-            <li><i class="fa-solid fa-phone me-2 mb-2"></i> +44 117 123 4567</li>
-            <li><i class="fa-solid fa-envelope me-2 mb-2"></i> info@bristolevents.co.uk</li>
-            <li><i class="fa-solid fa-location-dot me-2 mb-2"></i> 10 Park Street, Bristol, UK</li>
-          </ul>
-        </div>
-        <div class="text-center small mt-0 text-muted">Follow us on our socials</div>
-        <div class="social-icons mt-0 justify-content-center">
-          <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
-          <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
-          <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
-          <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
-          <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i
-              class="fa-brands fa-whatsapp"></i></a>
-        </div>
-      </div>
-      <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
-      <div class="text-center small text-muted">© 2025 Bristol Community Events. All rights reserved.</div>
+      </form>
     </div>
-  </footer>
+  </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<div class="modal fade receipt-modal" id="receiptModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0 text-center d-block">
+        <i class="fa-solid fa-circle-check fa-4x text-success mb-3"></i>
+        <h3 class="modal-title text-warning">Booking Confirmed!</h3>
+      </div>
+      <div class="modal-body px-4 pb-4">
+        <p class="text-center text-muted">A copy of this receipt has been saved to your dashboard.</p>
+        <div class="bg-dark p-3 rounded mb-4">
+          <div class="d-flex justify-content-between mb-2"><span>Base Price:</span><strong id="rcpt_base"></strong></div>
+          <div class="d-flex justify-content-between mb-2 text-success"><span>Advanced Booking Discount:</span><strong id="rcpt_early"></strong></div>
+          <div class="d-flex justify-content-between mb-2 text-info"><span>Student Discount:</span><strong id="rcpt_student"></strong></div>
+          <hr class="border-secondary">
+          <div class="d-flex justify-content-between fs-5 text-warning"><span>Total Paid:</span><strong id="rcpt_total"></strong></div>
+        </div>
+        <h5 class="mb-3 text-center">Your Ticket Codes:</h5>
+        <div id="rcpt_tickets" class="d-flex flex-column gap-2 text-center mb-4">
+          </div>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light w-100">Return to Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <script>
-    // get collapse element and create a Collapse instance without toggling it on creation {toggle: false}
-    const collapseEl = document.getElementById('collapseCard');
-    const bsCollapse = new bootstrap.Collapse(collapseEl, { toggle: false });
+<script>
+  // Move modal to body
+  document.body.appendChild(document.getElementById("receiptModal"));
 
-    // when any payment input changes, show/hide collapse appropriately
-    document.querySelectorAll('input[name="payment"]').forEach(input => {
-      input.addEventListener('change', function () {
-        if (this.id === 'card' && this.checked) {
-          bsCollapse.show();
-        } else {
-          // Detect switch to another radio mid animation and close
-          // See if the card still 'shows'
-          if (collapseEl.classList.contains("show")) {
-            bsCollapse.hide();
-          }
-        }
-      });
+  // 1. Live Price Calculator
+  const pricePerDay = parseFloat(document.getElementById('price_per_day').getAttribute('data-val'));
+  const earlyBirdPct = {{ early_bird_pct }};
+  
+  function calculateTotal() {
+    const numTickets = parseInt(document.getElementById('num_tickets').value) || 1;
+    const isStudent = document.getElementById('student_discount').checked;
+    
+    // Count checked days (Fallback to 1 if it's a single day readonly event)
+    const checkboxes = document.querySelectorAll('.day-checkbox:checked');
+    const selectedDays = checkboxes.length > 0 ? checkboxes.length : 1;
+
+    // Base math
+    const baseTotal = pricePerDay * numTickets * selectedDays;
+    const earlyBirdDiscount = baseTotal * (earlyBirdPct / 100);
+    const subTotal = baseTotal - earlyBirdDiscount;
+    const studentDiscount = isStudent ? (subTotal * 0.10) : 0;
+    const finalTotal = subTotal - studentDiscount;
+
+    // Update DOM
+    document.getElementById('summary_tickets').textContent = numTickets;
+    document.getElementById('summary_days').textContent = selectedDays;
+    document.getElementById('summary_base').textContent = `£${baseTotal.toFixed(2)}`;
+    
+    const earlyEl = document.getElementById('summary_early');
+    if(earlyEl) earlyEl.textContent = `-£${earlyBirdDiscount.toFixed(2)}`;
+    
+    document.getElementById('student_row').style.setProperty('display', isStudent ? 'flex' : 'none', 'important');
+    document.getElementById('summary_student').textContent = `-£${studentDiscount.toFixed(2)}`;
+    
+    document.getElementById('summary_total').textContent = `£${finalTotal.toFixed(2)}`;
+    
+    // Disable button if no days selected
+    const confirmBtn = document.getElementById('confirmBtn');
+    if (selectedDays === 0) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = "Please select at least 1 day";
+    } else {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "Confirm & Pay";
+    }
+  }
+
+  // Attach event listeners for calculation
+  document.querySelectorAll('.day-checkbox').forEach(cb => cb.addEventListener('change', calculateTotal));
+  document.getElementById('num_tickets').addEventListener('input', calculateTotal);
+  document.getElementById('student_discount').addEventListener('change', calculateTotal);
+  
+  // Initial calculation
+  calculateTotal();
+
+  // 2. Expandable Card UI
+  const collapseEl = document.getElementById('collapseCard');
+  const bsCollapse = new bootstrap.Collapse(collapseEl, { toggle: false });
+  document.querySelectorAll('input[name="payment"]').forEach(input => {
+    input.addEventListener('change', function () {
+      if (this.id === 'card' && this.checked) bsCollapse.show();
+      else if (collapseEl.classList.contains("show")) bsCollapse.hide();
     });
+  });
 
-    // Hide always after animation
-    collapseEl.addEventListener('hidden.bs.collapse', () => {
-      collapseEl.style.display = ''; // Reset display style
+  // 3. Form Submission via AJAX
+  document.getElementById('bookingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('confirmBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Processing...';
+
+    fetch(this.action, {
+      method: 'POST',
+      body: new FormData(this)
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        // Populate Receipt Modal
+        document.getElementById('rcpt_base').textContent = data.receipt.base;
+        document.getElementById('rcpt_early').textContent = data.receipt.early_bird;
+        document.getElementById('rcpt_student').textContent = data.receipt.student;
+        document.getElementById('rcpt_total').textContent = data.receipt.final;
+        
+        const tktsDiv = document.getElementById('rcpt_tickets');
+        tktsDiv.innerHTML = '';
+        data.receipt.tickets.forEach(code => {
+          tktsDiv.innerHTML += `<div class="ticket-code">${code}</div>`;
+        });
+
+        // Show Modal
+        new bootstrap.Modal(document.getElementById('receiptModal')).show();
+      } else {
+        alert("Booking failed: " + data.message);
+        btn.disabled = false;
+        btn.textContent = "Confirm & Pay";
+      }
     });
-
-    // Prefill event name from URL
-    const params = new URLSearchParams(window.location.search);
-    const eventName = params.get('event');
-    if (eventName) document.getElementById('eventName').value = eventName;
-  </script>
-</body>
-
-</html>
+  });
+</script>
+{% endblock %}

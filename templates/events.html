@@ -271,11 +271,23 @@
       track.style.background = `linear-gradient(to right, #dee2e6 ${percent1}%, #FC5637 ${percent1}%, #FC5637 ${percent2}%, #dee2e6 ${percent2}%)`;
     }
 
-    function renderEvents(list) {
+    function showToast(message, isSuccess) {
+      const toastEl = document.getElementById('Toast');
+      const msgEl = document.getElementById('toastMessage');
+    
+      if (toastEl && msgEl) {
+          msgEl.textContent = message;
+          toastEl.classList.remove('bg-danger', 'bg-success');
+          toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+          new bootstrap.Toast(toastEl, { delay: 3000 }).show();
+      }
+    }
+
+    function renderEvents(events) {
       container.innerHTML = "";
 
       // If no events found when filters applied, show message
-      if (list.length === 0) {
+      if (events.length === 0) {
         container.innerHTML = `
         <div class="col-12 text-center text-white py-5">
           <i class="fa-regular fa-face-sad-cry fa-shake fa-3x mb-3"></i>
@@ -286,9 +298,34 @@
       }
 
       // For loop using forEach()
-      list.forEach(ev => {                   
+      events.forEach(ev => {                   
         const card = document.createElement("div"); // Start to create cards in this container
         card.className = "col-md-6 col-lg-4 mb-4";
+
+        // Check if event is in the past
+        const eventDate = new Date(ev.date);
+        const isPastEvent = eventDate < new Date();
+
+        // Availablity badge
+        let availabilityHtml = '';
+        if (isPastEvent) {
+            availabilityHtml = `<span class="badge bg-secondary mb-2">Event Ended</span>`;
+        } else if (ev.slots <= 0) {
+            availabilityHtml = `<span class="badge bg-danger mb-2">SOLD OUT</span>`;
+        } else {
+            availabilityHtml = `<span class="badge bg-success mb-2">${ev.slots} Slots Available</span>`;
+        }
+
+        // Button logic for cards
+        let buttonHtml = '';
+        if (isPastEvent) {
+            buttonHtml = `<button class="btn btn-secondary w-100 fw-bold disabled">Unavailable</button>`;
+        } else if (ev.slots <= 0) {
+            buttonHtml = `<button onclick="addToWaitlist(${ev.Event_ID})" class="btn btn-light text-dark w-100 fw-bold"><i class="fa-solid fa-list me-2"></i>Waitlist</button>`;
+        } else {
+            buttonHtml = `<a href="/booking/${ev.Event_ID}" class="btn btn-warning w-100 fw-bold">Book Now</a>`;
+        }
+
 
         // format multi-day dates for cards
         let displayDate = ev.date;
@@ -296,8 +333,15 @@
           displayDate += ` to ${ev.end_date}`;
         }
 
-        // sold out status for UI
-        const slotDisplay = ev.slots === 0 ? `<span class="text-danger fw-bold">SOLD OUT</span>` : `${ev.slots} left`;
+        // slot display logic for cards
+        let slotDisplay;
+        if (isPastEvent) {
+          slotDisplay = `<span class="text-info">Event Ended</span>`;
+        } else if (ev.slots <= 0) {
+          slotDisplay = `<span class="text-danger fw-bold">SOLD OUT</span>`;
+        } else {
+          slotDisplay = `${ev.slots} left`;
+        }
 
         // `...` for multi-line strings
         card.innerHTML = `    
@@ -305,14 +349,16 @@
             <img src="${staticImgPath}${ev.image}" class="card-img-top rounded-1" alt="${ev.title}" loading="lazy" style="max-height: 199px; object-fit: cover;">
             <div class="card-body p-4">
               <h4 class="underline">${ev.title}</h4>
+              <div class="mt-2 mb-3">${availabilityHtml}</div>
               <p class="mb-1"><i class="fa fa-calendar me-2"></i>${displayDate}</p> 
               <p class="mb-1"><i class="fa fa-location-dot me-2"></i>${ev.venue}</p>
               <p class="mb-1"><i class="fa fa-ticket me-2"></i>£${ev.price}</p>
               <p class="mb-1"><i class="fa fa-tags me-2"></i>${ev.category}</p>
-              <small>Capacity: ${ev.capacity} | Available Slots: ${slotDisplay}</small>
+              <small>Capacity: ${ev.capacity}
               <p class="mt-2">${ev.desc.substring(0, 70)}...</p>
             </div>
-            <button class="btn btn-outline-light m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openEvent(${fetchedEvents.indexOf(ev)})">View More</button> <!-- Pass JS Index instead of object -->
+            <div class="card-footer bg-transparent border-0 p-4 pt-0 d-flex flex-column gap-2">
+            <button class="btn btn-outline-light clear-btn m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openEvent(${fetchedEvents.indexOf(ev)})">View More</button> <!-- Pass JS Index instead of object -->
           </div>`;
         container.appendChild(card);
       });
@@ -333,7 +379,7 @@
       document.getElementById("eventPrice").textContent = ev.price;
       document.getElementById("eventCategory").textContent = ev.category;
       document.getElementById("eventCapacity").textContent = ev.capacity;
-      document.getElementById("eventSlots").textContent = ev.slots === 0 ? "SOLD OUT" : ev.slots; // Show sold out if slots = 0
+      document.getElementById("eventSlots").textContent = ev.slots <= 0 ? "SOLD OUT" : ev.slots; // Show sold out if slots are 0 or less
       document.getElementById("eventDesc").textContent = ev.desc;
 
       // Add event image
@@ -342,16 +388,32 @@
       img.alt = ev.title;
 
       // Book Now button
+      const eventDate = new Date(ev.date);
+      const isPastEvent = eventDate < new Date();
       const bookNowBtn = document.getElementById("bookNowBtn");
-      if (ev.slots === 0) {
-        bookNowBtn.classList.add("disabled", "btn-secondary", "border-secondary");
-        bookNowBtn.textContent = "Sold Out";
+
+      // reset onclick behaviour so old events dont trigger new events booking page
+      bookNowBtn.onclick = null;
+
+      if (isPastEvent) {
+        // Event in past
+        bookNowBtn.className = "btn btn-secondary disabled w-100 fw-bold"; // Override any previous classes and set to disabled
+        bookNowBtn.innerHTML = '<i class="fa-solid fa-list me-2"></i>Event Ended'; // Change text to "Event Ended" with an icon
         bookNowBtn.href = "#";
+      } else if (ev.slots <= 0) {
+        // Event is sold out - change to waiting list button
+         bookNowBtn.className = "btn btn-light text-dark w-100 fw-bold";
+         bookNowBtn.innerHTML = '<i class="fa-solid fa-list me-2"></i>Add to Waiting List'; // Change text to "Add to Waiting List"
+         bookNowBtn.href = "javascript:void(0)"; // Prevent default link behavior
+         bookNowBtn.onclick = function() {
+          addToWaitingList(ev.Event_ID); // Call a function to handle adding to waiting list, passing event title or ID as needed
+         }
       } else {
-        bookNowBtn.classList.remove("disabled", "btn-secondary", "border-secondary");
+        // Event is available for booking
+        bookNowBtn.className = "btn btn-warning w-100 fw-bold"; // Reset to default booking button style
         bookNowBtn.textContent = "Book Now";
         // bookNowBtn.classList.add("book-btn");
-        bookNowBtn.href = `booking.html?event=${encodeURIComponent(ev.title)}`; // Safe URL encoding for event title in query string
+        bookNowBtn.href = `/booking/${ev.Event_ID}`; // Safe URL encoding for event title in query string
       }
     }
 
@@ -418,5 +480,31 @@
     });
 
     renderEvents(fetchedEvents); // Display filtered fetchedEvents
+
+    function addToWaitingList(eventId) {
+      fetch('add_to_waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest' 
+        },
+        body: JSON.stringify({ event_id: eventId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        showToast(data.message, data.success); // Show success or error message based on response
+
+        if (data.success) {
+          const modalEl = document.getElementById('eventModal');
+          if (modalEl) {
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) {
+              modalInstance.hide(); // Hide the modal after successfully adding to waiting list
+            }
+          }
+        }
+      })
+      .catch(err => console.error('Error adding to waiting list:', err));
+    }
   </script>
 {% endblock %}

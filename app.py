@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from io import StringIO
+import random, string
 
 
 app = Flask(__name__)
@@ -327,13 +328,15 @@ def dashboard():
 
 
     # Card 8: Waiting List
-
-    dbcursor.execute('''SELECT e.Title, DATE(e.Start_date) AS date
-                        FROM Waiting_list w
-                        JOIN Events e on w.Event_ID = e.Event_ID
-                        WHERE w.User_ID = %s
-                        AND e.Start_date >= CURDATE()              
-                        ORDER BY e.Start_date ASC''', (user_id,)) # only show upcoming events in waiting list
+    dbcursor.execute('''SELECT wl.Event_ID, e.Title, DATE_FORMAT(e.Start_date, '%d %b %Y') AS date,
+                     (SUM(ed.Day_Capacity) - COALESCE (
+                        (SELECT SUM(Tickets_Purchased) FROM User_Ticket_Info WHERE Title = e.Title), 0)) AS Available_Slots
+                    FROM Waiting_list wl
+                    JOIN Events e on wl.Event_ID = e.Event_ID
+                    JOIN Event_Days ed on e.Event_ID = ed.Event_ID
+                    WHERE wl.User_ID = %s AND e.Start_date >= CURDATE()
+                    GROUP BY wl.Event_ID, e.Title, e.Start_date       
+                    ORDER BY e.Start_date ASC''', (session['user_id'],)) # only show upcoming events in waiting list
     waiting_list = dbcursor.fetchall()
     for w in waiting_list:
         w['date'] = str(w['date']) # convert to strings for Jinja
@@ -385,6 +388,36 @@ def dashboard():
 
 
 # POST ROUTES for Dashboard Modals
+
+@app.route('/add_to_waitlist', methods=['POST'])
+def add_to_waitlist():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorised'})
+    
+    data = request.get_json()
+    event_id = data.get('event_id')
+    user_id = session['user_id']
+
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor()
+
+    try:
+        # Check if user is already on waiting list for this event
+        dbcursor.execute('SELECT * FROM Waiting_list WHERE User_ID = %s AND Event_ID = %s', (user_id, event_id))
+        if dbcursor.fetchone():
+            return jsonify({'success': False, 'message': 'You are already on the waiting list for this event.'})
+
+        # Add user to waiting list
+        dbcursor.execute('INSERT INTO Waiting_list (User_ID, Event_ID) VALUES (%s, %s)', (user_id, event_id))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'You have been added to the waiting list for this event!'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'An error occurred while adding to waiting list. {e}'})
+    finally:
+        dbcursor.close()
+        conn.close()
+
 
 # update profile
 @app.route('/update_profile', methods=['POST'])
@@ -575,9 +608,11 @@ def admin_portal():
 
     # Fetch basic event info for Event Status Card
     dbcursor.execute('''SELECT  e.*, v.Name as Venue, c.Category_name,
-                     DATE_FORMAT(e.Start_date, '%Y-%m-%d') as Start_date, DATE_FORMAT(e.Start_date, '%H:%i') as Start_time,
-                     DATE_FORMAT(e.End_date, '%Y-%m-%d') as End_date, DATE_FORMAT(e.End_date, '%H:%i') as End_time,
-                     SUM(ed.Day_Capacity) AS Total_Capacity
+                        DATE_FORMAT(e.Start_date, '%Y-%m-%d') as Start_date, DATE_FORMAT(e.Start_date, '%H:%i') as Start_time,
+                        DATE_FORMAT(e.End_date, '%Y-%m-%d') as End_date, DATE_FORMAT(e.End_date, '%H:%i') as End_time,
+                        DATEDIFF(e.Start_date, CURDATE()) AS Days_Until_Event,
+                        (SELECT SUM(Day_Capacity) FROM Event_Days WHERE Event_ID = e.Event_ID) AS Total_Capacity,
+                        (SELECT COUNT(*) FROM Tickets t JOIN Bookings b ON t.Booking_ID = b.Booking_ID WHERE b.Event_ID = e.Event_ID) AS Tickets_Sold
                      FROM Events e
                      JOIN Venues v on e.Venue_ID = v.Venue_ID
                      JOIN Event_Days ed on e.Event_ID = ed.Event_ID
@@ -585,6 +620,15 @@ def admin_portal():
                      GROUP BY e.Event_ID, e.Title, v.Name, e.Start_date
                      ORDER BY e.Start_date ASC''')
     all_events = dbcursor.fetchall()
+
+    # Process flags for event status
+    for e in all_events:
+        total_capacity = float(e['Total_Capacity'] or 0) # Handle NULL values by defaulting to 0
+        tickets_sold = float(e['Tickets_Sold'] or 0) # Handle NULL
+        percent_sold = (tickets_sold / total_capacity * 100) if total_capacity > 0 else 0
+
+        # Flag if <= 10 days away and < 50% sold
+        e['Low_Sales_Warning'] = True if (0 <= e['Days_Until_Event'] <= 10 and percent_sold < 50) else False
 
     # Fetch venues for creating event
     dbcursor.execute('SELECT * FROM Venues ORDER BY Name ASC')
@@ -1094,6 +1138,154 @@ def delete_event():
     finally:
         dbcursor.close()
         conn.close()
+
+
+@app.route('/booking/<int:event_id>')
+def booking(event_id):
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorised', 'redirect': url_for('index')})
+    
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+
+    # Get Event and User Details
+    dbcursor.execute('SELECT * FROM Events e WHERE Event_ID = %s', (event_id,))
+    event = dbcursor.fetchone()
+
+    if not event:
+        return jsonify({'success': False, 'message': 'Event not found.', 'redirect': url_for('events')})
+    
+    dbcursor.execute('SELECT * FROM Users WHERE User_ID = %s', (session['user_id'],))
+    user = dbcursor.fetchone()
+
+    # Get Wallet Balance
+    dbcursor.execute('SELECT SUM(ABS(Amount)) as Balance FROM Transactions WHERE User_ID = %s', (session['user_id'],))
+    wallet_balance = dbcursor.fetchone()['Balance'] or 0.00
+
+    # Get event days 
+    dbcursor.execute('SELECT Date, Day_Capacity FROM Event_Days WHERE Event_ID = %s ORDER BY Date ASC', (event_id,))
+    event_days = dbcursor.fetchall()
+
+    dbcursor.close()
+    conn.close()
+
+    # Calculate Discount Percentage based on advanced booking
+    days_in_advance = (event['Start_date'].date() - datetime.now().date()).days
+    disc_percent = 0
+    if days_in_advance >= 50:
+        disc_percent = 20
+    elif days_in_advance >= 35:
+        disc_percent = 15
+    elif days_in_advance >= 25:
+        disc_percent = 10
+    elif days_in_advance >= 15:
+        disc_percent = 5
+
+    # Render the booking page with the retrieved data
+    return render_template('booking.html', event=event, event_days=event_days, user=user, wallet_balance=wallet_balance, disc_percent=disc_percent)
+
+
+
+@app.route('/process_booking', methods=['POST'])
+def process_booking():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorised', 'redirect': url_for('index')})
+
+    # Extract form data
+    event_id = request.form.get('event_id')
+    num_tickets = int(request.form.get('num_tickets', 1))
+    selected_days = request.form.getlist('selected_days') # Returns list of dates
+    is_student = 1 if request.form.get('student_discount') == 'on' else 0
+    payment_method = request.form.get('payment')
+    
+    if not selected_days or num_tickets < 1 or num_tickets > 10:
+        return jsonify({'success': False, 'message': 'Please select valid number of tickets and at least one day.'})
+    
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+
+    try: 
+        # Server side price calculation
+        dbcursor.execute('SELECT Price, Start_date FROM Events WHERE Event_ID = %s', (event_id,))
+        event = dbcursor.fetchone()
+
+        base_price_per_day = float(event['Price'])
+        total_base = base_price_per_day * num_tickets * len(selected_days)
+
+        # Calculate discount based on advanced booking
+        days_in_advance = (event['Start_date'].date() - datetime.now().date()).days
+        disc_percent = 0
+        if days_in_advance >= 50:
+            disc_percent = 20
+        elif days_in_advance >= 35:
+            disc_percent = 15
+        elif days_in_advance >= 25:
+            disc_percent = 10
+        elif days_in_advance >= 15:
+            disc_percent = 5
+
+        advanced_disc = total_base * (disc_percent / 100)
+        student_amount = (total_base - advanced_disc) * 0.10 if is_student else 0
+
+        final_price = total_base - advanced_disc - student_amount
+
+        # Wallet Validation if wallet selected
+        if payment_method == 'wallet':
+            dbcursor.execute('SELECT SUM(ABS(Amount)) as Balance FROM Transactions WHERE User_ID = %s', (session['user_id'],))
+            balance = float(dbcursor.fetchone()['Balance'] or 0.00)
+            if balance < final_price:
+                return jsonify({'success': False, 'message': 'Insufficient wallet balance. Please choose another payment method or add funds to your wallet.'})
+            
+        # Process DB inserts
+        # Insert booking record
+        dbcursor.execute('''INSERT INTO Bookings (User_ID, Event_ID, Booking_date,
+                         Tickets_Purchased, Ticket_Price, Booking_Status,
+                         Original_Price, Discount_Applied, Is_Student)
+                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)''',
+                         (session['user_id'], event_id, datetime.now(),
+                          num_tickets, final_price, 'Confirmed',
+                          total_base, advanced_disc, is_student))
+
+        booking_id = dbcursor.lastrowid # Get the ID of the newly created Booking_ID to insert into Tickets and Booking_Days
+        
+        # Insert booking days records
+        for day in selected_days:
+            dbcursor.execute('''INSERT INTO Booking_Days (Booking_ID, Date)
+                             VALUES (%s, %s)''', (booking_id, day))
+            
+        # Insert Transaction
+        dbcursor.execute('''INSERT INTO Transactions (User_ID, Booking_ID, Amount, Payment_method, Transaction_date)
+                         VALUES (%s, %s, %s, %s, %s)''', (session['user_id'], booking_id, -final_price, payment_method, datetime.now()))
+
+        # Generate Tickets
+        generated_tickets = []
+        for _ in range(num_tickets):
+            # Format: FIRST3LETTERS OF EVENT + RANDOM 4 ALPHANUMERALS + BOOKINGID 
+            code = f"{event['Title'][:3].upper()}-{''.join(random.choices(string.ascii_uppercase + string.digits, k=4))}-{booking_id}"
+            # default to valid status and insert activation time later when user activates ticket
+            dbcursor.execute('''INSERT INTO Tickets (Booking_ID, Code, Status)
+                             VALUES (%s, %s, %s)''', (booking_id, code, 'Valid'))
+            generated_tickets.append(code)
+
+            conn.commit()
+
+            # return receipt data
+            return jsonify({'success': True,
+                            'receipt': {
+                                'base': f"£{total_base:.2f}",
+                                'advanced_disc': f"£{advanced_disc:.2f}" if advanced_disc > 0 else "£0.00",
+                                'student_disc': f"£{student_amount:.2f}" if student_amount > 0 else "£0.00",
+                                'final': f"£{final_price:.2f}",
+                                'tickets': generated_tickets,
+                            }})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'Error processing booking: {str(e)}'})
+    finally:
+        dbcursor.close()
+        conn.close()
+
+
 
 
 @app.route('/about')

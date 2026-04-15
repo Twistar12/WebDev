@@ -178,7 +178,12 @@
             <tbody>
               {% for e in all_events %}
               <tr style="color: white">
-                <td class="text-truncate" style="max-width: 150px;">{{ e.Title }}</td>
+                <td class="text-truncate" style="max-width: 150px;">
+                  {{ e.Title }}
+                  {% if e.Low_Sales_Warning %}
+                    <i class="fa-solid fa_triangle-exclamation text-danger ms-2" title="Low Sales Warning: {{ e.Days_Until_Event }} days until event, Considered lowering prices!"></i>
+                  {% endif %}
+                </td>
                 <td>{{ e.VenueName }}</td>
                 <td>{{ e.Start_D }}</td>
                 <td>

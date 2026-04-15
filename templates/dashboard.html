@@ -254,8 +254,20 @@
             <ul class="list-group list-group-flush bg-transparent">
               {% for w in waiting_list %}
                 <li class="list-group-item bg-transparent text-white px-0 border-secondary">
-                  <h6 class="mb-1">{{ w.Title }}</h6>
-                  <small class="text-warning"><i class="fa-regular fa-clock me-1"></i>Event Date: {{ w.date }}</small>
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h6 class="mb-1 text-truncate" style="max-width: 180px;">{{ w.Title }}</h6>
+                      <small class="text-warning"><i class="fa-regular fa-clock me-1"></i>{{ w.date }}</small>
+                    </div>
+                    <div class="text-end">
+                      {% if w.Available_Slots > 0 %}
+                        <span class="badge bg-success rounded-pill mb-1 d-block"><i class="fa-solid fa-door-open me-1"></i>Open</span>
+                        <a href="{{ url_for('events', event_id=w.Event_ID) }}" class="btn btn-sm btn-outline-success success-btn p-1 py-0" style="font-size: 0.85rem;">Book Now</a>
+                      {% else %}
+                        <span class="badge bg-secondary rounded-pill"><i class="fa-solid fa-lock me-1"></i>Waiting</span>
+                      {% endif %}
+                    </div>
+                  </div>
                 </li>
               {% endfor %}
             </ul>
