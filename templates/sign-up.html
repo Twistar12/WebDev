@@ -56,7 +56,7 @@
         <div class="col-12 text-center flex-column mx-auto">
           <h2 class="ubuntu-medium mb-4 text-center">Join the Community</h2>
 
-          <form id="signupForm" action="{{ url_for('signup') }}" method="POST" class="needs-validation" novalidate>
+          <form id="signupForm" action="{{ url_for('signup') }}" method="POST" class="needs-validation" enctype="multipart/form-data" novalidate>
             <!-- Add validation using Bootstrap's validation classes -->
             <!-- Name Input Group -->
             <div class="row g-3 mb-3">
@@ -125,8 +125,8 @@
 
             <!-- Avatar Upload -->
             <div class="mb-3">
-              <label for="avatar_url" class="form-label">Profile Picture (Optional)</label>
-              <input type="file" class="form-control" id="avatar_url" name="avatar_url" accept="image/*">
+              <label for="avatar" class="form-label text-light fw-semibold">Profile Picture (Optional)</label>
+              <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
             </div>
 
             <!-- Terms and Conditions -->

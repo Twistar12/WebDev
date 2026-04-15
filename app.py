@@ -88,10 +88,15 @@ def signup():
         password = request.form.get('password', '').strip()
         phone_number = request.form.get('phone_number', '').strip()
 
-        avatar_url = request.form.get('avatar_url', '').strip()
-        # assign default avatar if none provided
-        if not avatar_url:
-            avatar_url = url_for('static', filename='img/ProfilePic.png')
+        final_avatar = 'default_avatar.png' # default avatar if none provided or upload fails
+        if 'avatar' in request.files:
+            file = request.files['avatar']
+            if file.filename != '':
+                filename = secure_filename(file.filename)
+                save_path = os.path.join(app.root_path, 'static', 'img', 'avatars', filename)
+                file.save(save_path)
+                final_avatar = filename
+
 
         confirm_password = request.form.get('confirm_password', '').strip()
         terms = request.form.get('terms')  # Will be 'on' if checked, None if not  
@@ -136,7 +141,7 @@ def signup():
         # Insert new user into database
         try:
             query = 'INSERT INTO Users (Username, First_name, Last_name, Email, Password_hash, Phone_number, Avatar_URL, Terms_agreed) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'
-            dbcursor.execute(query, (username, first_name, last_name, email, hashed_password, phone_number, avatar_url, 1))
+            dbcursor.execute(query, (username, first_name, last_name, email, hashed_password, phone_number, final_avatar, 1))
             conn.commit()
             if is_ajax:
                 return jsonify({'success': True, 'message': 'Account created successfully! You can now log in.', 'redirect': url_for('login')})
@@ -187,6 +192,7 @@ def login():
             session['user_id'] = user['User_ID']
             session['username'] = user['Username']
             session['role'] = user['Role']
+            session['avatar_url'] = user.get('Avatar_URL', 'default_avatar.png') # Store avatar URL in session for easy access across site, default if not set
 
             if is_ajax:
                 return jsonify({'success': True, 'message': 'Login successful', 'redirect': url_for('dashboard')}) # data.success hold result, data.message holds message in AJAX response
@@ -390,23 +396,53 @@ def update_profile():
     last_name= request.form.get('last_name', '').strip()
     username = request.form.get('username', '').strip()
     phone = request.form.get('phone_number', '').strip()
-    avatar_url = request.form.get('avatar_url', '').strip()
+    
+    old_avatar = request.form.get('current_avatar', 'default_avatar.png')
+    final_avatar = old_avatar # default to old avatar if no new image uploaded
+    remove_avatar = request.form.get('remove_avatar') == 'on' # checkbox value will be 'on' if checked, None if not
 
+    if remove_avatar:
+        final_avatar = 'default_avatar.png' # Set to default avatar if user chooses to remove
+        if old_avatar and old_avatar != 'default_avatar.png':
+            old_avatar_path = os.path.join(app.root_path, 'static', 'img', 'avatars', old_avatar)
+            if os.path.exists(old_avatar_path):
+                os.remove(old_avatar_path) # Remove old avatar file from server if it exists and is not default
+    else: 
+        if 'avatar' in request.files:
+            file = request.files['avatar']
+            if file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.root_path, 'static', 'img', 'avatars', filename))
+                final_avatar = filename
+
+                # Delete old avatar file
+                if old_avatar and old_avatar != 'default_avatar.png' and old_avatar != filename: # Only delete if old avatar exists, is not default, and is not the same as new avatar
+                    old_avatar_path = os.path.join(app.root_path, 'static', 'img', 'avatars', old_avatar)
+                    if os.path.exists(old_avatar_path):
+                        os.remove(old_avatar_path) # Remove old avatar file from server if it exists and is not default or same as new avatar
     conn = dbfunc.getConnection()
     dbcursor = conn.cursor()
 
 
     # Check if username and user_id exists
-    dbcursor.execute('SELECT User_ID FROM Users WHERE Username = %s AND User_ID = %s', (username, session['user_id']))
+    dbcursor.execute('SELECT User_ID FROM Users WHERE Username = %s AND User_ID != %s', (username, session['user_id']))
     if dbcursor.fetchone():     # If record found, return in use error
         return jsonify({'success': False, 'message': 'Username already in use by another account.'})
     
     dbcursor.execute('''UPDATE Users
                      SET First_name = %s, Last_name = %s, Username = %s, Phone_Number = %s, Avatar_URL = %s
-                     WHERE User_ID = %s''', (first_name, last_name, username, phone, avatar_url, session['user_id']))
+                     WHERE User_ID = %s''', (first_name, last_name, username, phone, final_avatar, session['user_id']))
     conn.commit()
     dbcursor.close()
     conn.close()
+
+    # Update session variables to reflect changes immediately on dashboard without requiring page reload
+    session['username'] = username
+    session['avatar_url'] = final_avatar
+    session['first_name'] = first_name
+    session['last_name'] = last_name
+    session['phone_number'] = phone
+
 
     return jsonify({'success': True, 'message': 'Profile updated successfully!'})
 
@@ -823,7 +859,7 @@ def delete_venue():
 
             # Remove event image
             event_image = event['Image_URL']
-            if event_image and event_image != 'default_image.jpg':
+            if event_image and event_image != 'default_event.jpg':
                 event_image_path = os.path.join(app.root_path, 'static', 'img', 'event_cards', event_image)
                 if os.path.exists(event_image_path):
                     os.remove(event_image_path)
@@ -879,7 +915,7 @@ def add_event():
     start_datetime = f"{start_date_only} {start_time}"
     end_datetime = f"{end_date_only} {end_time}"
 
-    final_image_name = 'default_image.jpg' # default image if no image uploaded
+    final_image_name = 'default_event.jpg' # default image if no image uploaded
 
     if 'image_url' in request.files:
         file = request.files['image_url']
@@ -970,7 +1006,7 @@ def update_event():
             file.save(save_path)
 
             # Delete old image if not default and not same as new upload
-            if old_image_name and old_image_name != 'default_image.jpg' and old_image_name != filename:
+            if old_image_name and old_image_name != 'default_event.jpg' and old_image_name != filename:
                 old_image_path = os.path.join(app.root_path, 'static', 'img', 'event_cards', old_image_name)
 
                 # Check if old file exists on storage before attempting to delete to avoid errors, then delete
@@ -1045,7 +1081,7 @@ def delete_event():
         dbcursor.execute("DELETE FROM Events WHERE Event_ID = %s", (event_id,))
 
         # Delete event image
-        if event_image and event_image != 'default_image.jpg':
+        if event_image and event_image != 'default_event.jpg':
             event_image_path = os.path.join(app.root_path, 'static', 'img', 'event_cards', event_image)
             if os.path.exists(event_image_path):
                 os.remove(event_image_path)

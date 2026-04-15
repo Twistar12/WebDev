@@ -78,7 +78,7 @@
           <div>
             <h4 class="card-header-custom"><i class="fa-solid fa-id-card me-2"></i>User Profile</h4>
             <div class="d-flex align-items-center mb-3">
-              <img src="{{ profile.Avatar_URL if profile.Avatar_URL else url_for('static', filename='img/ProfilePic.png') }}" alt="Avatar" class="rounded-circle border border-2 border-light me-4" style="width: 80px; height: 80px; object-fit: cover;">
+              <img src="{{ url_for('static', filename='img/avatars/' ~ (profile.Avatar_URL if profile.Avatar_URL else 'default_avatar.png')) }}" alt="Avatar" class="rounded-circle border border-2 border-light me-4" style="width: 80px; height: 80px; object-fit: cover;">
               <div>
                 <h3 class="mb-0">{{ profile.First_name }} {{ profile.Last_name }}</h3>
                 <p class="text-info mb-0">@{{ profile.Username }}</p>
@@ -136,7 +136,7 @@
         <div>
           <h4 class="card-header-custom"><i class="fa-solid fa-id-card me-2"></i>User Profile</h4>
           <div class="d-flex align-items-center mb-3">
-            <img src="{{ profile.Avatar_URL if profile.Avatar_URL else url_for('static', filename='img/ProfilePic.png') }}" alt="Avatar" class="rounded-circle border border-2 border-light me-4" style="width: 80px; height: 80px; object-fit: cover;">
+            <img src="{{ url_for('static', filename='img/avatars/' ~ (profile.Avatar_URL if profile.Avatar_URL else 'default_avatar.png')) }}" alt="Avatar" class="rounded-circle border border-2 border-light me-4" style="width: 80px; height: 80px; object-fit: cover;">
             <div>
               <h3 class="mb-0">{{ profile.First_name }} {{ profile.Last_name }}</h3>
               <p class="text-info mb-0">@{{ profile.Username }}</p>
@@ -300,7 +300,9 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form id="updateProfileForm" action="{{ url_for('update_profile') }}" method="POST">
+        <form id="updateProfileForm" action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data"> 
+          <input type="hidden" name="current_avatar" value="{{ profile.Avatar_URL if profile.Avatar_URL else 'default_avatar.png' }}"> 
+
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label text-light">First Name</label>
@@ -325,8 +327,13 @@
             <input type="text" class="form-control" name="phone_number" value="{{ profile.Phone_number }}">
           </div>
           <div class="mb-4">
-            <label for="avatar_url" class="form-label text-light">Profile Picture (Optional)</label>
-            <input type="file" class="form-control" name="avatar_url" accept="image/*" value="{{ profile.Avatar_URL if profile.Avatar_URL else '' }}">
+            <label class="form-label text-light">Profile Picture</label>
+            <input type="file" class="form-control" name="avatar" accept="image/*">
+            
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" id="removeAvatarCheck" name="remove_avatar">
+              <label class="form-check-label small" for="removeAvatarCheck">Remove current profile picture</label>
+            </div>
           </div>
 
           <div class="d-flex gap-2">
