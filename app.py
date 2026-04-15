@@ -56,7 +56,7 @@ def events():
     # fetch all events from database
     dbcursor.execute('SELECT * FROM Event_Cards ORDER BY date ASC')
     fetched_events = dbcursor.fetchall()
-    print(fetched_events) # Debugging log to verify data is fetched correctly
+    # print(fetched_events) # Debugging log to verify data is fetched correctly
     for ev in fetched_events:
         ev['date'] = str(ev['date']) if ev['date'] else "" # Convert date to string for JSON serialization, handle NULL dates
         ev['end_date'] = str(ev['end_date']) if ev['end_date'] else "" # Convert end date to string for JSON serialization, handle NULL dates

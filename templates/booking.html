@@ -11,7 +11,41 @@
     border-radius: 15px;
     padding: 2rem;
     color: white;
+    transition: all 0.3s ease-in-out;
   }
+  .booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0px 25px rgba(0, 0, 0, 0.568);
+  }
+  /* Custom Toggle Buttons for Dates (Derived from Payment CSS) */
+  .date-checkbox-wrapper input[type="checkbox"] {
+    display: none; 
+  }
+  .date-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    margin: 0;
+  }
+  .date-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+  /* When the hidden checkbox is checked, style the adjacent label! */
+  .date-checkbox-wrapper input[type="checkbox"]:checked + label.date-btn {
+    background: linear-gradient(90deg, #7209b7, #f72585);
+    border-color: #f72585;
+    box-shadow: 0 0 10px rgba(247, 37, 133, 0.6);
+  }
+
   .receipt-modal .modal-content {
     background: #1a1a1a;
     border: 1px solid #f72585;
@@ -25,21 +59,45 @@
     border-radius: 5px;
     letter-spacing: 2px;
   }
-  /* Payment Radio Button Styling */
-  .payment-method-label {
-    border: 1px solid rgba(255,255,255,0.2);
+  /* Custom Payment Toggle Buttons */
+  .payment-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  .payment-options > div {
+    flex: 1 1 0;
+    min-width: 130px; /* Prevents squishing on very small mobile screens */
+  }
+  .payment-options input[type="radio"] {
+    display: none; /* Hide the default radio circles */
+  }
+  .payment-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
-    padding: 15px;
-    cursor: pointer;
-    transition: 0.3s;
+    padding: 0.75rem 1.25rem;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    margin: 0;
+    width: 100%;
   }
-  .payment-method-label:hover { background: rgba(255,255,255,0.05); }
-  input[type="radio"]:checked + .payment-method-label {
+  .payment-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+  .payment-options input[type="radio"]:checked + label.payment-btn {
+    background: linear-gradient(90deg, #7209b7, #f72585);
     border-color: #f72585;
-    background: rgba(247, 37, 133, 0.1);
+    box-shadow: 0 0 10px rgba(247, 37, 133, 0.6);
   }
 </style>
 {% endblock %}
@@ -66,21 +124,28 @@
             </div>
             
             <div class="col-12 mt-3">
-              <label class="text-light mb-2">Select Days to Attend</label>
+              <label class="text-light mb-2 fw-bold"><i class="fa-regular fa-calendar-check me-2"></i>Select Days to Attend</label>
+              
               <div class="d-flex flex-wrap gap-3 p-3 border border-secondary rounded" style="background: rgba(0,0,0,0.3);">
+                
                 {% if event_days|length == 1 %}
-                  <div class="form-check">
-                    <input class="form-check-input day-checkbox" type="checkbox" name="selected_days" value="{{ event_days[0].Date }}" checked onclick="return false;">
-                    <label class="form-check-label">{{ event_days[0].Date }} (Single Day Event)</label>
+                  <div class="date-checkbox-wrapper">
+                    <input class="day-checkbox" type="checkbox" name="selected_days" id="day_single" value="{{ event_days[0].Date }}" checked onclick="return false;">
+                    <label class="date-btn" for="day_single">
+                      <i class="fa-solid fa-calendar-day"></i> {{ event_days[0].Date }} (Single Day)
+                    </label>
                   </div>
                 {% else %}
                   {% for day in event_days %}
-                  <div class="form-check">
-                    <input class="form-check-input day-checkbox" type="checkbox" name="selected_days" value="{{ day.Date }}" id="day_{{ loop.index }}">
-                    <label class="form-check-label" for="day_{{ loop.index }}">{{ day.Date }}</label>
+                  <div class="date-checkbox-wrapper">
+                    <input class="day-checkbox" type="checkbox" name="selected_days" id="day_{{ loop.index }}" value="{{ day.Date }}">
+                    <label class="date-btn" for="day_{{ loop.index }}">
+                      <i class="fa-solid fa-calendar-day"></i> {{ day.Date }}
+                    </label>
                   </div>
                   {% endfor %}
                 {% endif %}
+
               </div>
             </div>
           </div>
@@ -140,44 +205,37 @@
             </div>
           </div>
 
-          <div class="d-flex flex-column gap-3">
-            <div>
-              <input type="radio" class="btn-check" name="payment" id="wallet" value="wallet" checked>
-              <label class="payment-method-label w-100" for="wallet">
-                <i class="fa-solid fa-wallet fa-2x text-warning w-px-40 text-center"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-bold">My Wallet</div>
-                  <small class="text-muted">Available Balance: £{{ "%.2f"|format(wallet_balance) }}</small>
-                </div>
+          <div class="payment-options">
+            <div class="row g-3">
+            <div class="col-12 col-md-6 col-lg-3 text-nowrap">
+              <input type="radio" name="payment" id="wallet" value="wallet" checked>
+              <label class="payment-btn" for="wallet">
+                <i class="fa-solid fa-wallet"></i> Wallet
               </label>
             </div>
-            <div>
-              <input type="radio" class="btn-check" name="payment" id="card" value="card">
-              <label class="payment-method-label w-100" for="card">
-                <i class="fa-solid fa-credit-card fa-2x text-info w-px-40 text-center"></i>
-                <div class="fw-bold">Credit / Debit Card</div>
+            
+            <div class="col-12 col-md-6 col-lg-3 text-nowrap">
+              <input type="radio" name="payment" id="apple" value="apple">
+              <label class="payment-btn" for="apple">
+                <i class="fa-brands fa-apple"></i> Apple Pay
               </label>
-              <div class="collapse mt-3" id="collapseCard">
-                <div class="card card-body bg-dark border-secondary">
-                  <div class="mb-3">
-                    <label>Card Number</label>
-                    <input type="text" class="form-control" placeholder="0000 0000 0000 0000">
-                  </div>
-                  <div class="row">
-                    <div class="col-6"><label>Expiry</label><input type="text" class="form-control" placeholder="MM/YY"></div>
-                    <div class="col-6"><label>CVV</label><input type="text" class="form-control" placeholder="123"></div>
-                  </div>
-                </div>
-              </div>
             </div>
-            <div>
-              <input type="radio" class="btn-check" name="payment" id="paypal" value="paypal">
-              <label class="payment-method-label w-100" for="paypal">
-                <i class="fa-brands fa-paypal fa-2x text-primary w-px-40 text-center"></i>
-                <div class="fw-bold">PayPal</div>
+
+            <div class="col-12 col-md-6 col-lg-3 text-nowrap">
+              <input type="radio" name="payment" id="google" value="google">
+              <label class="payment-btn" for="google">
+                <i class="fa-brands fa-google "></i> Google Pay
+              </label>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3 text-nowrap">
+              <input type="radio" name="payment" id="paypal" value="paypal">
+              <label class="payment-btn" for="paypal">
+                <i class="fa-brands fa-paypal"></i> PayPal
               </label>
             </div>
           </div>
+        </div>
 
           <button type="submit" class="btn btn-warning w-100 fw-bold fs-5 mt-5 p-3" id="confirmBtn">Confirm & Pay</button>
         </div>

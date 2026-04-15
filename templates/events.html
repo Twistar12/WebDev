@@ -321,9 +321,9 @@
         if (isPastEvent) {
             buttonHtml = `<button class="btn btn-secondary w-100 fw-bold disabled">Unavailable</button>`;
         } else if (ev.slots <= 0) {
-            buttonHtml = `<button onclick="addToWaitlist(${ev.Event_ID})" class="btn btn-light text-dark w-100 fw-bold"><i class="fa-solid fa-list me-2"></i>Waitlist</button>`;
+            buttonHtml = `<button onclick="addToWaitlist(${ev.event_id})" class="btn btn-light text-dark w-100 fw-bold"><i class="fa-solid fa-list me-2"></i>Waitlist</button>`;
         } else {
-            buttonHtml = `<a href="/booking/${ev.Event_ID}" class="btn btn-warning w-100 fw-bold">Book Now</a>`;
+            buttonHtml = `<a href="/booking/${ev.event_id}" class="btn btn-warning w-100 fw-bold">Book Now</a>`;
         }
 
 
@@ -367,6 +367,7 @@
     // Populate the modal
     function openEvent(eventIndex) {
       const ev = fetchedEvents[eventIndex];
+      console.log("Event Data:", ev);
       document.getElementById("eventTitle").textContent = ev.title;
 
       let displayDate = ev.date;
@@ -402,18 +403,18 @@
         bookNowBtn.href = "#";
       } else if (ev.slots <= 0) {
         // Event is sold out - change to waiting list button
-         bookNowBtn.className = "btn btn-light text-dark w-100 fw-bold";
+         bookNowBtn.className = "btn btn-outline-light clear-btn w-100 fw-bold";
          bookNowBtn.innerHTML = '<i class="fa-solid fa-list me-2"></i>Add to Waiting List'; // Change text to "Add to Waiting List"
          bookNowBtn.href = "javascript:void(0)"; // Prevent default link behavior
          bookNowBtn.onclick = function() {
-          addToWaitingList(ev.Event_ID); // Call a function to handle adding to waiting list, passing event title or ID as needed
+          addToWaitlist(ev.event_id); // Call a function to handle adding to waiting list, passing event title or ID as needed
          }
       } else {
         // Event is available for booking
         bookNowBtn.className = "btn btn-warning w-100 fw-bold"; // Reset to default booking button style
         bookNowBtn.textContent = "Book Now";
         // bookNowBtn.classList.add("book-btn");
-        bookNowBtn.href = `/booking/${ev.Event_ID}`; // Safe URL encoding for event title in query string
+        bookNowBtn.href = `/booking/${ev.event_id}`; // Safe URL encoding for event title in query string
       }
     }
 
@@ -481,7 +482,7 @@
 
     renderEvents(fetchedEvents); // Display filtered fetchedEvents
 
-    function addToWaitingList(eventId) {
+    function addToWaitlist(eventId) {
       fetch('add_to_waitlist', {
         method: 'POST',
         headers: {
