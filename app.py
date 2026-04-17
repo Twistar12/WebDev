@@ -301,16 +301,25 @@ def dashboard():
 
 
 
-    # Card 6: Tickets Purchased (Using User_Ticket_Info VIEW)
-    # This page will only show event.Title, tickets_purchased, total_price
+    # Card 6: Tickets Purchased
+    # This page will only show booking ref, event.Title, tickets_purchased, total_price
     # Clicking on the card will redirect to separate tickets.html
 
-    dbcursor.execute('''SELECT Title, Tickets_Purchased, Total_Price, Live_Status
-                     FROM User_Ticket_Info
-                     WHERE User_ID = %s
-                     GROUP BY Title, Tickets_Purchased, Total_Price, Live_Status, Start_date
-                     ORDER BY Start_date DESC LIMIT 10''', (user_id,))
+    dbcursor.execute('''SELECT b.Booking_ID, e.Title, b.Tickets_Purchased, 
+                        b.Ticket_Price AS Total_Price, 
+                        e.Start_date
+                     FROM Bookings b
+                     JOIN Events e ON b.Event_ID = e.Event_ID
+                     WHERE b.User_ID = %s
+                     ORDER BY e.Start_date DESC''', (user_id,))
     ticket_history = dbcursor.fetchall()
+    
+    # Process ticket history to add hash ref and dummy live status for styling
+    for t in ticket_history:
+        # Use pseudo-random seeded with Booking_ID instead of hash to avoid small ints returning themselves
+        t['Ref_No'] = f"{random.Random(t['Booking_ID']).randint(0, 0xffffff):06X}"
+        # Determine status roughly
+        t['Live_Status'] = 'Valid' if t['Start_date'] >= datetime.now() else 'Expired'
 
 
 
@@ -1304,6 +1313,8 @@ def process_booking():
 
         final_price = total_base - advanced_disc - student_amount
 
+        discounted_price = total_base - final_price # Calculate total discount amount for receipt
+
         # Wallet Validation if wallet selected
         if payment_method == 'wallet':
             dbcursor.execute('SELECT Balance FROM Wallet_Balance WHERE User_ID = %s', (session['user_id'],))
@@ -1321,7 +1332,7 @@ def process_booking():
                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)''',
                          (session['user_id'], event_id, datetime.now(),
                           num_tickets, final_price, 'Success',
-                          total_base, advanced_disc, is_student))
+                          total_base, discounted_price, is_student))
 
         booking_id = dbcursor.lastrowid # Get the ID of the newly created Booking_ID to insert into Tickets and Booking_Days
         
@@ -1346,8 +1357,8 @@ def process_booking():
         # Generate Tickets
         generated_tickets = []
         for _ in range(num_tickets):
-            # Format: FIRST3LETTERS OF EVENT + RANDOM 4 ALPHANUMERALS + BOOKINGID 
-            code = f"{event['Title'][:3].upper()}-{''.join(random.choices(string.ascii_uppercase + string.digits, k=4))}-{booking_id}"
+            # Format: FIRST3LETTERS OF EVENT + RANDOM 4 ALPHANUMERALS + Pseudo-Random Booking_ID mapping
+            code = f"{event['Title'][:3].upper()}-{''.join(random.choices(string.ascii_uppercase + string.digits, k=4))}-{random.Random(booking_id).randint(0, 0xffff):04X}" # Seed with booking_id and take hex digits for uniqueness without exposing actual ID
             # default to valid status and insert activation time later when user activates ticket
             dbcursor.execute('''INSERT INTO Tickets (Booking_ID, Code, Ticket_Status)
                              VALUES (%s, %s, %s)''', (booking_id, code, 'Valid'))
@@ -1358,6 +1369,7 @@ def process_booking():
         # return receipt data
         return jsonify({'success': True,
                             'receipt': {
+                                'ref_no': f"{random.Random(booking_id).randint(0, 0xffffff):06X}",
                                 'base': f"£{total_base:.2f}",
                                 'advanced_disc': f"£{advanced_disc:.2f}" if advanced_disc > 0 else "£0.00",
                                 'student_disc': f"£{student_amount:.2f}" if student_amount > 0 else "£0.00",
@@ -1372,6 +1384,148 @@ def process_booking():
         conn.close()
 
 
+@app.route('/tickets')
+def tickets():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorised', 'redirect': url_for('index')})
+    
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+
+    try: 
+        # Query VIEW User_ticket_info and join tickets and events with it
+        dbcursor.execute('''
+            SELECT 
+                uti.*,
+                t.Ticket_ID,
+                b.Booking_ID,
+                (CASE
+                    WHEN (t.Ticket_Status = 'Cancelled') THEN 'Cancelled'
+                    WHEN (TIMESTAMPDIFF(SECOND, e.End_date, NOW()) >= 1) THEN 'Expired'
+                    WHEN (TIMESTAMPDIFF(MINUTE, t.Activated_Time, NOW()) >= 10) THEN 'Used'
+                    WHEN (t.Activated_Time IS NOT NULL) THEN 'Active'
+                    WHEN (t.Activated_Time IS NULL) THEN 'Valid'
+                    ELSE 'Valid'
+                END) AS Live_Status,
+                (SELECT GROUP_CONCAT(ed.Date ORDER BY ed.Date ASC SEPARATOR ', ')
+                 FROM Booking_Days bd
+                 JOIN Event_Days ed ON bd.Day_ID = ed.Day_ID
+                 WHERE bd.Booking_ID = b.Booking_ID) AS Booked_Dates,
+                (SELECT TIME_FORMAT(MIN(ed.Start_Time), '%H:%i')
+                 FROM Booking_Days bd
+                 JOIN Event_Days ed ON bd.Day_ID = ed.Day_ID
+                 WHERE bd.Booking_ID = b.Booking_ID) AS Start_time,
+                (SELECT TIME_FORMAT(MAX(ed.End_Time), '%H:%i')
+                 FROM Booking_Days bd
+                 JOIN Event_Days ed ON bd.Day_ID = ed.Day_ID
+                 WHERE bd.Booking_ID = b.Booking_ID) AS End_time
+            FROM user_ticket_info uti
+            JOIN Tickets t ON uti.Code = t.Code
+            JOIN Bookings b ON t.Booking_ID = b.Booking_ID
+            JOIN Events e ON b.Event_ID = e.Event_ID
+            WHERE uti.User_ID = %s
+            ORDER BY e.Start_date ASC
+        ''', (session['user_id'],))
+
+        raw_tickets = dbcursor.fetchall()
+
+        # Group tickets by Booking_ID
+        grouped_bookings = {}
+        for t in raw_tickets:
+            bid = t['Booking_ID']
+            if bid not in grouped_bookings:
+                grouped_bookings[bid] = {
+                    'Booking_ID': bid,
+                    'Title': t['Title'],
+                    'Venue': t['Venue'],
+                    'Booked_Dates': t['Booked_Dates'],
+                    'Start_time': t['Start_time'],
+                    'End_time': t['End_time'],
+                    'Tickets': []
+                }
+            
+            # Format time into strings (HH:MM) roughly like before just in case
+            if t['Start_time'] and not isinstance(t['Start_time'], str):
+                 t['Start_time'] = str(t['Start_time'])[:-5]
+            if t['End_time'] and not isinstance(t['End_time'], str):
+                 t['End_time'] = str(t['End_time'])[:-5]
+                 
+            grouped_bookings[bid]['Tickets'].append({
+                'Ticket_ID': t['Ticket_ID'],
+                'Code': t['Code'],
+                'Live_Status': t['Live_Status']
+            })
+
+        return render_template('tickets.html', grouped_bookings=grouped_bookings.values())
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error fetching tickets: {str(e)}'})
+    finally:
+        dbcursor.close()
+        conn.close()
+
+
+@app.route('/activate_ticket', methods=['POST'])
+def activate_ticket():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorised', 'redirect': url_for('index')})
+    
+    ticket_id = request.form.get('ticket_id')
+
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor()
+
+    try:
+        # Update Activated_Time to current time to mark as active
+        dbcursor.execute('''UPDATE Tickets
+                         SET Activated_Time = NOW()
+                         WHERE Ticket_ID = %s AND Booking_ID IN (
+                         SELECT Booking_ID FROM Bookings
+                         WHERE User_ID = %s)
+                         AND Activated_Time IS NULL''', (ticket_id, session['user_id']))
+        conn.commit()
+        
+        # if dbcursor.rowcount == 0:
+        #     return jsonify({'success': False, 'message': 'Ticket is already activated or invalid.'})
+        return jsonify({'success': True, 'message': 'Ticket activated successfully!'})
+    
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'Error activating ticket: {str(e)}'})
+    finally:
+        dbcursor.close()
+        conn.close()
+
+
+@app.route('/cancel_ticket', methods=['POST'])
+def cancel_ticket():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorised', 'redirect': url_for('index')})
+
+    ticket_id = request.form.get('ticket_id')
+
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor()
+
+    try:
+        # Update Ticket_Status to 'Cancelled'
+        # Permanently trigger 'Cancelled' in CASE statement
+        dbcursor.execute('''UPDATE Tickets
+                         SET Ticket_Status = 'Cancelled'
+                         WHERE Ticket_ID = %s AND Booking_ID IN (
+                         SELECT Booking_ID FROM Bookings
+                         WHERE User_ID = %s)
+                         AND Ticket_Status != 'Cancelled';''', (ticket_id, session['user_id']))
+        conn.commit()
+
+        return jsonify({'success': True, 'message': 'Ticket cancelled successfully!'})
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'Error cancelling ticket: {str(e)}'})
+    finally:
+        dbcursor.close()
+        conn.close()
 
 
 @app.route('/about')

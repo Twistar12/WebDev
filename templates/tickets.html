@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+
+{% block title %}My Tickets | Bristol Community Events{% endblock %}
+
+{% block styles %}
+<style>
+    /* Ticket Card Styling */
+    .ticket-card {
+        background: rgba(20, 20, 30, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        color: white;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ticket-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+    }
+
+    .ticket-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 1.25rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px 12px 0 0;
+    }
+
+    .ticket-body {
+        padding: 1.25rem;
+        padding-left: 2rem;
+        flex-grow: 1;
+    }
+
+    .ticket-footer {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 0 0 12px 12px;
+    }
+
+    /* Status Badge Colors */
+    .status-Valid {
+        background-color: #198754;
+        color: white;
+    }
+
+    .status-Active {
+        background-color: #0dcaf0;
+        color: black;
+    }
+
+    .status-Used {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .status-Expired {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .status-Cancelled {
+        background-color: #212529;
+        border: 1px solid #dc3545;
+        color: #dc3545;
+    }
+
+    /* Ticket Stack Effect */
+    .ticket-stack {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 1rem;
+    }
+
+    .ticket-stack::before,
+    .ticket-stack::after {
+        content: "";
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        right: -5px;
+        bottom: -5px;
+        background: rgba(20, 20, 30, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        z-index: -1;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .ticket-stack::after {
+        top: 10px;
+        left: 10px;
+        right: -10px;
+        bottom: -10px;
+        background: rgba(20, 20, 30, 0.2);
+        z-index: -2;
+    }
+
+    .ticket-stack:hover::before {
+        transform: translate(3px, 3px);
+    }
+
+    .ticket-stack:hover::after {
+        transform: translate(6px, 6px);
+    }
+
+    /* Modal ticket Styling */
+    .ticket-modal-content {
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+        font-family: 'Courier New', Courier, monospace;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ticket-modal-header {
+        text-align: center;
+        padding: 1.5rem 1.5rem 0.5rem;
+        border-bottom: 2px dashed rgb(49, 49, 49);
+    }
+
+    .ticket-modal-body {
+        padding: 1.5rem;
+    }
+
+    .qr-container {
+        color: black;
+        text-align: center;
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        display: inline-block;
+    }
+
+    .qr-code {
+        width: 150px;
+        height: 150px;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 1.5rem 1.5rem;
+        border-top: 2px dashed rgb(49, 49, 49);
+        background-color: rgba(0, 0, 0, 0.801);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-white mb-4 text-center style-script-regular" style="font-size: 60px;">My Tickets</h1>
+
+    <div class="row g-4">
+        {% for b in grouped_bookings %}
+        <div class="col-md-6 col-lg-4">
+            <div class="ticket-card {% if b.Tickets|length > 1 %}ticket-stack{% endif %}">
+                <div class="ticket-header">
+                    <h5 class="mb-1 text-warning fw-bold">{{ b.Title }}</h5>
+                    <small class="text-light"><i class="fa-solid fa-location-dot me-1"></i>{{ b.Venue }}</small>
+                </div>
+
+                <div class="ticket-body">
+                    <p class="mb-2"><i class="fa-regular fa-calendar me-2"></i><strong>Dates:</strong> <br>
+                        <span class="ms-4 text-light">{{ b.Booked_Dates }}</span>
+                    </p>
+                    <p class="mb-2"><i class="fa-regular fa-clock me-2"></i><strong>Time:</strong> <br>
+                        <span class="ms-4 text-light">{{ b.Start_time }} - {{ b.End_time }}</span>
+                    </p>
+                    <p class="mb-0"><i class="fa-solid fa-layer-group me-2"></i><strong>Tickets:</strong> <br>
+                        <span class="ms-4 text-light fw-bold">{{ b.Tickets|length }} Ticket(s) included</span>
+                    </p>
+                </div>
+
+                <div class="ticket-footer">
+                    <span class="badge border border-light px-3 py-2 rounded-pill">Booking Ref: {{
+                        "%06X"|format((b.Booking_ID|string).__hash__() % 16777215) }}</span>
+
+                    <button class="btn btn-sm btn-outline-light clear-btn" data-booking="{{ b | tojson | forceescape }}"
+                        onclick="openBookingModal(this)">
+                        View More
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center text-white py-5">
+            <i class="fa-solid fa-ticket-simple fa-3x mb-3 text-secondary"></i>
+            <h4>No tickets found</h4>
+            <p class="text-light">You haven't booked any events yet.</p>
+            <a href="{{ url_for('events') }}" class="btn btn-warning mt-2">Browse Events</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="ticketModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content ticket-modal-content">
+
+            <div class="ticket-modal-header">
+                <h4 class="fw-bold mb-1" id="m_title">EVENT TITLE</h4>
+                <p class="mb-0 text-muted" id="m_venue">Venue Name</p>
+            </div>
+
+            <div class="ticket-modal-body text-center" id="multiTicketContainer">
+                <!-- Rendered tickets go here via JS -->
+            </div>
+            <div id="actionFormsContainer">
+                <!-- Dynamically rendered activate/cancel forms depending on selected ticket -->
+            </div>
+            <div class="modal-actions" id="m_actions">
+                <!-- Action buttons rendered via JS -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.body.appendChild(document.getElementById("ticketModal"));
+    let currentBookingData = null;
+    let activeTicketIndex = 0;
+
+    function openBookingModal(buttonElement) {
+        try {
+            // Safely retrieve and parse JSON data from the data attribute
+            const rawData = buttonElement.getAttribute('data-booking');
+            const bookingData = JSON.parse(rawData);
+
+
+            currentBookingData = bookingData;
+            activeTicketIndex = 0;
+
+            // Populate Headers
+            document.getElementById('m_title').textContent = bookingData.Title || 'Unknown Title';
+            document.getElementById('m_venue').textContent = bookingData.Venue || 'Unknown Venue';
+
+            // Render the ticket details
+            renderTicketContent();
+
+            // Show the modal
+            const modalElement = document.getElementById('ticketModal');
+
+            if (typeof bootstrap !== 'undefined') {
+                // If using Bootstrap 5
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+                modal.show();
+            } else if (typeof jQuery !== 'undefined') {
+                // If using Bootstrap 4 (jQuery fallback)
+                $('#ticketModal').modal('show');
+            } else {
+                console.error("Bootstrap JS is missing!");
+                alert("Error: Bootstrap JavaScript is not loaded. Check your base.html file.");
+            }
+        } catch (error) {
+            console.error("Error parsing booking data:", error);
+            alert("An error occurred while loading the ticket details. Please try again.");
+        }
+    }
+
+    function renderTicketContent() {
+        const tickets = currentBookingData.Tickets;
+        const t = tickets[activeTicketIndex];
+        const dates = currentBookingData.Booked_Dates;
+        const startTime = currentBookingData.Start_time;
+        const endTime = currentBookingData.End_time;
+
+        const container = document.getElementById('multiTicketContainer');
+        const actionContainer = document.getElementById('m_actions');
+
+        let html = `
+        <div class="text-start mb-3">
+          <strong>Valid Dates:</strong> <span>${dates}</span><br>
+          <strong>Start Time:</strong> <span>${startTime}</span><br>
+          <strong>End Time:</strong> <span>${endTime}</span><br>
+          <strong>Status:</strong> <span class="fw-bold">${t.Live_Status}</span>
+        </div>
+      `;
+
+        if (tickets.length > 1) {
+            html += `
+            <div class="d-flex justify-content-between align-items-center bg-dark text-white rounded px-2 py-1 mb-2">
+                <button class="btn btn-sm btn-dark" onclick="changeTicket(-1)" ${activeTicketIndex === 0 ? 'disabled' : ''}><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="fw-bold">Ticket ${activeTicketIndex + 1} of ${tickets.length}</div>
+                <button class="btn btn-sm btn-dark" onclick="changeTicket(1)" ${activeTicketIndex === tickets.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          `;
+        }
+
+        html += `
+        <div class="qr-container shadow-sm">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(t.Code)}" alt="Ticket QR Code" class="qr-code">
+          <div class="mt-2 font-monospace fw-bold fs-5">${t.Code}</div>
+        </div>
+        <p class="text-muted small mt-2">Present this code at the venue entrance.</p>
+      `;
+        container.innerHTML = html;
+
+        // Handle Buttons UI State
+        let btnActivateHtml = '';
+        let btnCancelHtml = '';
+
+        if (t.Live_Status !== 'Valid') {
+            const activateText = t.Live_Status === 'Active' ? 'Already Active' : 'Cannot Activate';
+            btnActivateHtml = `<button type="button" class="btn btn-secondary w-100 fw-bold" disabled>${activateText}</button>`;
+
+            if (t.Live_Status === 'Expired' || t.Live_Status === 'Cancelled' || t.Live_Status === 'Used') {
+                btnCancelHtml = `<button type="button" class="btn btn-outline-secondary w-100 fw-bold" disabled>Cancel Ticket</button>`;
+            } else {
+                btnCancelHtml = `<button type="submit" form="cancelForm_${t.Ticket_ID}" class="btn btn-outline-danger w-100 fw-bold" onclick="return confirm('Are you sure you want to cancel this ticket?');">Cancel Ticket</button>`;
+            }
+        } else {
+            btnActivateHtml = `<button type="button" class="btn btn-success success-btn w-100 fw-bold" onclick="attemptActivation(${t.Ticket_ID})">Activate Ticket</button>`;
+            btnCancelHtml = `<button type="submit" form="cancelForm_${t.Ticket_ID}" class="btn btn-outline-danger red-btn w-100 fw-bold" onclick="return confirm('Are you sure you want to cancel this ticket?');">Cancel Ticket</button>`;
+        }
+
+        actionContainer.innerHTML = `
+        <div class="w-50">
+            <form id="activateForm_${t.Ticket_ID}" action="/activate_ticket" method="POST">
+              <input type="hidden" name="ticket_id" value="${t.Ticket_ID}">
+            </form>
+            ${btnActivateHtml}
+        </div>
+        <div class="w-50">
+            <form id="cancelForm_${t.Ticket_ID}" action="/cancel_ticket" method="POST">
+              <input type="hidden" name="ticket_id" value="${t.Ticket_ID}">
+            </form>
+            ${btnCancelHtml}
+        </div>
+      `;
+    }
+
+    function changeTicket(direction) {
+        activeTicketIndex += direction;
+        renderTicketContent();
+    }
+
+    function attemptActivation(ticketIdStr) {
+        const bookedDatesStr = currentBookingData.Booked_Dates;
+        const startTimeStr = currentBookingData.Start_time;
+        const bookedDates = bookedDatesStr.split(',').map(d => d.trim());
+
+        // Get exact current time
+        const now = new Date();
+
+        // Ensure 2-digit format for month and day to match SQL format (YYYY-MM-DD)
+        const todayStr = now.getFullYear() + '-' +
+            String(now.getMonth() + 1).padStart(2, '0') + '-' +
+            String(now.getDate()).padStart(2, '0');
+
+        // Check if today is one of the booked dates
+        if (!bookedDates.includes(todayStr)) {
+            showToast("Error: Ticket not valid for today's date.", false);
+            return;
+        }
+
+        // Check if within 1 hour of Start Time
+        // Note: Assuming startTimeStr is a string like "19:00:00"
+        const timeParts = startTimeStr.split(':');
+        const eventTimeToday = new Date();
+        eventTimeToday.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
+
+        // Calculate the difference in milliseconds
+        const diffMs = eventTimeToday - now;
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        if (diffHours > 1) {
+            showToast("Error: You can only activate this ticket 1 hour before the event starts.", false);
+            return;
+        }
+
+        // If both rules pass, submit the activation form
+        document.getElementById(`activateForm_${ticketIdStr}`).submit();
+    }
+</script>
+{% endblock %}
