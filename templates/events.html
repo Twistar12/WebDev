@@ -225,7 +225,7 @@
           <ul class="list-unstyled mt-3"> <!-- Bootstrap List Typography-->
             <li><strong>Date:</strong> <span id="eventDate"></span></li>
             <li><strong>Venue:</strong> <span id="eventVenue"></span></li>
-            <li><strong>Price:</strong> £<span id="eventPrice"></span></li>
+            <li><strong>Price (per day):</strong> £<span id="eventPrice"></span></li>
             <li><strong>Category:</strong> <span id="eventCategory"></span></li>
             <li><strong>Capacity:</strong> <span id="eventCapacity"></span></li>
             <li><strong>Available Slots:</strong> <span id="eventSlots"></span></li>
@@ -258,6 +258,20 @@
     const minSlider = document.getElementById("minPrice");
     const maxSlider = document.getElementById("maxPrice");
     const track = document.getElementById("track");
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0); // Set to start of today for accurate comparison
+
+    // Calculate 2-month booking window
+    const twoMonthsFromNow = new Date(today);
+    twoMonthsFromNow.setMonth(twoMonthsFromNow.getMonth() + 2);
+
+    // Helper function to check if event is within 2-month booking window
+    function isWithinBookingWindow(eventDateString) {
+      const eventDate = new Date(eventDateString);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate <= twoMonthsFromNow;
+    }
 
     function updateTrack() {
       const min = parseInt(minSlider.value);
@@ -302,26 +316,37 @@
         const card = document.createElement("div"); // Start to create cards in this container
         card.className = "col-md-6 col-lg-4 mb-4";
 
-        // Check if event is in the past
-        const eventDate = new Date(ev.date);
-        const isPastEvent = eventDate < new Date();
+        // Check event times
+        const now = new Date();
+        const eventStart = new Date(ev.date);
+        const eventEnd = ev.end_date ? new Date(ev.end_date) : eventStart;
+        
+        const isPastEvent = eventEnd < now;
+        const isOngoingEvent = eventStart <= now && eventEnd >= now;
+        const isWithinWindow = isWithinBookingWindow(ev.date);
 
-        // Availablity badge
+        // Availability badge
         let availabilityHtml = '';
         if (isPastEvent) {
             availabilityHtml = `<span class="badge bg-secondary mb-2">Event Ended</span>`;
-        } else if (ev.slots <= 0) {
+        } else if (isOngoingEvent) {
+            availabilityHtml = `<span class="badge bg-info mb-2 text-dark">Ongoing</span>`;
+        } else if (!isWithinWindow) {
+            availabilityHtml = `<span class="badge bg-primary mb-2">Coming Soon</span>`;
+        } else if (ev.available_slots <= 0) {
             availabilityHtml = `<span class="badge bg-danger mb-2">SOLD OUT</span>`;
         } else {
-            availabilityHtml = `<span class="badge bg-success mb-2">${ev.slots} Slots Available</span>`;
+            availabilityHtml = `<span class="badge bg-success mb-2">${ev.available_slots} Tickets Available</span>`;
         }
 
         // Button logic for cards
         let buttonHtml = '';
         if (isPastEvent) {
-            buttonHtml = `<button class="btn btn-secondary w-100 fw-bold disabled">Unavailable</button>`;
-        } else if (ev.slots <= 0) {
-            buttonHtml = `<button onclick="addToWaitlist(${ev.event_id})" class="btn btn-light text-dark w-100 fw-bold"><i class="fa-solid fa-list me-2"></i>Waitlist</button>`;
+            buttonHtml = `<button class="btn btn-secondary w-100 fw-bold disabled">Event Ended</button>`;
+        } else if (!isWithinWindow) {
+            buttonHtml = `<button class="btn btn-primary w-100 fw-bold disabled">Coming Soon</button>`;
+        } else if (ev.available_slots <= 0) {
+            buttonHtml = `<button onclick="addToWaitlist(${ev.event_id})" class="btn btn-light text-dark w-100 fw-bold"><i class="fa-solid fa-list me-2"></i>Add to Waiting List</button>`;
         } else {
             buttonHtml = `<a href="/booking/${ev.event_id}" class="btn btn-warning w-100 fw-bold">Book Now</a>`;
         }
@@ -337,10 +362,10 @@
         let slotDisplay;
         if (isPastEvent) {
           slotDisplay = `<span class="text-info">Event Ended</span>`;
-        } else if (ev.slots <= 0) {
+        } else if (ev.available_slots <= 0) {
           slotDisplay = `<span class="text-danger fw-bold">SOLD OUT</span>`;
         } else {
-          slotDisplay = `${ev.slots} left`;
+          slotDisplay = `${ev.available_slots} left`;
         }
 
         // `...` for multi-line strings
@@ -354,8 +379,8 @@
               <p class="mb-1"><i class="fa fa-location-dot me-2"></i>${ev.venue}</p>
               <p class="mb-1"><i class="fa fa-ticket me-2"></i>£${ev.price}</p>
               <p class="mb-1"><i class="fa fa-tags me-2"></i>${ev.category}</p>
-              <small>Capacity: ${ev.capacity}
-              <p class="mt-2">${ev.desc.substring(0, 70)}...</p>
+              <small>Capacity: ${ev.capacity}</small><br>
+              <p class="mt-2">${ev.desc.substring(0, 70)}</p>
             </div>
             <div class="card-footer bg-transparent border-0 p-4 pt-0 d-flex flex-column gap-2">
             <button class="btn btn-outline-light clear-btn m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openEvent(${fetchedEvents.indexOf(ev)})">View More</button> <!-- Pass JS Index instead of object -->
@@ -380,7 +405,14 @@
       document.getElementById("eventPrice").textContent = ev.price;
       document.getElementById("eventCategory").textContent = ev.category;
       document.getElementById("eventCapacity").textContent = ev.capacity;
-      document.getElementById("eventSlots").textContent = ev.slots <= 0 ? "SOLD OUT" : ev.slots; // Show sold out if slots are 0 or less
+      
+      // Check if event is within booking window for slots display
+      const isWithinWindow = isWithinBookingWindow(ev.date);
+      if (!isWithinWindow) {
+        document.getElementById("eventSlots").textContent = "Coming Soon!!!";
+      } else {
+        document.getElementById("eventSlots").textContent = ev.available_slots <= 0 ? "SOLD OUT" : ev.available_slots;
+      }
       document.getElementById("eventDesc").textContent = ev.desc;
 
       // Add event image
@@ -388,9 +420,14 @@
       img.src = `${staticImgPath}${ev.image}`;
       img.alt = ev.title;
 
-      // Book Now button
-      const eventDate = new Date(ev.date);
-      const isPastEvent = eventDate < new Date();
+      // Book Now button logic for modal
+      const now = new Date();
+      const eventStart = new Date(ev.date);
+      const eventEnd = ev.end_date ? new Date(ev.end_date) : eventStart;
+
+      const isPastEvent = eventEnd < now;
+      const isOngoingEvent = eventStart <= now && eventEnd >= now;
+      
       const bookNowBtn = document.getElementById("bookNowBtn");
 
       // reset onclick behaviour so old events dont trigger new events booking page
@@ -398,23 +435,31 @@
 
       if (isPastEvent) {
         // Event in past
-        bookNowBtn.className = "btn btn-secondary disabled w-100 fw-bold"; // Override any previous classes and set to disabled
-        bookNowBtn.innerHTML = '<i class="fa-solid fa-list me-2"></i>Event Ended'; // Change text to "Event Ended" with an icon
+        bookNowBtn.className = "btn btn-secondary disabled w-100 fw-bold"; 
+        bookNowBtn.innerHTML = '<i class="fa-solid fa-ban me-2"></i>Event Ended'; 
         bookNowBtn.href = "#";
-      } else if (ev.slots <= 0) {
+      } else if (isOngoingEvent && ev.available_slots > 0) {
+        bookNowBtn.className = "btn btn-info w-100 fw-bold text-dark"; 
+        bookNowBtn.innerHTML = "Book Now (Ongoing)";
+        bookNowBtn.href = `/booking/${ev.event_id}`; 
+      } else if (!isWithinWindow) {
+        // Event is outside 2-month booking window
+        bookNowBtn.className = "btn btn-primary search-btn w-100 fw-bold";
+        bookNowBtn.innerHTML = '<i class="fa-solid fa-clock me-2"></i>Coming Soon';
+        bookNowBtn.href = "javascript:void(0)"; // Prevent navigation
+      } else if (ev.available_slots <= 0) {
         // Event is sold out - change to waiting list button
          bookNowBtn.className = "btn btn-outline-light clear-btn w-100 fw-bold";
-         bookNowBtn.innerHTML = '<i class="fa-solid fa-list me-2"></i>Add to Waiting List'; // Change text to "Add to Waiting List"
-         bookNowBtn.href = "javascript:void(0)"; // Prevent default link behavior
+         bookNowBtn.innerHTML = '<i class="fa-solid fa-list me-2"></i>Add to Waiting List'; 
+         bookNowBtn.href = "javascript:void(0)"; 
          bookNowBtn.onclick = function() {
-          addToWaitlist(ev.event_id); // Call a function to handle adding to waiting list, passing event title or ID as needed
+          addToWaitlist(ev.event_id); 
          }
       } else {
         // Event is available for booking
-        bookNowBtn.className = "btn btn-warning w-100 fw-bold"; // Reset to default booking button style
+        bookNowBtn.className = "btn btn-warning w-100 fw-bold"; 
         bookNowBtn.textContent = "Book Now";
-        // bookNowBtn.classList.add("book-btn");
-        bookNowBtn.href = `/booking/${ev.event_id}`; // Safe URL encoding for event title in query string
+        bookNowBtn.href = `/booking/${ev.event_id}`; 
       }
     }
 
@@ -438,6 +483,16 @@
       document.getElementById("priceLabel").textContent = `£${minPrice} - £${maxPrice}`;
 
       let filtered = fetchedEvents;
+
+      // List only upcoming events unless user filters to get older events
+      const isPastSearch = startDate && new Date(startDate) < new Date();
+      if (!isPastSearch) {
+        // Filter to only show upcoming events by default
+        filtered = filtered.filter(e => {
+          const eventEnd = e.end_date ? new Date(e.end_date) : new Date(e.date);
+          return eventEnd >= today;
+        });
+      }
 
       if (venue) filtered = filtered.filter(e => e.venue === venue); // Check for filters applied and add only those satisfying the filter in 'filtered'
       if (category) filtered = filtered.filter(e => e.category === category); // Filter events that satisfy the category
@@ -477,10 +532,10 @@
       document.getElementById("minPrice").value = 0; // Reset price sliders to default
       document.getElementById("maxPrice").value = 50;
       document.getElementById("priceLabel").textContent = "£0 - £50"; // Reset price label
-      renderEvents(fetchedEvents); // After clearing, render events again this time with no filters applied
+      filterEvents(fetchedEvents); // Re-render all events without filters
     });
 
-    renderEvents(fetchedEvents); // Display filtered fetchedEvents
+    filterEvents(fetchedEvents); // hides past events by default load
 
     function addToWaitlist(eventId) {
       fetch('add_to_waitlist', {

@@ -171,7 +171,7 @@
               <tr>
                 <th>Event Title</th>
                 <th>Venue</th>
-                <th>Date</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -184,15 +184,26 @@
                     <i class="fa-solid fa_triangle-exclamation text-danger ms-2" title="Low Sales Warning: {{ e.Days_Until_Event }} days until event, Considered lowering prices!"></i>
                   {% endif %}
                 </td>
-                <td>{{ e.VenueName }}</td>
-                <td>{{ e.Start_D }}</td>
+                <td>{{ e.Venue }}</td>
+                <td>
+                  {% if e.Status == 'upcoming' %}
+                    <span class="badge bg-success w-100">Upcoming</span>
+                  {% elif e.Status == 'ongoing' %}
+                    <span class="badge bg-info w-100 text-dark">Ongoing</span>
+                  {% elif e.Status == 'sold_out' %}
+                    <span class="badge bg-danger w-100">Sold Out</span>
+                  {% else %}
+                    <span class="badge bg-secondary w-100">Event Ended</span>
+                  {% endif %}
+                </td>
                 <td>
                   <button class="btn btn-sm btn-outline-light clear-btn edit-event-btn" 
                           data-bs-toggle="modal" data-bs-target="#editEventModal"
                           data-id="{{ e.Event_ID }}" data-title="{{ e.Title }}" data-vid="{{ e.Venue_ID }}"
-                          data-cid="{{ e.Category_ID }}" data-sd="{{ e.Start_D }}" data-st="{{ e.Start_T }}"
-                          data-ed="{{ e.End_D }}" data-et="{{ e.End_T }}" data-price="{{ e.Price }}"
-                          data-desc="{{ e.Description }}" data-img="{{ e.Image_URL }}" data-acc="{{ e.Accessibility_Flag }}">
+                          data-cid="{{ e.Category_ID }}" data-sd="{{ e.Start_date }}" data-st="{{ e.Start_time }}"
+                          data-ed="{{ e.End_date }}" data-et="{{ e.End_time }}" data-price="{{ e.Price }}" data-cap="{{ e.Total_Capacity}}"
+                          data-desc="{{ e.Description }}" data-img="{{ e.Image_URL }}" data-acc="{{ e.Accessibility_Flag }}"
+                          {% if e.Status == 'past' %}disabled{% endif %}>
                     <i class="fa-solid fa-pen-to-square"></i> Edit
                   </button>
                 </td>
@@ -294,8 +305,8 @@
               <input type="number" step="1" class="form-control" name="price" min="1" max="50" placeholder="Enter Ticket Price" required>
             </div>
             <div class="col-md-3">
-              <label>Capacity</label>
-              <input type="number" class="form-control" name="capacity" placeholder="Enter Capacity" required>
+              <label>Event Capacity</label>
+              <input type="number" class="form-control" name="capacity" min="1" placeholder="Enter Capacity" required>
             </div>
             <div class="col-md-3">
               <label>Image</label>
@@ -329,7 +340,7 @@
           </div>
           <div class="mb-3"><label>Address</label><input type="text" class="form-control" name="address" placeholder="Address" required></div>
           <div class="row mb-3">
-            <div class="col-6"><label>Max Capacity</label><input type="number" class="form-control" name="capacity" placeholder="Max Capacity" required></div>
+            <div class="col-6"><label>Max Capacity</label><input type="number" class="form-control" name="capacity" min="1" placeholder="Max Capacity" required></div>
             <div class="col-6"><label>Image</label><input type="file" class="form-control" name="image_url" accept="image/*"></div>
           </div>
           <div class="mb-4"><label>Description</label><textarea class="form-control" name="description" rows="2" placeholder="Description"></textarea></div>
@@ -359,7 +370,7 @@
           </div>
           <div class="mb-3"><label>Address</label><input type="text" class="form-control" id="edit_v_addr" name="address" placeholder="Address" required></div>
           <div class="row mb-3">
-            <div class="col-6"><label>Max Capacity</label><input type="number" class="form-control" id="edit_v_cap" name="capacity" placeholder="Max Capacity" required></div>
+            <div class="col-6"><label>Max Capacity</label><input type="number" class="form-control" id="edit_v_cap" name="capacity" min="1" placeholder="Max Capacity" required></div>
             <div class="col-6"><label>Upload Image</label><input type="file" class="form-control" id="edit_v_img" name="image_url" accept="image/*"></div>
           </div>
           <div class="mb-4"><label>Description</label><textarea class="form-control" id="edit_v_desc" name="description" rows="2" placeholder="Description"></textarea></div>
@@ -422,15 +433,16 @@
                 {% for c in all_categories %}<option value="{{ c.Category_ID }}">{{ c.Category_name }}</option>{% endfor %}
               </select>
             </div>
-            <div class="col-md-3"><label>Capacity</label>
-                <input type="number" class="form-control" id="edit_e_capacity" name="capacity" required>
+            <div class="col-md-3">
+              <label>Event Capacity</label>
+              <input type="number" class="form-control" id="edit_e_cap" name="capacity" min="1" placeholder="Max Attendees" required>
             </div>
           </div>
           <div class="row mb-3">
-            <div class="col-md-3"><label>Start Date</label><input type="date" class="form-control" id="edit_e_sd" name="start_date" required></div>
-            <div class="col-md-3"><label>Start Time</label><input type="time" class="form-control" id="edit_e_st" name="start_time" required></div>
-            <div class="col-md-3"><label>End Date</label><input type="date" class="form-control" id="edit_e_ed" name="end_date" required></div>
-            <div class="col-md-3"><label>End Time</label><input type="time" class="form-control" id="edit_e_et" name="end_time" required></div>
+            <div class="col-md-3"><label>Start Date</label><input type="date" class="form-control" id="edit_e_sd" name="start_date" ></div>
+            <div class="col-md-3"><label>Start Time</label><input type="time" class="form-control" id="edit_e_st" name="start_time" ></div>
+            <div class="col-md-3"><label>End Date</label><input type="date" class="form-control" id="edit_e_ed" name="end_date" ></div>
+            <div class="col-md-3"><label>End Time</label><input type="time" class="form-control" id="edit_e_et" name="end_time" ></div>
           </div>
           <div class="row mb-4">
             <div class="col-md-4"><label>Price (£)</label><input type="number" step="0.01" class="form-control" id="edit_e_price" name="price" required></div>
@@ -494,6 +506,56 @@
         new bootstrap.Toast(toastEl, { delay: 3000 }).show();
     }
   }
+
+  // date and time input enforcer - prevent event scheduling in past
+  function enforceDateTimeRules() {
+      const now = new Date();
+      // Get local YYYY-MM-DD (padded)
+      const todayDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      // Get local HH:MM (padded)
+      const currentTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+      // Restrict Calendar to prevent past dates
+      document.querySelectorAll('input[type="date"]').forEach(dateInput => {
+          dateInput.setAttribute('min', todayDate);
+          
+          // Default to today if left empty on blur (clicking away)
+          dateInput.addEventListener('blur', function() {
+              if (!this.value) this.value = todayDate;
+          });
+      });
+
+      document.querySelectorAll('input[type="time"]').forEach(timeInput => {
+          // Default to current time if left empty
+          timeInput.addEventListener('blur', function() {
+              if (!this.value) this.value = currentTime;
+          });
+
+          // Prevent past time if the selected date is TODAY
+          timeInput.addEventListener('change', function() {
+              const form = this.closest('form');
+              if (!form) return;
+              
+              // Find the corresponding date input (start_date or end_date)
+              const isStart = this.name === 'start_time';
+              const dateInput = form.querySelector(`[name="${isStart ? 'start_date' : 'end_date'}"]`);
+              
+              if (dateInput && dateInput.value === todayDate) {
+                  // Re-calculate current time exactly when they click
+                  const checkNow = new Date();
+                  const checkTime = String(checkNow.getHours()).padStart(2, '0') + ':' + String(checkNow.getMinutes()).padStart(2, '0');
+                  
+                  if (this.value < checkTime) {
+                      showToast('Cannot set time in the past for today\'s date!', false);
+                      this.value = checkTime; // Force it back to current time
+                  }
+              }
+          });
+      });
+  }
+
+  // Run the enforcer immediately when the page loads
+  enforceDateTimeRules();
 
   // Universal Form Handler for AJAX submissions
   function handleFormSubmit(formId) {
@@ -618,12 +680,14 @@
 // Populate Edit Event Modal
   document.querySelectorAll('.edit-event-btn').forEach(btn => {
     btn.addEventListener('click', function() {
+      const form = document.getElementById('updateEventForm');
       const eId = this.getAttribute('data-id');
       document.getElementById('edit_e_id').value = eId;
       document.getElementById('del_e_id').value = eId; // Pass to delete form
       document.getElementById('edit_e_title').value = this.getAttribute('data-title');
       document.getElementById('edit_e_venue').value = this.getAttribute('data-vid');
       document.getElementById('edit_e_cat').value = this.getAttribute('data-cid');
+      document.getElementById('edit_e_cap').value = this.getAttribute('data-cap');
       document.getElementById('edit_e_sd').value = this.getAttribute('data-sd');
       document.getElementById('edit_e_st').value = this.getAttribute('data-st');
       document.getElementById('edit_e_ed').value = this.getAttribute('data-ed');
@@ -680,6 +744,45 @@
         }
     });
   });
+
+  // Validate event date AND time constraints
+  function setupEventDateValidation(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    const startDateInput = form.querySelector('[name="start_date"]');
+    const startTimeInput = form.querySelector('[name="start_time"]');
+    const endDateInput = form.querySelector('[name="end_date"]');
+    const endTimeInput = form.querySelector('[name="end_time"]');
+
+    const validateDatesAndTimes = () => {
+      // Ensure all 4 fields have values before comparing
+      if (!startDateInput.value || !endDateInput.value || !startTimeInput.value || !endTimeInput.value) return;
+
+      // Combine Date and Time into JS Date objects for exact comparison
+      const startDateTime = new Date(`${startDateInput.value}T${startTimeInput.value}`);
+      const endDateTime = new Date(`${endDateInput.value}T${endTimeInput.value}`);
+
+      if (endDateTime <= startDateTime) {
+        showToast("End date/time must be after start date/time. Adjusting end time to be 1 hour after start time.", false);
+        
+        // Reset end fields to safely match start fields + 1 hour
+        endDateInput.value = startDateInput.value;
+        
+        // Add 1 hour to start time safely
+        let newHour = parseInt(startTimeInput.value.split(':')[0]) + 1;
+        let mins = startTimeInput.value.split(':')[1];
+        if (newHour >= 24) newHour = 23; // cap at 11:XX PM
+        endTimeInput.value = `${String(newHour).padStart(2, '0')}:${mins}`;
+      }
+    };
+
+    // Listen to changes on ALL 4 inputs
+    startDateInput.addEventListener('change', validateDatesAndTimes);
+    startTimeInput.addEventListener('change', validateDatesAndTimes);
+    endDateInput.addEventListener('change', validateDatesAndTimes);
+    endTimeInput.addEventListener('change', validateDatesAndTimes);
+  }
 
 // Bind Update and Delete Event Forms to Universal Handler
   handleFormSubmit('addEventForm');

@@ -127,23 +127,38 @@
               <label class="text-light mb-2 fw-bold"><i class="fa-regular fa-calendar-check me-2"></i>Select Days to Attend</label>
               
               <div class="d-flex flex-wrap gap-3 p-3 border border-secondary rounded" style="background: rgba(0,0,0,0.3);">
+
+              {% set today_str = current_time.strftime('%Y-%m-%d') %}
                 
                 {% if event_days|length == 1 %}
-                  <div class="date-checkbox-wrapper">
-                    <input class="day-checkbox" type="checkbox" name="selected_days" id="day_single" value="{{ event_days[0].Date }}" checked onclick="return false;">
-                    <label class="date-btn" for="day_single">
-                      <i class="fa-solid fa-calendar-day"></i> {{ event_days[0].Date }} (Single Day)
-                    </label>
-                  </div>
+                  {% if event_days[0].Date|string >= today_str %}
+                    <div class="date-checkbox-wrapper">
+                      <input class="day-checkbox" type="checkbox" name="selected_days" id="day_single" value="{{ event_days[0].Date }}" checked onclick="return false;">
+                      <label class="date-btn" for="day_single">
+                        <i class="fa-solid fa-calendar-day"></i> {{ event_days[0].Date }} (Single Day)
+                      </label>
+                    </div>
+                  {% else %}
+                     <span class="text-danger"><i class="fa-solid fa-clock me-1"></i> This event has already passed.</span>
+                  {% endif %}
                 {% else %}
+                  {% set ns = namespace(future_days=0) %}
+                  
                   {% for day in event_days %}
-                  <div class="date-checkbox-wrapper">
-                    <input class="day-checkbox" type="checkbox" name="selected_days" id="day_{{ loop.index }}" value="{{ day.Date }}">
-                    <label class="date-btn" for="day_{{ loop.index }}">
-                      <i class="fa-solid fa-calendar-day"></i> {{ day.Date }}
-                    </label>
-                  </div>
+                    {% if day.Date|string >= today_str %}
+                      {% set ns.future_days = ns.future_days + 1 %}
+                      <div class="date-checkbox-wrapper">
+                        <input class="day-checkbox" type="checkbox" name="selected_days" id="day_{{ loop.index }}" value="{{ day.Date }}">
+                        <label class="date-btn" for="day_{{ loop.index }}">
+                          <i class="fa-solid fa-calendar-day"></i> {{ day.Date }}
+                        </label>
+                      </div>
+                    {% endif %}
                   {% endfor %}
+                  
+                  {% if ns.future_days == 0 %}
+                      <span class="text-danger"><i class="fa-solid fa-clock me-1"></i> All available dates for this event have passed.</span>
+                  {% endif %}
                 {% endif %}
 
               </div>
@@ -270,16 +285,33 @@
 </div>
 
 <script>
-  // Move modal to body
+ // Move modal to body
   document.body.appendChild(document.getElementById("receiptModal"));
+  
+  function showToast(message, isSuccess) {
+    const toastEl = document.getElementById('Toast');
+    const msgEl = document.getElementById('toastMessage');
+    
+    if (toastEl && msgEl) {
+        msgEl.textContent = message;
+        toastEl.classList.remove('bg-danger', 'bg-success');
+        toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+        new bootstrap.Toast(toastEl, { delay: 3000 }).show();
+    }
+  }
 
-  // 1. Live Price Calculator
-  const pricePerDay = parseFloat(document.getElementById('price_per_day').getAttribute('data-val'));
-  const earlyBirdPct = {{ early_bird_pct }};
+  document.addEventListener('DOMContentLoaded', function() {
+  // Live Price Calculator
+  const priceInput = document.getElementById('price_per_day');
+  const rawPrice = priceInput.getAttribute('data-val').toString().replace(/[^0-9.]/g, ''); // Remove currency symbols and commas
+  const pricePerDay = parseFloat(rawPrice) || 0; // Fallback to 0 if parsing fails
+
+  const advancedDiscountPercent = {{ disc_percent|default(0) }};
   
   function calculateTotal() {
     const numTickets = parseInt(document.getElementById('num_tickets').value) || 1;
-    const isStudent = document.getElementById('student_discount').checked;
+    const studentCheck = document.getElementById('student_discount');
+    const isStudent = studentCheck ? studentCheck.checked : false;
     
     // Count checked days (Fallback to 1 if it's a single day readonly event)
     const checkboxes = document.querySelectorAll('.day-checkbox:checked');
@@ -287,87 +319,108 @@
 
     // Base math
     const baseTotal = pricePerDay * numTickets * selectedDays;
-    const earlyBirdDiscount = baseTotal * (earlyBirdPct / 100);
-    const subTotal = baseTotal - earlyBirdDiscount;
+    const advancedDiscount = baseTotal * (advancedDiscountPercent / 100);
+    const subTotal = baseTotal - advancedDiscount;
     const studentDiscount = isStudent ? (subTotal * 0.10) : 0;
     const finalTotal = subTotal - studentDiscount;
 
     // Update DOM
-    document.getElementById('summary_tickets').textContent = numTickets;
-    document.getElementById('summary_days').textContent = selectedDays;
-    document.getElementById('summary_base').textContent = `£${baseTotal.toFixed(2)}`;
-    
-    const earlyEl = document.getElementById('summary_early');
-    if(earlyEl) earlyEl.textContent = `-£${earlyBirdDiscount.toFixed(2)}`;
-    
-    document.getElementById('student_row').style.setProperty('display', isStudent ? 'flex' : 'none', 'important');
-    document.getElementById('summary_student').textContent = `-£${studentDiscount.toFixed(2)}`;
-    
-    document.getElementById('summary_total').textContent = `£${finalTotal.toFixed(2)}`;
-    
-    // Disable button if no days selected
+    if(document.getElementById('summary_tickets')) {
+        document.getElementById('summary_tickets').textContent = numTickets;
+    }
+    if(document.getElementById('summary_days')) {
+        document.getElementById('summary_days').textContent = selectedDays;
+    }
+    if(document.getElementById('summary_base')) {
+        document.getElementById('summary_base').textContent = `£${baseTotal.toFixed(2)}`;
+    }
+
+    const advancedDiscountEl = document.getElementById('summary_early');
+    if(advancedDiscountEl) {
+        advancedDiscountEl.textContent = `-£${advancedDiscount.toFixed(2)}`;
+    }
+
+    const studentRow  = document.getElementById('student_row')
+    if(studentRow) {
+        studentRow.style.setProperty('display', isStudent ? 'flex' : 'none', 'important');
+        document.getElementById('summary_student').textContent = `-£${studentDiscount.toFixed(2)}`;
+    }
+    if(document.getElementById('summary_total')) {
+        document.getElementById('summary_total').textContent = `£${finalTotal.toFixed(2)}`;
+    }
+
+    // Disable confirm and pay button if all days are unchecked
     const confirmBtn = document.getElementById('confirmBtn');
-    if (selectedDays === 0) {
-      confirmBtn.disabled = true;
-      confirmBtn.textContent = "Please select at least 1 day";
-    } else {
-      confirmBtn.disabled = false;
-      confirmBtn.textContent = "Confirm & Pay";
+    if (confirmBtn) {
+      if (checkboxes.length === 0 && document.querySelectorAll('.day-checkbox').length > 0) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Please select at least 1 day";
+      } else {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = "Confirm & Pay";
+      }
     }
   }
 
-  // Attach event listeners for calculation
+  // Attach event listeners for calculation to trigger calculateTotal on relevant input changes
   document.querySelectorAll('.day-checkbox').forEach(cb => cb.addEventListener('change', calculateTotal));
   document.getElementById('num_tickets').addEventListener('input', calculateTotal);
-  document.getElementById('student_discount').addEventListener('change', calculateTotal);
-  
+
+  const studentDiscountCheckbox = document.getElementById('student_discount');
+  if (studentDiscountCheckbox) {
+    studentDiscountCheckbox.addEventListener('change', calculateTotal);
+  }
+
   // Initial calculation
   calculateTotal();
 
-  // 2. Expandable Card UI
-  const collapseEl = document.getElementById('collapseCard');
-  const bsCollapse = new bootstrap.Collapse(collapseEl, { toggle: false });
-  document.querySelectorAll('input[name="payment"]').forEach(input => {
-    input.addEventListener('change', function () {
-      if (this.id === 'card' && this.checked) bsCollapse.show();
-      else if (collapseEl.classList.contains("show")) bsCollapse.hide();
-    });
-  });
-
-  // 3. Form Submission via AJAX
-  document.getElementById('bookingForm').addEventListener('submit', function(e) {
+  // Form Submission via AJAX
+  const bookingForm = document.getElementById('bookingForm');
+  if (bookingForm) {
+    bookingForm.addEventListener('submit', function(e) {
     e.preventDefault();
     const btn = document.getElementById('confirmBtn');
+    const originalBtnText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Processing...';
 
     fetch(this.action, {
       method: 'POST',
-      body: new FormData(this)
+      body: new FormData(this),
+      headers: {'X-Requested-With': 'XMLHttpRequest'} // AJAX request
     })
     .then(r => r.json())
     .then(data => {
       if (data.success) {
         // Populate Receipt Modal
         document.getElementById('rcpt_base').textContent = data.receipt.base;
-        document.getElementById('rcpt_early').textContent = data.receipt.early_bird;
-        document.getElementById('rcpt_student').textContent = data.receipt.student;
+        document.getElementById('rcpt_early').textContent = data.receipt.advanced_disc;
+        document.getElementById('rcpt_student').textContent = data.receipt.student_disc;
         document.getElementById('rcpt_total').textContent = data.receipt.final;
         
-        const tktsDiv = document.getElementById('rcpt_tickets');
-        tktsDiv.innerHTML = '';
+        const ticketsDiv = document.getElementById('rcpt_tickets');
+        ticketsDiv.innerHTML = '';
         data.receipt.tickets.forEach(code => {
-          tktsDiv.innerHTML += `<div class="ticket-code">${code}</div>`;
+          ticketsDiv.innerHTML += `<div class="ticket-code">${code}</div>`;
         });
 
-        // Show Modal
+        // Show success modal
         new bootstrap.Modal(document.getElementById('receiptModal')).show();
       } else {
-        alert("Booking failed: " + data.message);
-        btn.disabled = false;
-        btn.textContent = "Confirm & Pay";
+        // Show error toast
+        showToast(data.message || "An error occurred while processing your booking. Please try again.", false);
       }
+      btn.disabled = false;
+      btn.innerHTML = originalBtnText;
+    })
+    .catch(err => {
+      console.error("Booking Error:", err);
+      showToast("An unexpected error occurred. Please try again later.", false);
+      btn.disabled = false;
+      btn.innerHTML = originalBtnText;
     });
   });
+  }
+});
 </script>
 {% endblock %}

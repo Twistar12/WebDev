@@ -54,12 +54,13 @@ def events():
     dbcursor = conn.cursor(dictionary=True) 
 
     # fetch all events from database
-    dbcursor.execute('SELECT * FROM Event_Cards ORDER BY date ASC')
+    dbcursor.execute('SELECT ec.*, e.Start_date AS full_start, e.End_date AS full_end FROM Event_Cards ec JOIN Events e ON ec.event_id = e.Event_ID ORDER BY e.Start_date ASC')
     fetched_events = dbcursor.fetchall()
+    print(fetched_events) # Debugging log to verify data is fetched correctly
     # print(fetched_events) # Debugging log to verify data is fetched correctly
     for ev in fetched_events:
-        ev['date'] = str(ev['date']) if ev['date'] else "" # Convert date to string for JSON serialization, handle NULL dates
-        ev['end_date'] = str(ev['end_date']) if ev['end_date'] else "" # Convert end date to string for JSON serialization, handle NULL dates
+        ev['date'] = str(ev['full_start']) if ev['full_start'] else "" # Use full datetime for precision
+        ev['end_date'] = str(ev['full_end']) if ev['full_end'] else "" # Use full datetime for precision
 
     # fetch distinct venues and categories for dropdown filters dynamically from database
     dbcursor.execute('SELECT DISTINCT venue FROM Event_Cards WHERE venue IS NOT NULL ORDER BY venue ASC')
@@ -610,7 +611,9 @@ def admin_portal():
     dbcursor.execute('''SELECT  e.*, v.Name as Venue, c.Category_name,
                         DATE_FORMAT(e.Start_date, '%Y-%m-%d') as Start_date, DATE_FORMAT(e.Start_date, '%H:%i') as Start_time,
                         DATE_FORMAT(e.End_date, '%Y-%m-%d') as End_date, DATE_FORMAT(e.End_date, '%H:%i') as End_time,
+                        e.Start_date AS full_start, e.End_date AS full_end,
                         DATEDIFF(e.Start_date, CURDATE()) AS Days_Until_Event,
+                        DATEDIFF(e.End_date, CURDATE()) AS Days_After_Event,
                         (SELECT SUM(Day_Capacity) FROM Event_Days WHERE Event_ID = e.Event_ID) AS Total_Capacity,
                         (SELECT COUNT(*) FROM Tickets t JOIN Bookings b ON t.Booking_ID = b.Booking_ID WHERE b.Event_ID = e.Event_ID) AS Tickets_Sold
                      FROM Events e
@@ -622,6 +625,7 @@ def admin_portal():
     all_events = dbcursor.fetchall()
 
     # Process flags for event status
+    now_dt = datetime.now()
     for e in all_events:
         total_capacity = float(e['Total_Capacity'] or 0) # Handle NULL values by defaulting to 0
         tickets_sold = float(e['Tickets_Sold'] or 0) # Handle NULL
@@ -629,6 +633,20 @@ def admin_portal():
 
         # Flag if <= 10 days away and < 50% sold
         e['Low_Sales_Warning'] = True if (0 <= e['Days_Until_Event'] <= 10 and percent_sold < 50) else False
+
+        # Determine exact event status using datetime
+        if e['full_end'] < now_dt:
+            e['Status'] = 'past'
+        elif e['full_start'] <= now_dt and e['full_end'] >= now_dt:
+            e['Status'] = 'ongoing'
+        elif total_capacity > 0 and tickets_sold >= total_capacity:
+            e['Status'] = 'sold_out'
+        else:
+            e['Status'] = 'upcoming'
+
+    # Sort events: ongoing first, then upcoming, then past
+    status_priority = {'ongoing': 0, 'upcoming': 1, 'past': 2}
+    all_events.sort(key=lambda x: (status_priority[x['Status']], x['Days_Until_Event']))
 
     # Fetch venues for creating event
     dbcursor.execute('SELECT * FROM Venues ORDER BY Name ASC')
@@ -638,10 +656,12 @@ def admin_portal():
     dbcursor.execute('SELECT Category_ID, Category_name FROM Categories ORDER BY Category_name ASC')
     all_categories = dbcursor.fetchall()
 
+    now = datetime.now()
+
     dbcursor.close()
     conn.close()
 
-    return render_template('admin_portal.html', all_users=all_users, all_events=all_events, all_venues=all_venues, all_categories=all_categories)
+    return render_template('admin_portal.html', current_time=now, all_users=all_users, all_events=all_events, all_venues=all_venues, all_categories=all_categories)
 
 
 # Update user (admin only version)
@@ -811,12 +831,15 @@ def update_venue():
     location = request.form.get('location', '').strip()
     address = request.form.get('address', '').strip()
     venue_type = request.form.get('type', '').strip()
-    capacity = request.form.get('capacity')
+    new_capacity = int(request.form.get('capacity', 0))
     description = request.form.get('description', '').strip()
 
-    old_image_url = request.form.get('current_image_url') # Get current image URL from form hidden input
-    final_image_name = old_image_url # Default to old image, only update if new image is uploaded
-
+    old_image_name = request.form.get('current_image_url') # Get current image URL from form hidden input
+    if not old_image_name or old_image_name.strip() == '':
+        old_image_name = 'default_venue.jpg' # Fallback to default if current image URL is missing or blank
+    final_image_name = old_image_name # Default to old image, only update if new image is uploaded
+    
+    
     if 'image_url' in request.files:
         file = request.files['image_url']
 
@@ -832,8 +855,8 @@ def update_venue():
             file.save(save_path)
 
             # Delete old image if its not the default
-            if old_image_url and old_image_url != 'default_venue.jpg' and old_image_url != filename:
-                old_image_path = os.path.join(app.root_path, 'static', 'img', 'venue_carousel', old_image_url)
+            if old_image_name and old_image_name != 'default_venue.jpg' and old_image_name != filename:
+                old_image_path = os.path.join(app.root_path, 'static', 'img', 'venue_carousel', old_image_name)
 
                 # Check if old file exists on storage before attempting to delete to avoid errors, then delete
                 if os.path.exists(old_image_path):
@@ -843,12 +866,20 @@ def update_venue():
             final_image_name = filename
 
     conn = dbfunc.getConnection()
-    dbcursor = conn.cursor()
+    dbcursor = conn.cursor(dictionary=True)
 
     try:
+        # Venue Teardown: If capacity is being reduced, check if any events at the venue would be over capacity with the new limit before allowing update to go through
+        dbcursor.execute('''SELECT Max(Capacity) as max_event_cap FROM Events
+                         WHERE Venue_ID = %s AND End_date >= CURDATE()''', (venue_id,))
+        res = dbcursor.fetchone()['max_event_cap']  # Get the maximum capacity of upcoming events at the venue
+
+        if res and new_capacity < res:
+            return jsonify({'success': False, 'message': f'Cannot reduce capacity to {new_capacity}: Events at this venue have bookings for a higher capacity - ({res}).'})
+
         dbcursor.execute('''UPDATE Venues
                             SET Name = %s, Location = %s, Address = %s, Description = %s, Type = %s, Max_Capacity = %s, Image_URL = %s
-                            WHERE Venue_ID = %s''', (name, location, address, description, venue_type, capacity, final_image_name, venue_id))
+                            WHERE Venue_ID = %s''', (name, location, address, description, venue_type, new_capacity, final_image_name, venue_id))
         conn.commit()
         return jsonify({'success': True, 'message': f'Venue "{name}" updated successfully!'})
     except Exception as e:
@@ -940,8 +971,8 @@ def add_event():
     category_id = request.form.get('category_id')
     description = request.form.get('description', '').strip()
     price = request.form.get('price')
-    capacity = request.form.get('capacity')
-    
+    capacity = int(request.form.get('capacity', 0))
+
     # time fields
     start_date_only = request.form.get('start_date')
     start_time = request.form.get('start_time')
@@ -956,8 +987,17 @@ def add_event():
 
 
     # Stich date and time for DATETIME format
-    start_datetime = f"{start_date_only} {start_time}"
-    end_datetime = f"{end_date_only} {end_time}"
+    start_datetime = datetime.strptime(f"{start_date_only} {start_time}", '%Y-%m-%d %H:%M:%S')
+    end_datetime = datetime.strptime(f"{end_date_only} {end_time}", '%Y-%m-%d %H:%M:%S')
+
+    # Prevent past dates in events
+    if start_datetime < datetime.now():
+        return jsonify({'success': False, 'message': 'Event start date and time cannot be in the past.'})
+
+    if end_datetime <= start_datetime:
+        return jsonify({'success': False, 'message': 'Event end date and time must be after start date and time.'})
+
+
 
     final_image_name = 'default_event.jpg' # default image if no image uploaded
 
@@ -973,8 +1013,16 @@ def add_event():
     dbcursor = conn.cursor()
 
     try:
-        dbcursor.execute('''INSERT INTO Events (Venue_ID, Category_ID, Title, Description, Start_date, End_date, Price, Image_URL, Accessibility_flag)
-                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 1)''', (venue_id, category_id, title, description, start_datetime, end_datetime, price, final_image_name))
+        # Check venue capacity to ensure event capacity does not exceed it
+        dbcursor.execute('SELECT Max_Capacity FROM Venues WHERE Venue_ID = %s', (venue_id,))
+        venue_capacity = dbcursor.fetchone()[0]
+
+        if capacity > venue_capacity:
+            return jsonify({'success': False, 'message': f'Event capacity ({capacity}) cannot exceed venue maximum capacity of {venue_capacity}.'})
+        
+
+        dbcursor.execute('''INSERT INTO Events (Venue_ID, Category_ID, Title, Description, Start_date, End_date, Price, Capacity, Image_URL, Accessibility_flag)
+                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 1)''', (venue_id, category_id, title, description, start_datetime, end_datetime, price, capacity, final_image_name))
 
         event_id = dbcursor.lastrowid # Get the ID of the newly created Event_ID to insert into Event_Days
 
@@ -1014,7 +1062,7 @@ def update_event():
     category_id = request.form.get('category_id')
     description = request.form.get('description', '').strip()
     price = request.form.get('price')
-    capacity = request.form.get('capacity', 500)
+    capacity = int(request.form.get('capacity', 0))
     acc_flag = 1 if request.form.get('accessibility_flag') else 0
     
     # time fields
@@ -1031,11 +1079,20 @@ def update_event():
 
 
     # Stich date and time for DATETIME format
-    start_datetime = f"{start_date_only} {start_time}"
-    end_datetime = f"{end_date_only} {end_time}"
+    start_datetime = datetime.strptime(f"{start_date_only} {start_time}", '%Y-%m-%d %H:%M:%S')
+    end_datetime = datetime.strptime(f"{end_date_only} {end_time}", '%Y-%m-%d %H:%M:%S')
+
+    # Prevent past dates in events
+    if start_datetime < datetime.now():
+        return jsonify({'success': False, 'message': 'Event start date and time cannot be in the past.'})#
+    
+    if end_datetime <= start_datetime:  
+        return jsonify({'success': False, 'message': 'Event end date and time must be after start date and time.'})
 
     # Handle image upload and replacement
     old_image_name = request.form.get('current_image_url') # Get current image URL from form hidden input
+    if not old_image_name or old_image_name.strip() == '':
+        old_image_name = 'default_event.jpg' # Fallback to default if current image URL is missing or blank
     final_image_name = old_image_name # Default to old image, update if new upload
 
     if 'image_url' in request.files:
@@ -1064,9 +1121,24 @@ def update_event():
     dbcursor = conn.cursor()
 
     try:
+        # Check venue capacity to ensure event capacity does not exceed it
+        dbcursor.execute('SELECT Max_Capacity FROM Venues WHERE Venue_ID = %s', (venue_id,))
+        venue_capacity = dbcursor.fetchone()[0]
+        if capacity > venue_capacity:
+            return jsonify({'success': False, 'message': f'Event capacity ({capacity}) cannot exceed venue maximum capacity of {venue_capacity}.'})
+
+        # Check if event has existing bookings, if so prevent reducing capacity below tickets already sold
+        dbcursor.execute('''SELECT COUNT(*) as sold FROM Tickets t
+                            JOIN Bookings b ON t.Booking_ID = b.Booking_ID
+                            WHERE b.Event_ID = %s''', (event_id,))
+        tickets_sold = dbcursor.fetchone()[0]
+        if capacity < tickets_sold:
+            return jsonify({'success': False, 'message': f'Event capacity cannot be reduced below the number of tickets already sold ({tickets_sold}).'})
+        
+        # Update event details in Events table
         dbcursor.execute('''UPDATE Events
-                         SET Venue_ID=%s, Category_ID=%s, Title=%s, Description=%s, Start_date=%s, End_date=%s, Price=%s, Image_URL=%s, Accessibility_flag=%s
-                         WHERE Event_ID=%s''', (venue_id, category_id, title, description, start_datetime, end_datetime, price, final_image_name, acc_flag, event_id))
+                         SET Venue_ID=%s, Category_ID=%s, Title=%s, Description=%s, Start_date=%s, End_date=%s, Price=%s, Capacity=%s, Image_URL=%s, Accessibility_flag=%s
+                         WHERE Event_ID=%s''', (venue_id, category_id, title, description, start_datetime, end_datetime, price, capacity, final_image_name, acc_flag, event_id))
 
         # Handle date changes by deleting old event days and inserting new ones based on updated start and end dates
         dbcursor.execute('DELETE FROM Event_Days WHERE Event_ID = %s', (event_id,)) # Delete old event days
@@ -1181,8 +1253,11 @@ def booking(event_id):
     elif days_in_advance >= 15:
         disc_percent = 5
 
+    # Current exact time
+    now = datetime.now()
+
     # Render the booking page with the retrieved data
-    return render_template('booking.html', event=event, event_days=event_days, user=user, wallet_balance=wallet_balance, disc_percent=disc_percent)
+    return render_template('booking.html', event=event, event_days=event_days, user=user, wallet_balance=wallet_balance, disc_percent=disc_percent, current_time=now)
 
 
 
