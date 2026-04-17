@@ -56,8 +56,7 @@ def events():
     # fetch all events from database
     dbcursor.execute('SELECT ec.*, e.Start_date AS full_start, e.End_date AS full_end FROM Event_Cards ec JOIN Events e ON ec.event_id = e.Event_ID ORDER BY e.Start_date ASC')
     fetched_events = dbcursor.fetchall()
-    print(fetched_events) # Debugging log to verify data is fetched correctly
-    # print(fetched_events) # Debugging log to verify data is fetched correctly
+
     for ev in fetched_events:
         ev['date'] = str(ev['full_start']) if ev['full_start'] else "" # Use full datetime for precision
         ev['end_date'] = str(ev['full_end']) if ev['full_end'] else "" # Use full datetime for precision
@@ -1231,11 +1230,12 @@ def booking(event_id):
     user = dbcursor.fetchone()
 
     # Get Wallet Balance
-    dbcursor.execute('SELECT SUM(ABS(Amount)) as Balance FROM Transactions WHERE User_ID = %s', (session['user_id'],))
-    wallet_balance = dbcursor.fetchone()['Balance'] or 0.00
+    dbcursor.execute('SELECT Balance FROM Wallet_Balance WHERE User_ID = %s', (session['user_id'],))
+    wallet_res = dbcursor.fetchone()
+    wallet_balance = float(wallet_res['Balance']) if wallet_res and wallet_res['Balance'] is not None else 0.00
 
     # Get event days 
-    dbcursor.execute('SELECT Date, Day_Capacity FROM Event_Days WHERE Event_ID = %s ORDER BY Date ASC', (event_id,))
+    dbcursor.execute('SELECT Day_ID, Date, Day_Capacity FROM Event_Days WHERE Event_ID = %s ORDER BY Date ASC', (event_id,))
     event_days = dbcursor.fetchall()
 
     dbcursor.close()
@@ -1281,7 +1281,7 @@ def process_booking():
 
     try: 
         # Server side price calculation
-        dbcursor.execute('SELECT Price, Start_date FROM Events WHERE Event_ID = %s', (event_id,))
+        dbcursor.execute('SELECT Title, Price, Start_date FROM Events WHERE Event_ID = %s', (event_id,))
         event = dbcursor.fetchone()
 
         base_price_per_day = float(event['Price'])
@@ -1306,8 +1306,10 @@ def process_booking():
 
         # Wallet Validation if wallet selected
         if payment_method == 'wallet':
-            dbcursor.execute('SELECT SUM(ABS(Amount)) as Balance FROM Transactions WHERE User_ID = %s', (session['user_id'],))
-            balance = float(dbcursor.fetchone()['Balance'] or 0.00)
+            dbcursor.execute('SELECT Balance FROM Wallet_Balance WHERE User_ID = %s', (session['user_id'],))
+            wallet_res = dbcursor.fetchone()
+            balance = float(wallet_res['Balance']) if wallet_res and wallet_res['Balance'] is not None else 0.00
+            
             if balance < final_price:
                 return jsonify({'success': False, 'message': 'Insufficient wallet balance. Please choose another payment method or add funds to your wallet.'})
             
@@ -1318,15 +1320,24 @@ def process_booking():
                          Original_Price, Discount_Applied, Is_Student)
                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)''',
                          (session['user_id'], event_id, datetime.now(),
-                          num_tickets, final_price, 'Confirmed',
+                          num_tickets, final_price, 'Success',
                           total_base, advanced_disc, is_student))
 
         booking_id = dbcursor.lastrowid # Get the ID of the newly created Booking_ID to insert into Tickets and Booking_Days
         
         # Insert booking days records
-        for day in selected_days:
-            dbcursor.execute('''INSERT INTO Booking_Days (Booking_ID, Date)
-                             VALUES (%s, %s)''', (booking_id, day))
+        # # Selcted the days from event_days table to get the corresponding Day_IDs for the selected dates to insert into Booking_Days
+        # dbcursor.execute('''SELECT Day_ID, Date FROM Event_Days
+        #                  WHERE Event_ID = %s
+        #                  ORDER BY Date ASC''', (event_id,))
+        # event_days = dbcursor.fetchall()
+
+        for day_id in selected_days:
+            if day_id and str(day_id).strip() != '': # validate day_id to prevent blank entries
+                dbcursor.execute('''INSERT INTO Booking_Days (Booking_ID, Day_ID)
+                                VALUES (%s, %s)''', (booking_id, day_id))
+            else:
+                return jsonify({'success': False, 'message': 'Invalid day selection. Please try again.'})
             
         # Insert Transaction
         dbcursor.execute('''INSERT INTO Transactions (User_ID, Booking_ID, Amount, Payment_method, Transaction_date)
@@ -1338,14 +1349,14 @@ def process_booking():
             # Format: FIRST3LETTERS OF EVENT + RANDOM 4 ALPHANUMERALS + BOOKINGID 
             code = f"{event['Title'][:3].upper()}-{''.join(random.choices(string.ascii_uppercase + string.digits, k=4))}-{booking_id}"
             # default to valid status and insert activation time later when user activates ticket
-            dbcursor.execute('''INSERT INTO Tickets (Booking_ID, Code, Status)
+            dbcursor.execute('''INSERT INTO Tickets (Booking_ID, Code, Ticket_Status)
                              VALUES (%s, %s, %s)''', (booking_id, code, 'Valid'))
             generated_tickets.append(code)
 
-            conn.commit()
+        conn.commit()
 
-            # return receipt data
-            return jsonify({'success': True,
+        # return receipt data
+        return jsonify({'success': True,
                             'receipt': {
                                 'base': f"£{total_base:.2f}",
                                 'advanced_disc': f"£{advanced_disc:.2f}" if advanced_disc > 0 else "£0.00",

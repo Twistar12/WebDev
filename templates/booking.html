@@ -47,9 +47,12 @@
   }
 
   .receipt-modal .modal-content {
-    background: #1a1a1a;
-    border: 1px solid #f72585;
-    color: white;
+    background: rgba(0, 0, 0, 0.486);
+    color: #fff;
+    border-radius: 10px;
+    border: none;
+    backdrop-filter: blur(15px);
+    box-shadow: #03f123 0px 0px 5px;
   }
   .ticket-code {
     font-family: monospace;
@@ -133,7 +136,7 @@
                 {% if event_days|length == 1 %}
                   {% if event_days[0].Date|string >= today_str %}
                     <div class="date-checkbox-wrapper">
-                      <input class="day-checkbox" type="checkbox" name="selected_days" id="day_single" value="{{ event_days[0].Date }}" checked onclick="return false;">
+                      <input class="day-checkbox" type="checkbox" name="selected_days" id="day_single" value="{{ event_days[0].Day_ID }}" checked onclick="return false;">
                       <label class="date-btn" for="day_single">
                         <i class="fa-solid fa-calendar-day"></i> {{ event_days[0].Date }} (Single Day)
                       </label>
@@ -148,7 +151,7 @@
                     {% if day.Date|string >= today_str %}
                       {% set ns.future_days = ns.future_days + 1 %}
                       <div class="date-checkbox-wrapper">
-                        <input class="day-checkbox" type="checkbox" name="selected_days" id="day_{{ loop.index }}" value="{{ day.Date }}">
+                        <input class="day-checkbox" type="checkbox" name="selected_days" id="day_{{ loop.index }}" value="{{ day.Day_ID }}">
                         <label class="date-btn" for="day_{{ loop.index }}">
                           <i class="fa-solid fa-calendar-day"></i> {{ day.Date }}
                         </label>
@@ -197,6 +200,7 @@
 
         <div class="booking-card mb-4">
           <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i class="fa-solid fa-credit-card me-2"></i>Payment & Summary</h4>
+          <input type="hidden" id="wallet_balance" value="{{ wallet_balance|default(0) }}">
           
           <div class="bg-dark p-3 rounded mb-4 border border-secondary">
             <div class="d-flex justify-content-between mb-2">
@@ -278,7 +282,7 @@
         <h5 class="mb-3 text-center">Your Ticket Codes:</h5>
         <div id="rcpt_tickets" class="d-flex flex-column gap-2 text-center mb-4">
           </div>
-        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light w-100">Return to Dashboard</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light clear-btn w-100">Return to Dashboard</a>
       </div>
     </div>
   </div>
@@ -349,12 +353,18 @@
         document.getElementById('summary_total').textContent = `£${finalTotal.toFixed(2)}`;
     }
 
-    // Disable confirm and pay button if all days are unchecked
+    // Payment validation against wallet
     const confirmBtn = document.getElementById('confirmBtn');
+    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value;
+    const walletBalance = parseFloat(document.getElementById('wallet_balance').value || 0);
+
     if (confirmBtn) {
       if (checkboxes.length === 0 && document.querySelectorAll('.day-checkbox').length > 0) {
         confirmBtn.disabled = true;
         confirmBtn.textContent = "Please select at least 1 day";
+      } else if (paymentMethod === 'wallet' && finalTotal > walletBalance) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = `Insufficient Wallet Balance (£${walletBalance.toFixed(2)} available)`;
       } else {
         confirmBtn.disabled = false;
         confirmBtn.textContent = "Confirm & Pay";
@@ -365,6 +375,7 @@
   // Attach event listeners for calculation to trigger calculateTotal on relevant input changes
   document.querySelectorAll('.day-checkbox').forEach(cb => cb.addEventListener('change', calculateTotal));
   document.getElementById('num_tickets').addEventListener('input', calculateTotal);
+  document.querySelectorAll('input[name="payment"]').forEach(radio => radio.addEventListener('change', calculateTotal));
 
   const studentDiscountCheckbox = document.getElementById('student_discount');
   if (studentDiscountCheckbox) {
