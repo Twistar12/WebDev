@@ -1399,12 +1399,15 @@ def tickets():
                 uti.*,
                 t.Ticket_ID,
                 b.Booking_ID,
+                b.Ticket_Price,
+                b.Tickets_Purchased,
+                b.Booking_date,
+                e.Start_date,
                 (CASE
                     WHEN (t.Ticket_Status = 'Cancelled') THEN 'Cancelled'
                     WHEN (TIMESTAMPDIFF(SECOND, e.End_date, NOW()) >= 1) THEN 'Expired'
-                    WHEN (TIMESTAMPDIFF(MINUTE, t.Activated_Time, NOW()) >= 10) THEN 'Used'
+                    WHEN (t.Activated_Time IS NOT NULL AND TIMESTAMPDIFF(MINUTE, t.Activated_Time, NOW()) >= 10) THEN 'Used'
                     WHEN (t.Activated_Time IS NOT NULL) THEN 'Active'
-                    WHEN (t.Activated_Time IS NULL) THEN 'Valid'
                     ELSE 'Valid'
                 END) AS Live_Status,
                 (SELECT GROUP_CONCAT(ed.Date ORDER BY ed.Date ASC SEPARATOR ', ')
@@ -1423,7 +1426,7 @@ def tickets():
             JOIN Tickets t ON uti.Code = t.Code
             JOIN Bookings b ON t.Booking_ID = b.Booking_ID
             JOIN Events e ON b.Event_ID = e.Event_ID
-            WHERE uti.User_ID = %s
+            WHERE uti.User_ID = %s AND t.Ticket_Status != 'Cancelled'
             ORDER BY e.Start_date ASC
         ''', (session['user_id'],))
 
@@ -1432,29 +1435,35 @@ def tickets():
         # Group tickets by Booking_ID
         grouped_bookings = {}
         for t in raw_tickets:
-            bid = t['Booking_ID']
-            if bid not in grouped_bookings:
-                grouped_bookings[bid] = {
-                    'Booking_ID': bid,
-                    'Title': t['Title'],
-                    'Venue': t['Venue'],
-                    'Booked_Dates': t['Booked_Dates'],
-                    'Start_time': t['Start_time'],
-                    'End_time': t['End_time'],
-                    'Tickets': []
-                }
-            
-            # Format time into strings (HH:MM) roughly like before just in case
-            if t['Start_time'] and not isinstance(t['Start_time'], str):
-                 t['Start_time'] = str(t['Start_time'])[:-5]
-            if t['End_time'] and not isinstance(t['End_time'], str):
-                 t['End_time'] = str(t['End_time'])[:-5]
-                 
-            grouped_bookings[bid]['Tickets'].append({
-                'Ticket_ID': t['Ticket_ID'],
-                'Code': t['Code'],
-                'Live_Status': t['Live_Status']
-            })
+            # Only include tickets that are Valid, Active, or Expired (not Used or Cancelled)
+            if t['Live_Status'] in ['Valid', 'Active', 'Expired']:
+                bid = t['Booking_ID']
+                if bid not in grouped_bookings:
+                    grouped_bookings[bid] = {
+                        'Booking_ID': bid,
+                        'Title': t['Title'],
+                        'Venue': t['Venue'],
+                        'Booked_Dates': t['Booked_Dates'],
+                        'Start_time': t['Start_time'],
+                        'End_time': t['End_time'],
+                        'Ticket_Price': t['Ticket_Price'],
+                        'Tickets_Purchased': t['Tickets_Purchased'],
+                        'Booking_date': str(t['Booking_date']) if t['Booking_date'] else '',
+                        'Start_date': str(t['Start_date']) if t['Start_date'] else '',
+                        'Tickets': []
+                    }
+                
+                # Format time into strings (HH:MM) roughly like before just in case
+                if t['Start_time'] and not isinstance(t['Start_time'], str):
+                     t['Start_time'] = str(t['Start_time'])[:-5]
+                if t['End_time'] and not isinstance(t['End_time'], str):
+                     t['End_time'] = str(t['End_time'])[:-5]
+                     
+                grouped_bookings[bid]['Tickets'].append({
+                    'Ticket_ID': t['Ticket_ID'],
+                    'Code': t['Code'],
+                    'Live_Status': t['Live_Status']
+                })
 
         return render_template('tickets.html', grouped_bookings=grouped_bookings.values())
     
@@ -1473,20 +1482,56 @@ def activate_ticket():
     ticket_id = request.form.get('ticket_id')
 
     conn = dbfunc.getConnection()
-    dbcursor = conn.cursor()
+    dbcursor = conn.cursor(dictionary=True)
 
     try:
+        # Get ticket information including the event end time
+        dbcursor.execute('''
+            SELECT t.Ticket_ID, b.Booking_ID, e.End_date,
+                   (SELECT GROUP_CONCAT(ed.Date ORDER BY ed.Date ASC SEPARATOR ', ')
+                    FROM Booking_Days bd
+                    JOIN Event_Days ed ON bd.Day_ID = ed.Day_ID
+                    WHERE bd.Booking_ID = b.Booking_ID) AS Booked_Dates,
+                   (SELECT TIME_FORMAT(MAX(ed.End_Time), '%H:%i')
+                    FROM Booking_Days bd
+                    JOIN Event_Days ed ON bd.Day_ID = ed.Day_ID
+                    WHERE bd.Booking_ID = b.Booking_ID) AS End_time
+            FROM Tickets t
+            JOIN Bookings b ON t.Booking_ID = b.Booking_ID
+            JOIN Events e ON b.Event_ID = e.Event_ID
+            WHERE t.Ticket_ID = %s AND b.User_ID = %s
+        ''', (ticket_id, session['user_id']))
+        
+        ticket_info = dbcursor.fetchone()
+        if not ticket_info:
+            return jsonify({'success': False, 'message': 'Ticket not found'})
+
+        # Get current datetime
+        now = datetime.now()
+        today_str = now.strftime('%Y-%m-%d')
+        
+        # Check if today is in the booked dates
+        booked_dates = [d.strip() for d in (ticket_info['Booked_Dates'] or '').split(',')]
+        if today_str not in booked_dates:
+            return jsonify({'success': False, 'message': 'Ticket not valid for today\'s date.'})
+        
+        # Parse event end time
+        end_time_str = ticket_info['End_time']
+        if end_time_str:
+            end_time_parts = end_time_str.split(':')
+            event_end = now.replace(hour=int(end_time_parts[0]), minute=int(end_time_parts[1]), second=0, microsecond=0)
+            if now > event_end:
+                return jsonify({'success': False, 'message': 'Ticket can no longer be activated as the event has ended.'})
+        
         # Update Activated_Time to current time to mark as active
         dbcursor.execute('''UPDATE Tickets
                          SET Activated_Time = NOW()
-                         WHERE Ticket_ID = %s AND Booking_ID IN (
-                         SELECT Booking_ID FROM Bookings
-                         WHERE User_ID = %s)
-                         AND Activated_Time IS NULL''', (ticket_id, session['user_id']))
+                         WHERE Ticket_ID = %s AND Activated_Time IS NULL''', (ticket_id,))
         conn.commit()
         
-        # if dbcursor.rowcount == 0:
-        #     return jsonify({'success': False, 'message': 'Ticket is already activated or invalid.'})
+        if dbcursor.rowcount == 0:
+            return jsonify({'success': False, 'message': 'Ticket is already activated or invalid.'})
+        
         return jsonify({'success': True, 'message': 'Ticket activated successfully!'})
     
     except Exception as e:
@@ -1505,24 +1550,107 @@ def cancel_ticket():
     ticket_id = request.form.get('ticket_id')
 
     conn = dbfunc.getConnection()
-    dbcursor = conn.cursor()
+    dbcursor = conn.cursor(dictionary=True)
 
     try:
+        # Get ticket and booking information
+        dbcursor.execute('''SELECT b.Ticket_Price, b.Tickets_Purchased, b.Booking_ID
+            FROM Tickets t
+            JOIN Bookings b ON t.Booking_ID = b.Booking_ID
+            WHERE t.Ticket_ID = %s AND b.User_ID = %s AND t.Ticket_Status != 'Cancelled'
+        ''', (ticket_id, session['user_id']))
+        
+        ticket_info = dbcursor.fetchone()
+        if not ticket_info:
+            return jsonify({'success': False, 'message': 'Ticket not found or already cancelled.'})
+        
+        # Get current wallet balance
+        dbcursor.execute('SELECT Balance FROM Wallet_Balance WHERE User_ID = %s', (session['user_id'],))
+        user_result = dbcursor.fetchone()
+        current_wallet = float(user_result['Balance']) if user_result else 0.0
+        
+        # Calculate refund (individual ticket price)
+        total_price = float(ticket_info['Ticket_Price'])
+        total_tickets = int(ticket_info['Tickets_Purchased'])
+        refund_amount = total_price / total_tickets if total_tickets > 0 else 0.0
+        
         # Update Ticket_Status to 'Cancelled'
-        # Permanently trigger 'Cancelled' in CASE statement
         dbcursor.execute('''UPDATE Tickets
                          SET Ticket_Status = 'Cancelled'
-                         WHERE Ticket_ID = %s AND Booking_ID IN (
-                         SELECT Booking_ID FROM Bookings
-                         WHERE User_ID = %s)
-                         AND Ticket_Status != 'Cancelled';''', (ticket_id, session['user_id']))
+                         WHERE Ticket_ID = %s''', (ticket_id,))
+        
+        # Update users wallet balance view to refund the amount
+        # By adding a new transaction with positive amount to reflect the refund and update balance
+        dbcursor.execute('''INSERT INTO Transactions (User_ID, Booking_ID, Amount, Payment_method, Transaction_Date)
+                         VALUES (%s, %s, %s, %s, %s)''', (session['user_id'], ticket_info['Booking_ID'], refund_amount, 'Refund', datetime.now()))
+        
         conn.commit()
 
-        return jsonify({'success': True, 'message': 'Ticket cancelled successfully!'})
+        return jsonify({'success': True, 'message': f'Ticket cancelled and £{refund_amount:.2f} refunded to your wallet!'})
 
     except Exception as e:
         conn.rollback()
         return jsonify({'success': False, 'message': f'Error cancelling ticket: {str(e)}'})
+    finally:
+        dbcursor.close()
+        conn.close()
+
+
+@app.route('/get_user_tickets_status', methods=['GET'])
+def get_user_tickets_status():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorised'})
+    
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+
+    try:
+        # Query all user tickets with their current status
+        dbcursor.execute('''
+            SELECT 
+                b.Booking_ID,
+                t.Ticket_ID,
+                (CASE
+                    WHEN (t.Ticket_Status = 'Cancelled') THEN 'Cancelled'
+                    WHEN (TIMESTAMPDIFF(SECOND, e.End_date, NOW()) >= 1) THEN 'Expired'
+                    WHEN (TIMESTAMPDIFF(MINUTE, t.Activated_Time, NOW()) >= 10) THEN 'Used'
+                    WHEN (t.Activated_Time IS NOT NULL) THEN 'Active'
+                    WHEN (t.Activated_Time IS NULL) THEN 'Valid'
+                    ELSE 'Valid'
+                END) AS Live_Status
+            FROM Tickets t
+            JOIN Bookings b ON t.Booking_ID = b.Booking_ID
+            JOIN Events e ON b.Event_ID = e.Event_ID
+            WHERE b.User_ID = %s AND t.Ticket_Status != 'Cancelled'
+            ORDER BY b.Booking_ID, t.Ticket_ID
+        ''', (session['user_id'],))
+
+        tickets = dbcursor.fetchall()
+        
+        # Add index per booking
+        ticket_indices = {}
+        result_tickets = []
+        for t in tickets:
+            bid = t['Booking_ID']
+            if bid not in ticket_indices:
+                ticket_indices[bid] = 0
+            else:
+                ticket_indices[bid] += 1
+            
+            result_tickets.append({
+                'Booking_ID': bid,
+                'Ticket_ID': t['Ticket_ID'],
+                'Index': ticket_indices[bid],
+                'Live_Status': t['Live_Status']
+            })
+        
+        return jsonify({
+            'success': True,
+            'tickets': result_tickets
+        })
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error fetching ticket status: {str(e)}'})
     finally:
         dbcursor.close()
         conn.close()

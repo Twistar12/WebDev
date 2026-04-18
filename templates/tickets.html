@@ -111,25 +111,31 @@
         transform: translate(6px, 6px);
     }
 
-    /* Modal ticket Styling */
-    .ticket-modal-content {
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Modal Styling similar to Dashboard */
+    .ticket-modal-content, .cancel-modal-content {
+        background: rgba(0, 0, 0, 0.486);
+        color: #fff;
         border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
-        font-family: 'Courier New', Courier, monospace;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(15px);
         position: relative;
         overflow: hidden;
     }
 
-    .ticket-modal-header {
-        text-align: center;
-        padding: 1.5rem 1.5rem 0.5rem;
-        border-bottom: 2px dashed rgb(49, 49, 49);
+    .cancel-modal-content {
+        border: 1px solid #dc3545; /* Red border for cancel modal like border-danger */
     }
 
-    .ticket-modal-body {
+    .ticket-modal-header, .cancel-modal-header {
+        text-align: center;
+        padding: 1.5rem 1.5rem 0.5rem;
+    }
+
+    .ticket-modal-header {
+        border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
+    }
+
+    .ticket-modal-body, .cancel-modal-body {
         padding: 1.5rem;
     }
 
@@ -149,24 +155,48 @@
         height: 150px;
     }
 
-    .modal-actions {
+    .modal-actions, .cancel-modal-actions {
         display: flex;
         gap: 1rem;
         padding: 1rem 1.5rem 1.5rem;
-        border-top: 2px dashed rgb(49, 49, 49);
-        background-color: rgba(0, 0, 0, 0.801);
+        border-top: 2px dashed rgba(255, 255, 255, 0.2);
+        background-color: transparent;
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 2;
+    }
+
+    .ticket-card {
+        position: relative;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="text-white mb-4 text-center style-script-regular" style="font-size: 60px;">My Tickets</h1>
+    <!-- Sort Controls -->
+    <div class="search-container p-3 rounded-3 shadow-lg mx-auto w-100 mb-5 d-flex justify-content-between align-items-center">
+        <h1 class="text-white mb-0 style-script-regular" style="font-size: 45px;">My Tickets</h1>
+        <div class="d-flex align-items-center">
+            <label class="text-light me-3 mb-0 fw-bold"><i class="fa-solid fa-sort me-2"></i>Sort by:</label>
+            <select id="ticketSortSelect" class="form-select bg-white text-dark border-secondary" style="width: auto; cursor: pointer; height: 38px;" onchange="sortTickets()">
+                <option value="event_asc">Event Date (Newest)</option>
+                <option value="event_desc">Event Date (Latest)</option>
+                <option value="booking_desc">Booking Date (Newest)</option>
+                <option value="booking_asc">Booking Date (Oldest)</option>
+            </select>
+        </div>
+    </div>
 
-    <div class="row g-4">
+    <div class="row g-4" id="ticketCardsContainer">
         {% for b in grouped_bookings %}
-        <div class="col-md-6 col-lg-4">
-            <div class="ticket-card {% if b.Tickets|length > 1 %}ticket-stack{% endif %}">
+        <div class="col-md-6 col-lg-4 ticket-card-container" data-booking-date="{{ b.Booking_date }}" data-event-date="{{ b.Start_date }}">
+            <div class="ticket-card {% if b.Tickets|length > 1 %}ticket-stack{% endif %}" data-booking-id="{{ b.Booking_ID }}">
+                <span class="badge status-badge status-{{ b.Tickets[0].Live_Status }}" id="status_{{ b.Booking_ID }}_0">{{ b.Tickets[0].Live_Status }}</span>
                 <div class="ticket-header">
                     <h5 class="mb-1 text-warning fw-bold">{{ b.Title }}</h5>
                     <small class="text-light"><i class="fa-solid fa-location-dot me-1"></i>{{ b.Venue }}</small>
@@ -185,7 +215,7 @@
                 </div>
 
                 <div class="ticket-footer">
-                    <span class="badge border border-light px-3 py-2 rounded-pill">Booking Ref: {{
+                    <span class="badge border border-light px-3 py-2 rounded-pill">Booking Ref: #{{
                         "%06X"|format((b.Booking_ID|string).__hash__() % 16777215) }}</span>
 
                     <button class="btn btn-sm btn-outline-light clear-btn" data-booking="{{ b | tojson | forceescape }}"
@@ -200,13 +230,13 @@
             <i class="fa-solid fa-ticket-simple fa-3x mb-3 text-secondary"></i>
             <h4>No tickets found</h4>
             <p class="text-light">You haven't booked any events yet.</p>
-            <a href="{{ url_for('events') }}" class="btn btn-warning mt-2">Browse Events</a>
+            <a href="{{ url_for('events') }}" class="btn btn-warning warning-btn mt-2">Browse Events</a>
         </div>
         {% endfor %}
     </div>
 </div>
 
-<div class="modal fade" id="ticketModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" style="font-family: 'Courier New', Courier, monospace;" id="ticketModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content ticket-modal-content">
 
@@ -229,8 +259,85 @@
     </div>
 </div>
 
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content cancel-modal-content border-danger">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Cancel Ticket</h5>
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="cancelCancellation()"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-light mb-3">Warning: This action is irreversible. Are you sure you want to cancel this ticket?</p>
+                <p class="fs-5 text-light text-center mb-4"><strong>£<span id="refundAmount">0.00</span></strong> will be refunded to your wallet.</p>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-light clear-btn w-50" onclick="cancelCancellation()">No, Keep Ticket</button>
+                    <button type="button" class="btn btn-outline-danger red-btn w-50" onclick="processCancellation()">Yes, Cancel & Refund</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.body.appendChild(document.getElementById("ticketModal"));
+    document.body.appendChild(document.getElementById("cancelModal"));
+
+    function showToast(message, isSuccess) {
+    const toastEl = document.getElementById('Toast');
+    const msgEl = document.getElementById('toastMessage');
+    
+    if (toastEl && msgEl) {
+        msgEl.textContent = message;
+        toastEl.classList.remove('bg-danger', 'bg-success');
+        toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+        new bootstrap.Toast(toastEl, { delay: 3000 }).show();
+    }
+    }
+
+    // Initialize status badges on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateStatusBadgesAjax();
+        sortTickets(); // Apply initial sort
+    });
+
+    function sortTickets() {
+        const container = document.getElementById('ticketCardsContainer');
+        const sortSelect = document.getElementById('ticketSortSelect');
+        if (!container || !sortSelect) return;
+        
+        const cards = Array.from(container.querySelectorAll('.ticket-card-container'));
+        
+        // If there's an 'else' block from jinja (no tickets), skip sorting
+        if (cards.length === 0) return;
+
+        const sortType = sortSelect.value;
+        const now = new Date();
+
+        cards.sort((a, b) => {
+            const dateA = new Date(a.dataset.eventDate || "1970-01-01");
+            const dateB = new Date(b.dataset.eventDate || "1970-01-01");
+            const bookA = new Date(a.dataset.bookingDate || "1970-01-01");
+            const bookB = new Date(b.dataset.bookingDate || "1970-01-01");
+
+            switch (sortType) {
+                case 'event_asc':
+                    return dateA - dateB;
+                case 'event_desc':
+                    return dateB - dateA;
+                case 'booking_desc':
+                    return bookB - bookA;
+                case 'booking_asc':
+                    return bookA - bookB;
+                default:
+                    return 0;
+            }
+        });
+
+        // re-append sorted elements
+        cards.forEach(card => container.appendChild(card));
+    }
+
+
     let currentBookingData = null;
     let activeTicketIndex = 0;
 
@@ -239,7 +346,6 @@
             // Safely retrieve and parse JSON data from the data attribute
             const rawData = buttonElement.getAttribute('data-booking');
             const bookingData = JSON.parse(rawData);
-
 
             currentBookingData = bookingData;
             activeTicketIndex = 0;
@@ -253,21 +359,12 @@
 
             // Show the modal
             const modalElement = document.getElementById('ticketModal');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            modal.show();
 
-            if (typeof bootstrap !== 'undefined') {
-                // If using Bootstrap 5
-                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-                modal.show();
-            } else if (typeof jQuery !== 'undefined') {
-                // If using Bootstrap 4 (jQuery fallback)
-                $('#ticketModal').modal('show');
-            } else {
-                console.error("Bootstrap JS is missing!");
-                alert("Error: Bootstrap JavaScript is not loaded. Check your base.html file.");
-            }
         } catch (error) {
             console.error("Error parsing booking data:", error);
-            alert("An error occurred while loading the ticket details. Please try again.");
+            showToast("Error: An error occurred while loading the ticket details. Please try again.", false);
         }
     }
 
@@ -277,6 +374,10 @@
         const dates = currentBookingData.Booked_Dates;
         const startTime = currentBookingData.Start_time;
         const endTime = currentBookingData.End_time;
+        
+        const totalPrice = parseFloat(currentBookingData.Ticket_Price) || 0;
+        const totalTickets = parseInt(currentBookingData.Tickets_Purchased) || 1;
+        const individualPrice = (totalPrice / totalTickets).toFixed(2);
 
         const container = document.getElementById('multiTicketContainer');
         const actionContainer = document.getElementById('m_actions');
@@ -286,6 +387,7 @@
           <strong>Valid Dates:</strong> <span>${dates}</span><br>
           <strong>Start Time:</strong> <span>${startTime}</span><br>
           <strong>End Time:</strong> <span>${endTime}</span><br>
+          <strong>Price:</strong> <span>£${individualPrice}</span><br>
           <strong>Status:</strong> <span class="fw-bold">${t.Live_Status}</span>
         </div>
       `;
@@ -313,31 +415,22 @@
         let btnActivateHtml = '';
         let btnCancelHtml = '';
 
-        if (t.Live_Status !== 'Valid') {
-            const activateText = t.Live_Status === 'Active' ? 'Already Active' : 'Cannot Activate';
-            btnActivateHtml = `<button type="button" class="btn btn-secondary w-100 fw-bold" disabled>${activateText}</button>`;
-
-            if (t.Live_Status === 'Expired' || t.Live_Status === 'Cancelled' || t.Live_Status === 'Used') {
-                btnCancelHtml = `<button type="button" class="btn btn-outline-secondary w-100 fw-bold" disabled>Cancel Ticket</button>`;
-            } else {
-                btnCancelHtml = `<button type="submit" form="cancelForm_${t.Ticket_ID}" class="btn btn-outline-danger w-100 fw-bold" onclick="return confirm('Are you sure you want to cancel this ticket?');">Cancel Ticket</button>`;
-            }
+        if (t.Live_Status === 'Cancelled' || t.Live_Status === 'Expired') {
+            btnActivateHtml = `<button type="button" class="btn btn-secondary w-100 fw-bold" disabled>${t.Live_Status}</button>`;
+            btnCancelHtml = `<button type="button" class="btn btn-outline-secondary w-100 fw-bold" disabled>Cannot Cancel</button>`;
+        } else if (t.Live_Status === 'Active') {
+            btnActivateHtml = `<button type="button" class="btn btn-secondary w-100 fw-bold" disabled>Already Active</button>`;
+            btnCancelHtml = `<button type="button" class="btn btn-outline-danger w-100 fw-bold" onclick="prepareCancel(${t.Ticket_ID})">Cancel Ticket</button>`;
         } else {
             btnActivateHtml = `<button type="button" class="btn btn-success success-btn w-100 fw-bold" onclick="attemptActivation(${t.Ticket_ID})">Activate Ticket</button>`;
-            btnCancelHtml = `<button type="submit" form="cancelForm_${t.Ticket_ID}" class="btn btn-outline-danger red-btn w-100 fw-bold" onclick="return confirm('Are you sure you want to cancel this ticket?');">Cancel Ticket</button>`;
+            btnCancelHtml = `<button type="button" class="btn btn-outline-danger red-btn w-100 fw-bold" onclick="prepareCancel(${t.Ticket_ID})">Cancel Ticket</button>`;
         }
 
         actionContainer.innerHTML = `
         <div class="w-50">
-            <form id="activateForm_${t.Ticket_ID}" action="/activate_ticket" method="POST">
-              <input type="hidden" name="ticket_id" value="${t.Ticket_ID}">
-            </form>
             ${btnActivateHtml}
         </div>
         <div class="w-50">
-            <form id="cancelForm_${t.Ticket_ID}" action="/cancel_ticket" method="POST">
-              <input type="hidden" name="ticket_id" value="${t.Ticket_ID}">
-            </form>
             ${btnCancelHtml}
         </div>
       `;
@@ -351,6 +444,7 @@
     function attemptActivation(ticketIdStr) {
         const bookedDatesStr = currentBookingData.Booked_Dates;
         const startTimeStr = currentBookingData.Start_time;
+        const endTimeStr = currentBookingData.End_time;
         const bookedDates = bookedDatesStr.split(',').map(d => d.trim());
 
         // Get exact current time
@@ -361,29 +455,185 @@
             String(now.getMonth() + 1).padStart(2, '0') + '-' +
             String(now.getDate()).padStart(2, '0');
 
-        // Check if today is one of the booked dates
+        // VALIDATION 1: Check if today is one of the booked dates (MUST BE FIRST)
         if (!bookedDates.includes(todayStr)) {
-            showToast("Error: Ticket not valid for today's date.", false);
+            showToast("Ticket not valid for today's date.", false);
             return;
         }
 
-        // Check if within 1 hour of Start Time
-        // Note: Assuming startTimeStr is a string like "19:00:00"
+        // VALIDATION 2: Check if within 1 hour of Start Time and before End Time
         const timeParts = startTimeStr.split(':');
+        const endTimeParts = endTimeStr.split(':');
         const eventTimeToday = new Date();
+        const eventEndTime = new Date();
         eventTimeToday.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
+        eventEndTime.setHours(parseInt(endTimeParts[0]), parseInt(endTimeParts[1]), 0, 0);
 
         // Calculate the difference in milliseconds
         const diffMs = eventTimeToday - now;
         const diffHours = diffMs / (1000 * 60 * 60);
 
+        // Check if we're within the activation window (1 hour before to end time)
         if (diffHours > 1) {
-            showToast("Error: You can only activate this ticket 1 hour before the event starts.", false);
+            showToast("Ticket can only be activated 1 hour before the event starts.", false);
             return;
         }
 
-        // If both rules pass, submit the activation form
-        document.getElementById(`activateForm_${ticketIdStr}`).submit();
+        // Check if current time is after event end time
+        if (now > eventEndTime) {
+            showToast("Ticket can no longer be activated as the event has ended.", false);
+            return;
+        }
+
+        // If all validations pass, submit the activation form via AJAX
+        activateTicketAjax(ticketIdStr);
+    }
+
+    function activateTicketAjax(ticketId) {
+        const formData = new FormData();
+        formData.append('ticket_id', ticketId);
+
+        fetch('/activate_ticket', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Ticket activated successfully!', true);
+                // Update modal status
+                const tickets = currentBookingData.Tickets;
+                const t = tickets[activeTicketIndex];
+                if (t.Ticket_ID == ticketId) {
+                    t.Live_Status = 'Active';
+                }
+                renderTicketContent();
+                // Update page status badge
+                updateStatusBadgesAjax();
+            } else {
+                showToast(data.message || 'Error activating ticket', false);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error activating ticket', false);
+        });
+    }
+
+    let ticketToCancel = null;
+    
+    function prepareCancel(ticketId) {
+        ticketToCancel = ticketId;
+        
+        // Calculate individual ticket price
+        const totalPrice = parseFloat(currentBookingData.Ticket_Price) || 0;
+        const totalTickets = parseInt(currentBookingData.Tickets_Purchased) || 1;
+        const individualPrice = (totalPrice / totalTickets).toFixed(2);
+        
+        document.getElementById('refundAmount').textContent = individualPrice;
+        
+        // Hide ticket modal
+        const ticketModal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
+        if (ticketModal) {
+            ticketModal.hide();
+        }
+
+        // Show cancel modal
+        setTimeout(() => {
+            const cancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('cancelModal'));
+            cancelModal.show();
+        }, 400);
+    }
+    
+    function cancelCancellation() {
+        ticketToCancel = null;
+        
+        // Hide cancel modal
+        const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelModal'));
+        if (cancelModal) {
+            cancelModal.hide();
+        }
+
+        // Return back to ticket modal
+        setTimeout(() => {
+            const ticketModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('ticketModal'));
+            ticketModal.show();
+        }, 400);
+    }
+
+    function processCancellation() {
+        if (!ticketToCancel) return;
+
+        const formData = new FormData();
+        formData.append('ticket_id', ticketToCancel);
+
+        fetch('/cancel_ticket', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Ticket cancelled and refunded successfully!', true);
+                
+                // Update local status so reopening works
+                if (currentBookingData && ticketToCancel) {
+                    const idx = currentBookingData.Tickets.findIndex(t => t.Ticket_ID == ticketToCancel);
+                    if (idx !== -1) {
+                        currentBookingData.Tickets[idx].Live_Status = 'Cancelled';
+                        
+                        // Update attribute on card button
+                        const card = document.querySelector(`.ticket-card[data-booking-id="${currentBookingData.Booking_ID}"]`);
+                        if (card) {
+                            const btn = card.querySelector('button[onclick="openBookingModal(this)"]');
+                            if (btn) btn.setAttribute('data-booking', JSON.stringify(currentBookingData));
+                        }
+                    }
+                }
+                
+                // Close the cancel modal
+                const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelModal'));
+                if (cancelModal) cancelModal.hide();
+                
+                // Close the ticket modal after cancellation
+                setTimeout(() => {
+                    const ticketModal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
+                    if (ticketModal) ticketModal.hide();
+                }, 500);
+                
+                // Update page status badges
+                updateStatusBadgesAjax();
+                ticketToCancel = null;
+            } else {
+                showToast(data.message || 'Error cancelling ticket', false);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error cancelling ticket', false);
+        });
+    }
+
+    function updateStatusBadgesAjax() {
+        // Update all status badges on the page via AJAX
+        fetch('/get_user_tickets_status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update each ticket's status badge
+                data.tickets.forEach(ticket => {
+                    const bookingId = ticket.Booking_ID;
+                    const ticketIndex = ticket.Index;
+                    const status = ticket.Live_Status;
+                    const statusEl = document.getElementById(`status_${bookingId}_${ticketIndex}`);
+                    if (statusEl) {
+                        statusEl.textContent = status;
+                        statusEl.className = `badge status-badge status-${status}`;
+                    }
+                });
+            }
+        })
+        .catch(error => console.error('Error updating statuses:', error));
     }
 </script>
 {% endblock %}
