@@ -23,9 +23,9 @@ def index():
     
     dbcursor = conn.cursor(dictionary=True) # Creates cursor object to run queries and execute statements
   
-    # Select locations for dropdown
-    dbcursor.execute('SELECT DISTINCT Location FROM venues WHERE Location IS NOT NULL ORDER BY Location ASC')
-    locations = [row['Location'] for row in dbcursor.fetchall()]
+    # Select venues for dropdown
+    dbcursor.execute('SELECT DISTINCT Name FROM venues WHERE Name IS NOT NULL ORDER BY Name ASC')
+    venues = [row['Name'] for row in dbcursor.fetchall()]
 
     # Select categories for dropdown
     dbcursor.execute('SELECT DISTINCT Category_name FROM categories WHERE Category_name IS NOT NULL ORDER BY Category_name ASC')
@@ -42,7 +42,7 @@ def index():
     dbcursor.close()
     conn.close()
 
-    return render_template('index.html', locations=locations, categories=categories, venue_types=venue_types, venue_carousel=venue_carousel)
+    return render_template('index.html', venues=venues, categories=categories, venue_types=venue_types, venue_carousel=venue_carousel)
 
 @app.route('/events')
 def events():
@@ -54,7 +54,7 @@ def events():
     dbcursor = conn.cursor(dictionary=True) 
 
     # fetch all events from database
-    dbcursor.execute('SELECT ec.*, e.Start_date AS full_start, e.End_date AS full_end FROM Event_Cards ec JOIN Events e ON ec.event_id = e.Event_ID ORDER BY e.Start_date ASC')
+    dbcursor.execute('SELECT ec.*, e.Start_date AS full_start, e.End_date AS full_end, e.Accessibility_Flag, (SELECT v.Type FROM Venues v WHERE v.Name = ec.venue LIMIT 1) AS venue_type FROM Event_Cards ec JOIN Events e ON ec.event_id = e.Event_ID ORDER BY e.Start_date ASC')
     fetched_events = dbcursor.fetchall()
 
     for ev in fetched_events:
@@ -68,10 +68,14 @@ def events():
     dbcursor.execute('SELECT DISTINCT category FROM Event_Cards WHERE category IS NOT NULL ORDER BY category ASC')
     categories = [row['category'] for row in dbcursor.fetchall()]
 
+    # fetch distinct venue types for advanced filters
+    dbcursor.execute('SELECT DISTINCT Type FROM Venues WHERE Type IS NOT NULL ORDER BY Type ASC')
+    venue_types = [row['Type'] for row in dbcursor.fetchall()]
+
     dbcursor.close()
     conn.close()
 
-    return render_template('events.html', events=fetched_events, venues=venues, categories=categories)
+    return render_template('events.html', events=fetched_events, venues=venues, categories=categories, venue_types=venue_types)
 
 
 @app.route('/signup', methods=['GET', 'POST'])

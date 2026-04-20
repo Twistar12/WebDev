@@ -184,6 +184,7 @@
         <div class="d-flex align-items-center">
             <label class="text-light me-3 mb-0 fw-bold"><i class="fa-solid fa-sort me-2"></i>Sort by:</label>
             <select id="ticketSortSelect" class="form-select bg-white text-dark border-secondary" style="width: auto; cursor: pointer; height: 38px;" onchange="sortTickets()">
+                <option value="status" selected>Status</option>
                 <option value="event_asc">Event Date (Newest)</option>
                 <option value="event_desc">Event Date (Latest)</option>
                 <option value="booking_desc">Booking Date (Newest)</option>
@@ -194,7 +195,7 @@
 
     <div class="row g-4" id="ticketCardsContainer">
         {% for b in grouped_bookings %}
-        <div class="col-md-6 col-lg-4 ticket-card-container" data-booking-date="{{ b.Booking_date }}" data-event-date="{{ b.Start_date }}">
+        <div class="col-md-6 col-lg-4 ticket-card-container" data-booking-date="{{ b.Booking_date }}" data-event-date="{{ b.Start_date }}" data-status="{{ b.Tickets[0].Live_Status }}">
             <div class="ticket-card {% if b.Tickets|length > 1 %}ticket-stack{% endif %}" data-booking-id="{{ b.Booking_ID }}">
                 <span class="badge status-badge status-{{ b.Tickets[0].Live_Status }}" id="status_{{ b.Booking_ID }}_0">{{ b.Tickets[0].Live_Status }}</span>
                 <div class="ticket-header">
@@ -312,14 +313,32 @@
 
         const sortType = sortSelect.value;
         const now = new Date();
+        
+        // Define hierarchy for statuses
+        const statusOrder = {
+            'Active': 1,
+            'Valid': 2,
+            'Used': 3,
+            'Expired': 4,
+            'Cancelled': 5
+        };
 
         cards.sort((a, b) => {
             const dateA = new Date(a.dataset.eventDate || "1970-01-01");
             const dateB = new Date(b.dataset.eventDate || "1970-01-01");
             const bookA = new Date(a.dataset.bookingDate || "1970-01-01");
             const bookB = new Date(b.dataset.bookingDate || "1970-01-01");
+            const statusA = a.dataset.status || "";
+            const statusB = b.dataset.status || "";
 
             switch (sortType) {
+                case 'status':
+                    const sA = statusOrder[statusA] || 99;
+                    const sB = statusOrder[statusB] || 99;
+                    if (sA === sB) {
+                        return dateA - dateB; // Secondary sort on event date
+                    }
+                    return sA - sB;
                 case 'event_asc':
                     return dateA - dateB;
                 case 'event_desc':

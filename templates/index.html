@@ -14,28 +14,46 @@
 
     <!-- Search Form -->
     <div class="search-container p-4 rounded-3 shadow-lg mx-auto col-12 col-md-12 col-lg-12 ubuntu-light w-100">
-      <form class="event-search-form text-white">
+      <form action="{{ url_for('events') }}" method="GET" class="event-search-form text-white">
         <div class="row g-3">
-          <!-- Location -->
+
+          <!-- Venue -->
           <div class="col-md-6 col-lg-3">
-            <label class="form-label"><i class="fa-solid fa-map-location-dot me-2"></i>Location</label>
-            <select class="form-select" name="location">
-              <option value="" selected>Any Location</option>
-              {% for location in locations %}
-              <option value="{{ location }}">{{ location }}</option>
+            <label class="form-label"><i class="fa-solid fa-location-dot me-2"></i>Venue</label>
+            <select class="form-select" name="venue">
+              <option value="" selected>All Venues</option>
+              {% for venue in venues %}
+              <option value="{{ venue }}">{{ venue }}</option>
               {% endfor %}
             </select>
           </div>
 
-          <!-- Dates -->
-        <div class="col-md-6 col-lg-3">
-          <label for="dateFilter" class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Dates</label>
-          <div class="input-group">
-            <input type="date" name="start_date" class="form-control px-2" value="{{ request.args.get('start_date', '') }}" id="dateFilterStart">
-            <span class="input-group-text px-2 text-dark border-secondary">to</span>
-            <input type="date" name="end_date" class="form-control px-2" value="{{ request.args.get('end_date', '') }}" id="dateFilterEnd">
+          <!-- Price -->
+          <div class="col-md-6 col-lg-3">
+            <label class="form-label d-flex justify-content-between">
+              <span><i class="fa-solid fa-sterling-sign me-2"></i>Price Range</span>
+              <span id="priceLabel" class="fw-bold">£0 - £50</span>
+            </label>
+            <div class="slider-box">
+              <div class="price-input-container">
+                <div class="slider-track" id="track"></div>
+                <input type="range" id="minPrice" name="min_price" min="0" max="50" value="0" step="5">
+                <input type="range" id="maxPrice" name="max_price" min="0" max="50" value="50" step="5">
+              </div>
+            </div>
           </div>
-        </div>
+
+          <!-- Dates -->
+          <div class="col-md-6 col-lg-3">
+            <label for="dateFilter" class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Dates</label>
+            <div class="input-group">
+              <input type="date" name="start_date" class="form-control px-2"
+                value="{{ request.args.get('start_date', '') }}" id="dateFilterStart">
+              <span class="input-group-text px-2 text-dark border-secondary">to</span>
+              <input type="date" name="end_date" class="form-control px-2"
+                value="{{ request.args.get('end_date', '') }}" id="dateFilterEnd">
+            </div>
+          </div>
 
           <!-- Category -->
           <div class="col-md-6 col-lg-3">
@@ -48,17 +66,6 @@
             </select>
           </div>
 
-          <!-- Price -->
-          <div class="col-md-6 col-lg-3">
-            <label class="form-label"><i class="fa fa-gbp me-2"></i>Price Range</label>
-            <select class="form-select" name="price_range">
-              <option selected>Any Price</option>
-              <option>Free</option>
-              <option>£0 - £20</option>
-              <option>£20 - £50</option>
-              <option>£50+</option>
-            </select>
-          </div>
 
           <!-- Buttons -->
           <div class="col-md-6 col-lg-4 mx-auto">
@@ -79,15 +86,17 @@
               aria-expanded="false">
               <i class="fa fa-sliders me-2"></i>Advanced Filters
             </a>
-
+          </div>
+            <!-- Collapsible Advanced Filters -->
             <div class="collapse mt-3" id="advancedFilters">
-              <div class="advanced-filters-card text-white rounded-3 p-4 mx-auto" style="max-width: 600px;">
-                <div class="row g-3">
+              <div class="advanced-filters-card text-white rounded-3 p-4 mx-auto" style="max-width: 700px;">
+                <div class="row g-3 justify-content-around">
+
                   <!-- Venue Type -->
-                  <div class="col-12">
-                    <label class="form-label">Venue Type</label>
-                    <select class="form-select">
-                      <option value="" selected>All Venues</option>
+                  <div class="col-md-6 col-lg-4 text-center">
+                    <label class="form-label"><i class="fa-solid fa-building me-2"></i>Venue Type</label>
+                    <select class="form-select" id="venueTypeFilter" name="venue_type">
+                      <option value="">Any Type</option>
                       {% for vt in venue_types %}
                       <option value="{{ vt }}">{{ vt }}</option>
                       {% endfor %}
@@ -95,19 +104,17 @@
                   </div>
 
                   <!-- Accessibility -->
-                  <div class="col-12">
-                    <div class="form-check d-inline-block">
-                      <input class="form-check-input" type="checkbox" value="" id="wheelchairAccess">
-                      <label class="form-check-label" for="wheelchairAccess">
-                        Wheelchair Accessible
-                      </label>
+                  <div class="col-md-6 col-lg-4 text-center">
+                    <label class="form-label"><i class="fa-solid fa-wheelchair me-2"></i>Accessibility</label>
+                    <div
+                      class="form-check form-switch cursor-pointer mt-1 d-flex justify-content-center align-items-center" style="padding: 0;">
+                      <input class="form-check-input fs-4 m-0" type="checkbox" role="switch" id="wheelchairAccess" name="accessibility" value="1"
+                        style="cursor: pointer;">
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
       </form>
     </div>
   </div>
@@ -127,8 +134,7 @@
               event.</p>
             <div class="d-flex justify-content-center justify-content-lg-start gap-3">
               <!-- Hide Explore Venues for later implementation -->
-              <a href="events.html" class="button rounded-pill border border-1 border-light" hidden>Explore Venues</a>
-              <a href="events.html" class="btn btn-outline-light clear-btn rounded-pill">Book Events</a>
+              <a href="{{ url_for('events') }}" class="btn btn-outline-light clear-btn rounded-pill">Book Events</a>
             </div>
           </div>
         </div>
@@ -168,4 +174,52 @@
     </div>
   </section>
 </div>
+
+<script>
+  // Slider logic
+  const minSlider = document.getElementById("minPrice");
+  const maxSlider = document.getElementById("maxPrice");
+  const track = document.getElementById("track");
+
+  function updateTrack() {
+    let min = parseInt(minSlider.value);
+    let max = parseInt(maxSlider.value);
+
+    if (min > max) { // If sliders cross, swap values and update labels
+        [min, max] = [max, min];
+        minSlider.value = min;
+        maxSlider.value = max;
+    }
+
+    // Calculate percentage positions for the track fill AFTER resolving cross
+    const percent1 = (min / minSlider.max) * 100;
+    const percent2 = (max / maxSlider.max) * 100; 
+
+    // Update the track background using a linear gradient
+    track.style.background = `linear-gradient(to right, #dee2e6 ${percent1}%, #FC5637 ${percent1}%, #FC5637 ${percent2}%, #dee2e6 ${percent2}%)`;
+    
+    // Update label text
+    document.getElementById("priceLabel").textContent = `£${min} - £${max}`;
+  }
+
+  // Initial update
+  updateTrack();
+
+  // Listen for slider input change
+  minSlider.addEventListener("input", updateTrack);
+  maxSlider.addEventListener("input", updateTrack);
+
+  // Reset functionality
+  const form = document.querySelector(".event-search-form");
+  if (form) {
+    form.addEventListener("reset", () => {
+      setTimeout(() => {
+        minSlider.value = 0;
+        maxSlider.value = 50;
+        updateTrack();
+      }, 0);
+    });
+  }
+</script>
+
 {% endblock %}
