@@ -48,6 +48,13 @@
     backdrop-filter: blur(15px);
     box-shadow: #ffc107 0px 0px 5px;
   }
+  .custom-tooltip .tooltip-inner {
+    background-color: #ff0000;
+    color: #000;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 8px 12px;
+  }
 </style>
 {% endblock %}
 
@@ -181,7 +188,7 @@
                 <td class="text-truncate" style="max-width: 150px;">
                   {{ e.Title }}
                   {% if e.Low_Sales_Warning %}
-                    <i class="fa-solid fa_triangle-exclamation text-danger ms-2" title="Low Sales Warning: {{ e.Days_Until_Event }} days until event, Considered lowering prices!"></i>
+                    <i class="fa-solid fa-triangle-exclamation text-danger ms-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip" title="Low Sales Warning: {{ e.Days_Until_Event }} days until event, Considered lowering prices!"></i>
                   {% endif %}
                 </td>
                 <td>{{ e.Venue }}</td>
@@ -506,6 +513,14 @@
         new bootstrap.Toast(toastEl, { delay: 3000 }).show();
     }
   }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all tooltips on the page
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
 
   // date and time input enforcer - prevent event scheduling in past
   function enforceDateTimeRules() {

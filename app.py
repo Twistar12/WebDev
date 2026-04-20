@@ -3,7 +3,7 @@ import mysql.connector, dbfunc, sys, csv, os
 from mysql.connector import errorcode
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from io import StringIO
 import random, string
@@ -1558,9 +1558,10 @@ def cancel_ticket():
 
     try:
         # Get ticket and booking information
-        dbcursor.execute('''SELECT b.Ticket_Price, b.Tickets_Purchased, b.Booking_ID
+        dbcursor.execute('''SELECT b.Ticket_Price, b.Tickets_Purchased, b.Booking_ID, e.Start_date
             FROM Tickets t
             JOIN Bookings b ON t.Booking_ID = b.Booking_ID
+            JOIN Events e ON b.Event_ID = e.Event_ID
             WHERE t.Ticket_ID = %s AND b.User_ID = %s AND t.Ticket_Status != 'Cancelled'
         ''', (ticket_id, session['user_id']))
         
@@ -1568,15 +1569,33 @@ def cancel_ticket():
         if not ticket_info:
             return jsonify({'success': False, 'message': 'Ticket not found or already cancelled.'})
         
-        # Get current wallet balance
-        dbcursor.execute('SELECT Balance FROM Wallet_Balance WHERE User_ID = %s', (session['user_id'],))
-        user_result = dbcursor.fetchone()
-        current_wallet = float(user_result['Balance']) if user_result else 0.0
+        # Calculate days before event
+        event_date = ticket_info['Start_date']
+        # If Start_date is a string, we might need to parse it, assuming it's a date object from MySQL
+        if isinstance(event_date, str):
+            event_date = datetime.strptime(event_date, '%Y-%m-%d').date()
+        elif isinstance(event_date, datetime):
+            event_date = event_date.date()
+
+        today = datetime.today().date()
+        days_before = (event_date - today).days
         
-        # Calculate refund (individual ticket price)
+        if days_before >= 40:
+            refund_percentage = 1.00 # 100% refund
+        elif 35 <= days_before <= 39:
+            refund_percentage = 0.90 # 90% refund
+        elif 30 <= days_before <= 34:
+            refund_percentage = 0.75 # 75% refund
+        elif 25 <= days_before <= 29:
+            refund_percentage = 0.60 # 60% refund
+        else:
+            refund_percentage = 0.00 # 0% refund
+        
+        # Calculate refund (individual ticket price * refund percentage)
         total_price = float(ticket_info['Ticket_Price'])
         total_tickets = int(ticket_info['Tickets_Purchased'])
-        refund_amount = total_price / total_tickets if total_tickets > 0 else 0.0
+        individual_price = total_price / total_tickets if total_tickets > 0 else 0.0
+        refund_amount = individual_price * refund_percentage
         
         # Update Ticket_Status to 'Cancelled'
         dbcursor.execute('''UPDATE Tickets
