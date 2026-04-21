@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify, make_response
 import mysql.connector, dbfunc, sys, csv, os
 from mysql.connector import errorcode
+from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import date, datetime, timedelta
@@ -8,9 +9,11 @@ from dateutil.relativedelta import relativedelta
 from io import StringIO
 import random, string
 
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure secret key in production
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
 # use python -c 'import secrets; print(secrets.token_hex(32))' to generate for production
 
 @app.route('/')
@@ -75,7 +78,8 @@ def events():
     dbcursor.close()
     conn.close()
 
-    return render_template('events.html', events=fetched_events, venues=venues, categories=categories, venue_types=venue_types)
+    is_logged_in = 'user_id' in session
+    return render_template('events.html', events=fetched_events, venues=venues, categories=categories, venue_types=venue_types, is_logged_in=is_logged_in)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -112,12 +116,10 @@ def signup():
         if password != confirm_password:
             if is_ajax:
                 return jsonify({'success': False, 'message': 'Passwords do not match. Please try again.'})
-            flash('Passwords do not match. Please try again.', 'danger')
             return redirect(url_for('signup'))
         if not terms:
             if is_ajax:
                 return jsonify({'success': False, 'message': 'Please agree to the terms and conditions.'})
-            flash('Please agree to the terms and conditions.', 'danger')
             return redirect(url_for('signup'))
 
         conn = dbfunc.getConnection()
@@ -136,7 +138,6 @@ def signup():
             conn.close()
             if is_ajax:
                 return jsonify({'success': False, 'message': 'Email or username already exists. Please log in.'})
-            flash('Email or username already exists. Please log in.', 'warning')
             return redirect(url_for('signup'))
 
         # Hash the password before storing
@@ -150,13 +151,11 @@ def signup():
             conn.commit()
             if is_ajax:
                 return jsonify({'success': True, 'message': 'Account created successfully! You can now log in.', 'redirect': url_for('login')})
-            flash('Account created successfully! You can now log in.', 'success')
             return redirect(url_for('login'))
         except mysql.connector.Error as err:
             print(f"Error inserting user: {err}")
             if is_ajax:
                 return jsonify({'success': False, 'message': 'An error occurred while creating your account. Please try again.'})
-            flash('An error occurred while creating your account. Please try again.', 'danger')
             return redirect(url_for('signup'))
         finally:
             dbcursor.close()
@@ -200,7 +199,7 @@ def login():
             session['avatar_url'] = user.get('Avatar_URL', 'default_avatar.png') # Store avatar URL in session for easy access across site, default if not set
 
             if is_ajax:
-                return jsonify({'success': True, 'message': 'Login successful', 'redirect': url_for('dashboard')}) # data.success hold result, data.message holds message in AJAX response
+                return jsonify({'success': True, 'message': 'Login successful! Welcome back, {}.'.format(user['First_name']), 'redirect': url_for('dashboard')}) # data.success hold result, data.message holds message in AJAX response
             
             # Fallback for non-AJAX login
             flash('Login successful! Welcome back, {}.'.format(user['First_name']), 'success')
@@ -225,8 +224,7 @@ def logout():
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
-        flash('Please log in to access the dashboard.', 'warning')
-        return redirect(url_for('login'))
+        return jsonify({'success': False, 'message': 'Please log in to access the dashboard.', 'redirect': url_for('login')})
     
     user_id = session['user_id']
 
@@ -607,8 +605,7 @@ def add_money():
 def admin_portal():
     # only access if admin is logged in, otherwise redirect to homepage
     if session.get('role') != 'admin':
-        flash('Access denied. Requires admin privileges.', 'danger')
-        return redirect(url_for('dashboard'))
+        return jsonify({'success': False, 'message': 'Unauthorised', 'redirect': url_for('index')})
     
     conn = dbfunc.getConnection()
     dbcursor = conn.cursor(dictionary=True)
@@ -680,7 +677,7 @@ def admin_portal():
 @app.route('/admin_update_user', methods=['POST'])
 def admin_update_user():
     if session.get('role') != 'admin':
-        return jsonify({'success': False, 'message': 'Unauthorised'})
+        return jsonify({'success': False, 'message': 'Unauthorised', 'redirect': url_for('dashboard')})
     
     target_user_id = int(request.form.get('user_id'))
     current_user_id = int(session['user_id']) # to prevent admins from accidentally demoting themselves, add check 

@@ -83,6 +83,10 @@
 <!-- Hidden script to pass events data from Flask to JavaScript -->
 <script id="events-data-bridge" type="application/json">
   {{ events | tojson | safe }}
+</script>
+<!-- Hidden data for login status -->
+<script id="login-status-bridge" type="application/json">
+  {{ is_logged_in | tojson | safe }}
 </script> 
 
 <section class="container py-5">
@@ -202,7 +206,7 @@
         </div>
         <div class="modal-footer border-0">
           <!-- Query for what event is selected inserted by JS -->
-          <a href="#" class="btn book-btn w-100" id="bookNowBtn">Book Now</a>
+          <button class="btn book-btn w-100" id="bookNowBtn" type="button">Book Now</button>
         </div>
       </div>
     </div>
@@ -214,6 +218,8 @@
     // Prevent XSS by using Flask's tojson filter and safe to ensure it's properly escaped and parsed as JSON
     const dataBridgeText = document.getElementById('events-data-bridge').textContent;
     const fetchedEvents = JSON.parse(dataBridgeText);
+
+    const isLoggedIn = JSON.parse(document.getElementById('login-status-bridge').textContent);
 
     const staticImgPath = "{{ url_for('static', filename='img/event_cards/') }}";
 
@@ -406,30 +412,38 @@
       if (isPastEvent) {
         // Event in past
         bookNowBtn.className = "btn btn-secondary disabled w-100 fw-bold"; 
-        bookNowBtn.innerHTML = '<i class="fa-solid fa-ban me-2"></i>Event Ended'; 
-        bookNowBtn.href = "#";
+        bookNowBtn.innerHTML = '<i class="fa-solid fa-ban me-2"></i>Event Ended';
+        bookNowBtn.disabled = true;
+        bookNowBtn.onclick = null;
       } else if (isOngoingEvent && ev.available_slots > 0) {
         bookNowBtn.className = "btn btn-info w-100 fw-bold text-dark"; 
         bookNowBtn.innerHTML = "Book Now (Ongoing)";
-        bookNowBtn.href = `/booking/${ev.event_id}`; 
+        bookNowBtn.disabled = false;
+        bookNowBtn.onclick = function() {
+          handleBookNowClick(`/booking/${ev.event_id}`);
+        }
       } else if (!isWithinWindow) {
         // Event is outside 2-month booking window
         bookNowBtn.className = "btn btn-primary search-btn w-100 fw-bold";
         bookNowBtn.innerHTML = '<i class="fa-solid fa-clock me-2"></i>Coming Soon';
-        bookNowBtn.href = "javascript:void(0)"; // Prevent navigation
+        bookNowBtn.disabled = true;
+        bookNowBtn.onclick = null;
       } else if (ev.available_slots <= 0) {
         // Event is sold out - change to waiting list button
          bookNowBtn.className = "btn btn-outline-light clear-btn w-100 fw-bold";
          bookNowBtn.innerHTML = '<i class="fa-solid fa-list me-2"></i>Add to Waiting List'; 
-         bookNowBtn.href = "javascript:void(0)"; 
+         bookNowBtn.disabled = false;
          bookNowBtn.onclick = function() {
-          addToWaitlist(ev.event_id); 
+          handleAddToWaitlist(ev.event_id); 
          }
       } else {
         // Event is available for booking
         bookNowBtn.className = "btn btn-warning w-100 fw-bold"; 
         bookNowBtn.textContent = "Book Now";
-        bookNowBtn.href = `/booking/${ev.event_id}`; 
+        bookNowBtn.disabled = false;
+        bookNowBtn.onclick = function() {
+          handleBookNowClick(`/booking/${ev.event_id}`);
+        }
       }
     }
 
@@ -514,6 +528,22 @@
     });
 
     filterEvents(fetchedEvents); // hides past events by default load
+
+    function handleBookNowClick(bookingUrl) {
+      if (!isLoggedIn) {
+        showToast('Please log in to book tickets', false);
+        return;
+      }
+      window.location.href = bookingUrl;
+    }
+
+    function handleAddToWaitlist(eventId) {
+      if (!isLoggedIn) {
+        showToast('Please log in to add to waiting list', false);
+        return;
+      }
+      addToWaitlist(eventId);
+    }
 
     function addToWaitlist(eventId) {
       fetch('add_to_waitlist', {
