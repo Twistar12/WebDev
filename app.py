@@ -16,6 +16,9 @@ app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 # use python -c 'import secrets; print(secrets.token_hex(32))' to generate for production
 
+# Remember Me sets session to permanent (30 days)
+app.permanent_session_lifetime = timedelta(days=30)
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -172,6 +175,7 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '').strip()
+        remember = request.form.get('rememberMe') == 'on'
 
         conn = dbfunc.getConnection()
         if not conn.is_connected():
@@ -190,13 +194,18 @@ def login():
         # Check if request is AJAX (for use in AJAx login without page reload)
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
-        # Check if user exists and hashed passord matches the typed password
+        # Check if user exists and hashed password matches the typed password
         if user and check_password_hash(user['Password_hash'], password):
+            if remember:
+                session.permanent = True # Set session to permanent for 30 days
+            else:
+                session.permanent = False # Session will expire on browser close
             # Log the user in by storing their info in session
             session['user_id'] = user['User_ID']
             session['username'] = user['Username']
             session['role'] = user['Role']
             session['avatar_url'] = user.get('Avatar_URL', 'default_avatar.png') # Store avatar URL in session for easy access across site, default if not set
+            
 
             if is_ajax:
                 return jsonify({'success': True, 'message': 'Login successful! Welcome back, {}.'.format(user['First_name']), 'redirect': url_for('dashboard')}) # data.success hold result, data.message holds message in AJAX response
