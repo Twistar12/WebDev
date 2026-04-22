@@ -237,7 +237,7 @@ def login():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index')) # change to login page later when implemented
+    return redirect(url_for('index'))
 
 
 
@@ -323,19 +323,36 @@ def dashboard():
 
 
 
-    # Card 6: Tickets Purchased
+    # Card 6: Bookings
     # This page will only show booking ref, event.Title, tickets_purchased, total_price
     # Clicking on the card will redirect to separate tickets.html
 
-    dbcursor.execute('''SELECT b.Booking_ID, e.Title, b.Tickets_Purchased, 
+    dbcursor.execute('''SELECT b.Booking_ID, e.Title, b.Tickets_Purchased,
                         b.Ticket_Price AS Total_Price, 
-                        e.Start_date,
-                        b.Booking_Status
+                        e.Start_date, e.End_date,
+                        b.Booking_Status, b.Booking_date,
+                        (SELECT COUNT(*) FROM Tickets t WHERE t.Booking_ID = b.Booking_ID AND t.Ticket_Status != 'Cancelled') as Active_Tickets
                      FROM Bookings b
                      JOIN Events e ON b.Event_ID = e.Event_ID
                      WHERE b.User_ID = %s
                      ORDER BY e.Start_date DESC''', (user_id,))
     ticket_history = dbcursor.fetchall()
+
+    # Check for expired/ongoing bookings based on dates and ticket cancellations
+    now = datetime.now()
+    for t in ticket_history:
+        if t['Active_Tickets'] == 0:
+            # If all tickets cancelled, whole booking is cancelled
+            t['Booking_Status'] = 'Cancelled'
+        elif t['End_date'] < now:
+            # mark as expired only if end date has passed
+            t['Booking_Status'] = 'Expired'
+        elif t['Start_date'] <= now <= t['End_date']:
+            # mark as ongoing if current date is between start and end date
+            t['Booking_Status'] = 'Ongoing'
+        elif t['Booking_Status'] == 'Success':
+            # Otherwise it is a future event with valid tickets
+            t['Booking_Status'] = 'Valid'
     
     # Process ticket history to add hash ref and dummy live status for styling
     for t in ticket_history:
@@ -376,14 +393,6 @@ def dashboard():
     for w in waiting_list:
         w['date'] = str(w['date']) # convert to strings for Jinja
 
-
-    # Card 9: Achievement Badges
-    dbcursor.execute('''SELECT a.Achievement_name, a.Description, a.Icon_class
-                     FROM User_Achievements ua
-                     JOIN Achievements a ON ua.Achievement_ID = a.Achievement_ID
-                     WHERE ua.User_ID = %s''', (user_id,))
-    achievements = dbcursor.fetchall()
-
     # Admin card fetch details (only show if user is admin)
     admin_stats = {}
     if session.get('role') == 'admin':
@@ -418,7 +427,6 @@ def dashboard():
                            ticket_history=ticket_history,
                            upcoming_events=upcoming_events,
                            waiting_list=waiting_list,
-                           achievements=achievements,
                            admin_stats=admin_stats)
 
 
@@ -532,10 +540,6 @@ def delete_account():
     try:
         dbcursor.execute('DELETE FROM Transactions WHERE User_ID = %s', (session['user_id'],))
         dbcursor.execute('DELETE FROM Waiting_list WHERE User_ID = %s', (session['user_id'],))
-        dbcursor.execute('DELETE FROM Bookmarks WHERE User_ID = %s', (session['user_id'],))
-        dbcursor.execute('DELETE FROM User_Achievements WHERE User_ID = %s', (session['user_id'],))
-        dbcursor.execute('DELETE FROM Social_Auth WHERE User_ID = %s', (session['user_id'],))
-        dbcursor.execute('DELETE FROM Sessions WHERE User_ID = %s', (session['user_id'],))
 
         # Find bookings for user to delete associated tickets and days
         dbcursor.execute('SELECT Booking_ID FROM Bookings WHERE User_ID = %s', (session['user_id'],))
@@ -1052,9 +1056,15 @@ def update_venue():
     new_capacity = int(request.form.get('capacity', 0))
     description = request.form.get('description', '').strip()
 
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+
     old_image_name = request.form.get('current_image_url') # Get current image URL from form hidden input
     if not old_image_name or old_image_name.strip() == '':
-        old_image_name = 'default_venue.jpg' # Fallback to default if current image URL is missing or blank
+        # Fallback to DB value so existing image is retained when no file is uploaded
+        dbcursor.execute('SELECT Image_URL FROM Venues WHERE Venue_ID = %s', (venue_id,))
+        venue_row = dbcursor.fetchone()
+        old_image_name = venue_row['Image_URL'] if venue_row and venue_row.get('Image_URL') else 'default_venue.jpg'
     final_image_name = old_image_name # Default to old image, only update if new image is uploaded
     
     
@@ -1082,9 +1092,6 @@ def update_venue():
 
             # Overwrite final image url so that NEW filename goes to db
             final_image_name = filename
-
-    conn = dbfunc.getConnection()
-    dbcursor = conn.cursor(dictionary=True)
 
     try:
         # Venue Teardown: If capacity is being reduced, check if any events at the venue would be over capacity with the new limit before allowing update to go through
@@ -1146,7 +1153,6 @@ def delete_venue():
 
             dbcursor.execute("DELETE FROM Bookings WHERE Event_ID = %s", (event_id,))
             dbcursor.execute("DELETE FROM Waiting_List WHERE Event_ID = %s", (event_id,))
-            dbcursor.execute("DELETE FROM Bookmarks WHERE Event_ID = %s", (event_id,))
             dbcursor.execute("DELETE FROM Event_Days WHERE Event_ID = %s", (event_id,))
             dbcursor.execute("DELETE FROM Events WHERE Event_ID = %s", (event_id,))
 
@@ -1307,10 +1313,16 @@ def update_event():
     if end_datetime <= start_datetime:  
         return jsonify({'success': False, 'message': 'Event end date and time must be after start date and time.'})
 
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor()
+
     # Handle image upload and replacement
     old_image_name = request.form.get('current_image_url') # Get current image URL from form hidden input
     if not old_image_name or old_image_name.strip() == '':
-        old_image_name = 'default_event.jpg' # Fallback to default if current image URL is missing or blank
+        # Fallback to DB value so existing image is retained when no file is uploaded
+        dbcursor.execute('SELECT Image_URL FROM Events WHERE Event_ID = %s', (event_id,))
+        event_row = dbcursor.fetchone()
+        old_image_name = event_row[0] if event_row and event_row[0] else 'default_event.jpg'
     final_image_name = old_image_name # Default to old image, update if new upload
 
     if 'image_url' in request.files:
@@ -1334,9 +1346,6 @@ def update_event():
 
             # Overwrite final image url so that NEW filename goes to db
             final_image_name = filename
-
-    conn = dbfunc.getConnection()
-    dbcursor = conn.cursor()
 
     try:
         # Check venue capacity to ensure event capacity does not exceed it
@@ -1408,7 +1417,6 @@ def delete_event():
         # delete parent records after child
         dbcursor.execute("DELETE FROM Bookings WHERE Event_ID = %s", (event_id,))
         dbcursor.execute("DELETE FROM Waiting_List WHERE Event_ID = %s", (event_id,))
-        dbcursor.execute("DELETE FROM Bookmarks WHERE Event_ID = %s", (event_id,))
         dbcursor.execute("DELETE FROM Event_Days WHERE Event_ID = %s", (event_id,))
         
         # Delete EVENT
@@ -1491,6 +1499,13 @@ def process_booking():
     selected_days = request.form.getlist('selected_days') # Returns list of dates
     is_student = 1 if request.form.get('student_discount') == 'on' else 0
     payment_method = request.form.get('payment')
+    payment_method_map = {
+        'wallet': 'Wallet',
+        'apple': 'Apple Pay',
+        'google': 'Google Pay',
+        'paypal': 'PayPal',
+    }
+    db_payment_method = payment_method_map.get(payment_method, payment_method)
     
     if not selected_days or num_tickets < 1 or num_tickets > 10:
         return jsonify({'success': False, 'message': 'Please select valid number of tickets and at least one day.'})
@@ -1519,13 +1534,14 @@ def process_booking():
             disc_percent = 5
 
         advanced_disc = total_base * (disc_percent / 100)
-        student_amount = (total_base - advanced_disc) * 0.10 if is_student else 0
+        student_amount = total_base * 0.10 if is_student else 0
 
         final_price = total_base - advanced_disc - student_amount
 
         discounted_price = total_base - final_price # Calculate total discount amount for receipt
 
-        # Wallet Validation if wallet selected
+        # Wallet Validation only for wallet payments
+        # External payment methods (apple, google, paypal) bypass validation
         if payment_method == 'wallet':
             dbcursor.execute('SELECT Balance FROM Wallet_Balance WHERE User_ID = %s', (session['user_id'],))
             wallet_res = dbcursor.fetchone()
@@ -1533,6 +1549,7 @@ def process_booking():
             
             if balance < final_price:
                 return jsonify({'success': False, 'message': 'Insufficient wallet balance. Please choose another payment method or add funds to your wallet.'})
+        # For external payments (apple, google, paypal), proceed without balance checks
             
         # Process DB inserts
         # Insert booking record
@@ -1545,13 +1562,6 @@ def process_booking():
                           total_base, discounted_price, is_student))
 
         booking_id = dbcursor.lastrowid # Get the ID of the newly created Booking_ID to insert into Tickets and Booking_Days
-        
-        # Insert booking days records
-        # # Selcted the days from event_days table to get the corresponding Day_IDs for the selected dates to insert into Booking_Days
-        # dbcursor.execute('''SELECT Day_ID, Date FROM Event_Days
-        #                  WHERE Event_ID = %s
-        #                  ORDER BY Date ASC''', (event_id,))
-        # event_days = dbcursor.fetchall()
 
         for day_id in selected_days:
             if day_id and str(day_id).strip() != '': # validate day_id to prevent blank entries
@@ -1559,10 +1569,13 @@ def process_booking():
                                 VALUES (%s, %s)''', (booking_id, day_id))
             else:
                 return jsonify({'success': False, 'message': 'Invalid day selection. Please try again.'})
-            
+        
         # Insert Transaction
+        # For wallet payments: record as negative amount to deduct from wallet
+        # For external payments (apple, google, paypal): record as zero amount since they don't affect wallet_balance
+        transaction_amount = -final_price if payment_method == 'wallet' else 0
         dbcursor.execute('''INSERT INTO Transactions (User_ID, Booking_ID, Amount, Payment_method, Transaction_date)
-                         VALUES (%s, %s, %s, %s, %s)''', (session['user_id'], booking_id, -final_price, payment_method, datetime.now()))
+                 VALUES (%s, %s, %s, %s, %s)''', (session['user_id'], booking_id, transaction_amount, db_payment_method, datetime.now()))
 
         # Generate Tickets
         generated_tickets = []

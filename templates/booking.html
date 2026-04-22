@@ -325,9 +325,8 @@
     // Base math
     const baseTotal = pricePerDay * numTickets * selectedDays;
     const advancedDiscount = baseTotal * (advancedDiscountPercent / 100);
-    const subTotal = baseTotal - advancedDiscount;
-    const studentDiscount = isStudent ? (subTotal * 0.10) : 0;
-    const finalTotal = subTotal - studentDiscount;
+    const studentDiscount = isStudent ? (baseTotal * 0.10) : 0;
+    const finalTotal = baseTotal - advancedDiscount - studentDiscount;
 
     // Update DOM
     if(document.getElementById('summary_tickets')) {

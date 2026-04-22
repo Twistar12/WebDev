@@ -18,36 +18,44 @@
     transform: translateY(-5px);
     box-shadow: 0 0px 25px rgba(0, 0, 0, 0.568);
   }
+
   .card-header-custom {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 10px;
     margin-bottom: 15px;
     font-weight: 600;
-    color: #e7b3f7; /* BCE Pink */
+    color: #e7b3f7;
+    /* BCE Pink */
   }
+
   .scrollable-list {
     max-height: 300px;
     overflow-y: auto;
     padding-right: 5px;
   }
+
   /* Custom scrollbar for webkit */
   .scrollable-list::-webkit-scrollbar {
     width: 6px;
   }
+
   .scrollable-list::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
   }
+
   .stat-value {
     font-size: 2.5rem;
     font-weight: 700;
     color: #fff;
   }
+
   .badge-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
   }
+
   .achievement-badge {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(193, 2, 183, 0.3);
@@ -55,6 +63,7 @@
     padding: 15px 10px;
     text-align: center;
   }
+
   .modal-content {
     background: rgba(0, 0, 0, 0.486);
     color: #fff;
@@ -71,62 +80,80 @@
   <h1 class="style-script-regular text-center text-white mb-5" style="font-size: 3.5rem;">My Dashboard</h1>
 
   {% if session.role == 'admin' %}
-    
-    <div class="row g-4 mb-4">
-      <div class="col-lg-6">
-        <div class="dashboard-card p-4 d-flex flex-column justify-content-between">
-          <div>
-            <h4 class="card-header-custom"><i class="fa-solid fa-id-card me-2"></i>User Profile</h4>
-            <div class="d-flex align-items-center mb-3">
-              <img src="{{ url_for('static', filename='img/avatars/' ~ (profile.Avatar_URL if profile.Avatar_URL else 'default_avatar.png')) }}" alt="Avatar" class="rounded-circle border border-2 border-light me-4" style="width: 80px; height: 80px; object-fit: cover;">
-              <div>
-                <h3 class="mb-0">{{ profile.First_name }} {{ profile.Last_name }}</h3>
-                <p class="text-info mb-0">@{{ profile.Username }}</p>
-                <small class="text-warning"><i class="fa-solid fa-calendar-days me-1"></i> Joined: {{ profile.Join_date }}</small>
-              </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="dashboard-card p-4 d-flex flex-column justify-content-between">
+        <div>
+          <h4 class="card-header-custom"><i class="fa-solid fa-id-card me-2"></i>User Profile</h4>
+          <div class="d-flex align-items-center mb-3">
+            <img
+              src="{{ url_for('static', filename='img/avatars/' ~ (profile.Avatar_URL if profile.Avatar_URL else 'default_avatar.png')) }}"
+              alt="Avatar" class="rounded-circle border border-2 border-light me-4"
+              style="width: 80px; height: 80px; object-fit: cover;">
+            <div>
+              <h3 class="mb-0">{{ profile.First_name }} {{ profile.Last_name }}</h3>
+              <p class="text-info mb-0">@{{ profile.Username }}</p>
+              <small class="text-warning"><i class="fa-solid fa-calendar-days me-1"></i> Joined: {{ profile.Join_date
+                }}</small>
             </div>
           </div>
-          <div class="d-flex gap-2 mt-3">
-            <button class="btn btn-outline-light clear-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#editProfileModal">Update Profile</button>
-            <button class="btn btn-outline-danger red-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
-          </div>
         </div>
-      </div>
-      
-      <div class="col-lg-6">
-        <div class="dashboard-card p-4 d-flex flex-column justify-content-between border-warning">
-          <h4 class="card-header-custom text-warning" style="border-bottom-color: rgba(255,193,7,0.3);"><i class="fa-solid fa-shield-halved me-2"></i>Admin Command Center</h4>
-          <div class="d-flex justify-content-around my-3 text-center">
-            <div><h3 class="text-success mb-0">£{{ "%.2f"|format(admin_stats.revenue) }}</h3><small class="text-success fw-bold">Total Revenue</small></div>
-            <div><h3 class="text-info mb-0">{{ admin_stats.total_users }}</h3><small class="text-info fw-bold">Registered Users</small></div>
-            <div><h3 class="text-warning mb-0">{{ admin_stats.active_events }}</h3><small class="text-warning fw-bold">Active Events</small></div>
-          </div>
-          <a href="{{ url_for('admin_portal') }}" class="btn btn-warning warning-btn w-100 fw-bold mt-3 text-dark"><i class="fa-solid fa-gear me-2"></i>Enter Admin Portal</a>
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-outline-light clear-btn flex-grow-1" data-bs-toggle="modal"
+            data-bs-target="#editProfileModal">Update Profile</button>
+          <button class="btn btn-outline-danger red-btn flex-grow-1" data-bs-toggle="modal"
+            data-bs-target="#changePasswordModal">Change Password</button>
         </div>
       </div>
     </div>
 
-    <div class="row g-4 mb-4">
-      <div class="col-md-6">
-        <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-center">
-          <h6 class="text-uppercase text-success mb-2">Wallet Balance</h6>
-          <div class="stat-value text-success mb-3" id="walletBalance">£{{ "%.2f"|format(wallet_balance) }}</div>
-          <button class="btn btn-sm btn-success success-btn w-75 mx-auto rounded-pill" data-bs-toggle="modal" data-bs-target="#addMoneyModal">Add Money</button>
+    <div class="col-lg-6">
+      <div class="dashboard-card p-4 d-flex flex-column justify-content-between border-warning">
+        <h4 class="card-header-custom text-warning" style="border-bottom-color: rgba(255,193,7,0.3);"><i
+            class="fa-solid fa-shield-halved me-2"></i>Admin Command Center</h4>
+        <div class="d-flex justify-content-around my-3 text-center">
+          <div>
+            <h3 class="text-success mb-0">£{{ "%.2f"|format(admin_stats.revenue) }}</h3><small
+              class="text-success fw-bold">Total Revenue</small>
+          </div>
+          <div>
+            <h3 class="text-info mb-0">{{ admin_stats.total_users }}</h3><small class="text-info fw-bold">Registered
+              Users</small>
+          </div>
+          <div>
+            <h3 class="text-warning mb-0">{{ admin_stats.active_events }}</h3><small class="text-warning fw-bold">Active
+              Events</small>
+          </div>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-start">
-          <h6 class="text-uppercase text-info mb-3">Events Booked</h6>
-          <div class="stat-value text-info">{{ events_booked }}</div>
-        </div>
-      </div>
-      <div class="col-12">
-        <div class="dashboard-card p-3 text-center d-flex align-items-center justify-content-between px-4">
-          <h6 class="text-uppercase  mb-0">Spent (Last 90 Days)</h6>
-          <div class="fs-3 fw-bold text-danger">£{{ "%.2f"|format(spent_90_days) }}</div>
-        </div>
+        <a href="{{ url_for('admin_portal') }}" class="btn btn-warning warning-btn w-100 fw-bold mt-3 text-dark"><i
+            class="fa-solid fa-gear me-2"></i>Enter Admin Portal</a>
       </div>
     </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-center">
+        <h6 class="text-uppercase text-success mb-2">Wallet Balance</h6>
+        <div class="stat-value text-success mb-3" id="walletBalance">£{{ "%.2f"|format(wallet_balance) }}</div>
+        <button class="btn btn-sm btn-success success-btn w-75 mx-auto rounded-pill" data-bs-toggle="modal"
+          data-bs-target="#addMoneyModal">Add Money</button>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-start">
+        <h6 class="text-uppercase text-info mb-3">Events Booked</h6>
+        <div class="stat-value text-info">{{ events_booked }}</div>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="dashboard-card p-3 text-center d-flex align-items-center justify-content-between px-4">
+        <h6 class="text-uppercase  mb-0">Spent (Last 90 Days)</h6>
+        <div class="fs-3 fw-bold text-danger">£{{ "%.2f"|format(spent_90_days) }}</div>
+      </div>
+    </div>
+  </div>
 
   {% else %}
 
@@ -136,17 +163,23 @@
         <div>
           <h4 class="card-header-custom"><i class="fa-solid fa-id-card me-2"></i>User Profile</h4>
           <div class="d-flex align-items-center mb-3">
-            <img src="{{ url_for('static', filename='img/avatars/' ~ (profile.Avatar_URL if profile.Avatar_URL else 'default_avatar.png')) }}" alt="Avatar" class="rounded-circle border border-2 border-light me-4" style="width: 80px; height: 80px; object-fit: cover;">
+            <img
+              src="{{ url_for('static', filename='img/avatars/' ~ (profile.Avatar_URL if profile.Avatar_URL else 'default_avatar.png')) }}"
+              alt="Avatar" class="rounded-circle border border-2 border-light me-4"
+              style="width: 80px; height: 80px; object-fit: cover;">
             <div>
               <h3 class="mb-0">{{ profile.First_name }} {{ profile.Last_name }}</h3>
               <p class="text-info mb-0">@{{ profile.Username }}</p>
-              <small class="text-warning"><i class="fa-solid fa-calendar-days me-1"></i> Joined: {{ profile.Join_date }}</small>
+              <small class="text-warning"><i class="fa-solid fa-calendar-days me-1"></i> Joined: {{ profile.Join_date
+                }}</small>
             </div>
           </div>
         </div>
         <div class="d-flex gap-2 mt-3">
-          <button class="btn btn-outline-light clear-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#editProfileModal">Update Profile</button>
-          <button class="btn btn-outline-info search-btn flex-grow-1" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
+          <button class="btn btn-outline-light clear-btn flex-grow-1" data-bs-toggle="modal"
+            data-bs-target="#editProfileModal">Update Profile</button>
+          <button class="btn btn-outline-danger red-btn flex-grow-1" data-bs-toggle="modal"
+            data-bs-target="#changePasswordModal">Change Password</button>
         </div>
       </div>
     </div>
@@ -157,7 +190,8 @@
           <div class="dashboard-card p-4 text-center d-flex flex-column justify-content-center">
             <h6 class="text-uppercase text-success mb-2">Wallet Balance</h6>
             <div class="stat-value text-success mb-3" id="walletBalance">£{{ "%.2f"|format(wallet_balance) }}</div>
-            <button class="btn btn-success success-btn w-75 mx-auto rounded-pill" data-bs-toggle="modal" data-bs-target="#addMoneyModal">Add Money</button>
+            <button class="btn btn-success success-btn w-75 mx-auto rounded-pill" data-bs-toggle="modal"
+              data-bs-target="#addMoneyModal">Add Money</button>
           </div>
         </div>
         <div class="col-md-6">
@@ -184,40 +218,50 @@
         <h4 class="card-header-custom"><i class="fa-solid fa-chart-line me-2"></i>Spending Overview (6 Months)</h4>
         <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
           {% if has_spending_activity %}
-            <canvas id="spendingChart"></canvas>
+          <canvas id="spendingChart"></canvas>
           {% else %}
-            <div class="text-center text-muted">
-              <i class="fa-solid fa-wallet fa-3x mb-3 opacity-50"></i>
-              <h5>No spending activity yet.</h5>
-              <p>Book an event to see your spending trends!</p>
-            </div>
+          <div class="text-center text-muted">
+            <i class="fa-solid fa-wallet fa-3x mb-3 opacity-50"></i>
+            <h5>No spending activity yet.</h5>
+            <p>Book an event to see your spending trends!</p>
+          </div>
           {% endif %}
         </div>
       </div>
     </div>
 
     <div class="col-lg-4">
-      <div class="dashboard-card p-4" style="cursor: pointer;" onclick="window.location.href='{{ url_for('tickets') }}'"> <h4 class="card-header-custom"><i class="fa-solid fa-ticket me-2"></i>Bookings</h4>
+      <div class="dashboard-card p-4" style="cursor: pointer;"
+        onclick="window.location.href='{{ url_for('tickets') }}'">
+        <h4 class="card-header-custom"><i class="fa-solid fa-ticket me-2"></i>Bookings</h4>
         <div class="scrollable-list">
           {% if ticket_history %}
-            <ul class="list-group list-group-flush bg-transparent">
-              {% for t in ticket_history %}
-                <li class="list-group-item bg-transparent text-white px-0 border-secondary">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                      <h6 class="mb-1">Ref #{{ t.Ref_No }}: {{ t.Title }}</h6>
-                      <small class="text-muted">{{ t.Tickets_Purchased }} Ticket(s)</small>
-                    </div>
-                    <div class="text-end">
-                      <div class="fw-bold">£{{ "%.2f"|format(t.Total_Price) }}</div>
-                      <span class="badge {% if t.Live_Status == 'Valid' %}bg-success{% elif t.Live_Status == 'Expired' %}bg-secondary{% elif t.Live_Status == 'Cancelled' %}bg-danger{% else %}bg-warning{% endif %} rounded-pill">{{ t.Live_Status }}</span>
-                    </div>
-                  </div>
-                </li>
-              {% endfor %}
-            </ul>
+          <ul class="list-group list-group-flush bg-transparent">
+            {% for t in ticket_history %}
+            <li class="list-group-item bg-transparent text-white px-0 border-secondary">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">Ref #{{ t.Ref_No }}: {{ t.Title }}</h6>
+                  <small class="text-muted">{{ t.Tickets_Purchased }} Ticket(s)</small>
+                </div>
+                <div class="text-end">
+                  <div class="fw-bold">£{{ "%.2f"|format(t.Total_Price) }}</div>
+                  <span class="badge 
+                    {% if t.Booking_Status == 'Valid' or t.Booking_Status == 'Success' %}bg-success
+                    {% elif t.Booking_Status == 'Ongoing' %}bg-info text-dark
+                    {% elif t.Booking_Status == 'Pending' %}bg-warning text-dark
+                    {% elif t.Booking_Status == 'Cancelled' %}bg-danger
+                    {% elif t.Booking_Status == 'Expired' %}bg-secondary
+                    {% else %}bg-primary{% endif %}">
+                    {{ t.Booking_Status }}
+                  </span>
+                </div>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
           {% else %}
-            <p class="text-muted text-center mt-4">No tickets purchased yet.</p>
+          <p class="text-muted text-center mt-4">No tickets purchased yet.</p>
           {% endif %}
         </div>
       </div>
@@ -225,78 +269,57 @@
   </div>
 
   <div class="row g-4">
-    <div class="col-lg-4">
+    <div class="col-lg-6">
       <div class="dashboard-card p-4" style="cursor: pointer;" onclick="window.location.href='{{ url_for('events') }}'">
         <h4 class="card-header-custom"><i class="fa-solid fa-calendar-days me-2"></i>Discover Upcoming</h4>
         <div class="scrollable-list">
           {% if upcoming_events %}
-            {% for ev in upcoming_events %}
-              <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
-                <img src="{{ url_for('static', filename='img/event_cards/' ~ ev.image) }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
-                <div>
-                  <h6 class="mb-0 text-truncate" style="max-width: 200px;">{{ ev.title }}</h6>
-                  <small class="text-info">{{ ev.date }}</small>
-                </div>
-              </div>
-            {% endfor %}
+          {% for ev in upcoming_events %}
+          <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
+            <img src="{{ url_for('static', filename='img/event_cards/' ~ ev.image) }}" class="rounded me-3"
+              style="width: 50px; height: 50px; object-fit: cover;">
+            <div>
+              <h6 class="mb-0 text-truncate" style="max-width: 200px;">{{ ev.title }}</h6>
+              <small class="text-info">{{ ev.date }}</small>
+            </div>
+          </div>
+          {% endfor %}
           {% else %}
-            <p class="text-muted text-center mt-4">No upcoming events right now.</p>
+          <p class="text-muted text-center mt-4">No upcoming events right now.</p>
           {% endif %}
         </div>
       </div>
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-lg-6">
       <div class="dashboard-card p-4">
         <h4 class="card-header-custom"><i class="fa-solid fa-hourglass-half me-2"></i>Waiting List</h4>
         <div class="scrollable-list">
           {% if waiting_list %}
-            <ul class="list-group list-group-flush bg-transparent">
-              {% for w in waiting_list %}
-                <li class="list-group-item bg-transparent text-white px-0 border-secondary">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                      <h6 class="mb-1 text-truncate" style="max-width: 180px;">{{ w.Title }}</h6>
-                      <small class="text-warning"><i class="fa-regular fa-clock me-1"></i>{{ w.date }}</small>
-                    </div>
-                    <div class="text-end">
-                      {% if w.Available_Slots > 0 %}
-                        <span class="badge bg-success rounded-pill mb-1 d-block"><i class="fa-solid fa-door-open me-1"></i>Open</span>
-                        <a href="{{ url_for('booking', event_id=w.Event_ID) }}" class="btn btn-sm btn-outline-success success-btn p-1 py-0" style="font-size: 0.85rem;">Book Now</a>
-                      {% else %}
-                        <span class="badge bg-secondary rounded-pill"><i class="fa-solid fa-lock me-1"></i>Waiting</span>
-                      {% endif %}
-                    </div>
-                  </div>
-                </li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p class="text-muted text-center mt-4">You are not on any waiting lists.</p>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-4">
-      <div class="dashboard-card p-4">
-        <h4 class="card-header-custom"><i class="fa-solid fa-trophy me-2"></i>Badges</h4>
-        <div class="scrollable-list">
-          {% if achievements %}
-            <div class="badge-grid">
-              {% for badge in achievements %}
-                <div class="achievement-badge">
-                  <i class="fa-solid {{ badge.Icon_class }} fa-xl mb-3" style="color: #f72585;"></i>
-                  <h6 class="mb-1" style="font-size: 0.9rem;">{{ badge.Achievement_name }}</h6>
-                  <small class="text-muted" style="font-size: 0.75rem;">{{ badge.Description }}</small>
+          <ul class="list-group list-group-flush bg-transparent">
+            {% for w in waiting_list %}
+            <li class="list-group-item bg-transparent text-white px-0 border-secondary">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1 text-truncate" style="max-width: 180px;">{{ w.Title }}</h6>
+                  <small class="text-warning"><i class="fa-regular fa-clock me-1"></i>{{ w.date }}</small>
                 </div>
-              {% endfor %}
-            </div>
+                <div class="text-end">
+                  {% if w.Available_Slots > 0 %}
+                  <span class="badge bg-success rounded-pill mb-1 d-block"><i
+                      class="fa-solid fa-door-open me-1"></i>Open</span>
+                  <a href="{{ url_for('booking', event_id=w.Event_ID) }}"
+                    class="btn btn-sm btn-outline-success success-btn p-1 py-0" style="font-size: 0.85rem;">Book Now</a>
+                  {% else %}
+                  <span class="badge bg-secondary rounded-pill"><i class="fa-solid fa-lock me-1"></i>Waiting</span>
+                  {% endif %}
+                </div>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
           {% else %}
-            <div class="text-center text-muted mt-4">
-              <i class="fa-solid fa-medal fa-3x mb-3 opacity-25"></i>
-              <p>Attend events to earn badges!</p>
-            </div>
+          <p class="text-muted text-center mt-4">You are not on any waiting lists.</p>
           {% endif %}
         </div>
       </div>
@@ -312,8 +335,10 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form id="updateProfileForm" action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data"> 
-          <input type="hidden" name="current_avatar" value="{{ profile.Avatar_URL if profile.Avatar_URL else 'default_avatar.png' }}"> 
+        <form id="updateProfileForm" action="{{ url_for('update_profile') }}" method="POST"
+          enctype="multipart/form-data">
+          <input type="hidden" name="current_avatar"
+            value="{{ profile.Avatar_URL if profile.Avatar_URL else 'default_avatar.png' }}">
 
           <div class="row g-2 mb-3">
             <div class="col-6">
@@ -341,7 +366,7 @@
           <div class="mb-4">
             <label class="form-label text-light">Profile Picture</label>
             <input type="file" class="form-control" name="avatar" accept="image/*">
-            
+
             <div class="form-check form-switch mt-2">
               <input class="form-check-input" type="checkbox" id="removeAvatarCheck" name="remove_avatar">
               <label class="form-check-label small" for="removeAvatarCheck">Remove current profile picture</label>
@@ -349,7 +374,8 @@
           </div>
 
           <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-danger red-btn w-50" data-bs-toggle="modal" data-bs-target="#deleteAccountModal" data-bs-dismiss="modal">Delete Account</button>
+            <button type="button" class="btn btn-outline-danger red-btn w-50" data-bs-toggle="modal"
+              data-bs-target="#deleteAccountModal" data-bs-dismiss="modal">Delete Account</button>
             <button type="submit" class="btn btn-outline-success success-btn w-50">Save Changes</button>
           </div>
           {# <button type="submit" class="btn btn-outline-light clear-btn w-100">Save Changes</button> #}
@@ -364,11 +390,13 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-danger">
       <div class="modal-header border-0">
-        <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Permanently Delete Account</h5>
+        <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Permanently Delete
+          Account</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p class="text-light">Warning: This action is irreversible. All your bookings, tickets, and wallet balance will be permanently lost.</p>
+        <p class="text-light">Warning: This action is irreversible. All your bookings, tickets, and wallet balance will
+          be permanently lost.</p>
         <form id="deleteAccountForm" action="{{ url_for('delete_account') }}" method="POST">
           <div class="mb-3">
             <label class="form-label text-light">Confirm Email</label>
@@ -379,7 +407,8 @@
             <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
           </div>
           <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-light clear-btn w-50" data-bs-toggle="modal" data-bs-target="#editProfileModal" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-outline-light clear-btn w-50" data-bs-toggle="modal"
+              data-bs-target="#editProfileModal" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-outline-danger red-btn w-50">Confirm Deletion</button>
           </div>
         </form>
@@ -428,7 +457,8 @@
         <form id="addMoneyForm" action="{{ url_for('add_money') }}" method="POST">
           <div class="mb-4">
             <label class="form-label text-light">Amount (£)</label>
-            <input type="number" class="form-control" name="amount" min="1" max="300" step="0.01" required placeholder="e.g. 50.00">
+            <input type="number" class="form-control" name="amount" min="1" max="300" step="0.01" required
+              placeholder="e.g. 50.00">
             <small class="text-muted">Max £300 per transaction.</small>
           </div>
           <button type="submit" class="btn btn-success success-btn w-100">Confirm Payment</button>
@@ -443,52 +473,52 @@
   document.querySelectorAll('.modal').forEach(modal => document.body.appendChild(modal));
   // 1. Initialize Chart.js if data exists
   {% if has_spending_activity %}
-    const ctx = document.getElementById('spendingChart').getContext('2d');
-    
-    // Inject python lists into javascrtipt using tojson filter
-    const chartLabels = {{ chart_labels | tojson | safe }};
-    const chartValues = {{ chart_values | tojson | safe }};
+  const ctx = document.getElementById('spendingChart').getContext('2d');
 
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: chartLabels,
-        datasets: [{
-          label: 'Spent (£)',
-          data: chartValues,
-          borderColor: '#f72585',
-          backgroundColor: 'rgba(247, 37, 133, 0.2)',
-          borderWidth: 3,
-          pointBackgroundColor: '#7209b7',
-          pointRadius: 5,
-          fill: true,
-          tension: 0.3 // Smooth curves
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { 
-            beginAtZero: true, 
-            grid: { color: 'rgba(255,255,255,0.1)' },
-            ticks: { color: '#ccc' }
-          },
-          x: { 
-            grid: { display: false },
-            ticks: { color: '#ccc' }
-          }
+  // Inject python lists into javascrtipt using tojson filter
+  const chartLabels = {{ chart_labels | tojson | safe }};
+  const chartValues = {{ chart_values | tojson | safe }};
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Spent (£)',
+        data: chartValues,
+        borderColor: '#f72585',
+        backgroundColor: 'rgba(247, 37, 133, 0.2)',
+        borderWidth: 3,
+        pointBackgroundColor: '#7209b7',
+        pointRadius: 5,
+        fill: true,
+        tension: 0.3 // Smooth curves
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          ticks: { color: '#ccc' }
         },
-        plugins: {
-          legend: { display: false }
+        x: {
+          grid: { display: false },
+          ticks: { color: '#ccc' }
         }
+      },
+      plugins: {
+        legend: { display: false }
       }
-    });
+    }
+  });
   {% endif %}
 
   // Generic Function to Handle AJAX Form Submissions
   function handleFormSubmit(formId, modalId) {
-    document.getElementById(formId).addEventListener('submit', function(e) {
+    document.getElementById(formId).addEventListener('submit', function (e) {
       e.preventDefault();
       const form = this;
       const formData = new FormData(form);
@@ -498,54 +528,54 @@
         body: formData,
         headers: { "X-Requested-With": "XMLHttpRequest" }
       })
-      .then(response => response.json())
-      .then(data => {
-        // Find the global toast from base
-        const toastEl = document.getElementById('Toast');
-        const msgEl = document.getElementById('toastMessage');
-        
-        msgEl.textContent = data.message;
-        toastEl.classList.remove('bg-danger', 'bg-success');
-        toastEl.classList.add(data.success ? 'bg-success' : 'bg-danger');
-        
-        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-        toast.show();
+        .then(response => response.json())
+        .then(data => {
+          // Find the global toast from base
+          const toastEl = document.getElementById('Toast');
+          const msgEl = document.getElementById('toastMessage');
 
-        if (data.success) {
-          // Close the modal
-          const modalEl = document.getElementById(modalId);
-          let modalInstance = bootstrap.Modal.getInstance(modalEl);
-          if (!modalInstance) {
-            modalInstance = new bootstrap.Modal(modalEl);
+          msgEl.textContent = data.message;
+          toastEl.classList.remove('bg-danger', 'bg-success');
+          toastEl.classList.add(data.success ? 'bg-success' : 'bg-danger');
+
+          const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+          toast.show();
+
+          if (data.success) {
+            // Close the modal
+            const modalEl = document.getElementById(modalId);
+            let modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (!modalInstance) {
+              modalInstance = new bootstrap.Modal(modalEl);
+            }
+            modalInstance.hide();
+
+            // Live DOM Updates without reload
+            if (formId === 'addMoneyForm') {
+              // get amount added
+              const addedAmount = parseFloat(formData.get('amount'));
+
+              // find wallet element, get current amount and add new amount to it
+              const balanceDiv = document.getElementById('walletBalance');
+              const currentBalance = parseFloat(balanceDiv.textContent.replace('£', ''));
+              const newBalance = currentBalance + addedAmount;
+
+              balanceDiv.textContent = '£' + newBalance.toFixed(2);
+
+              // Clear form input 
+              form.reset()
+            }
+            else if (data.redirect) {
+              // redirect to homepage after deletion toast
+              setTimeout(() => window.location.href = data.redirect, 1500);
+            }
+            else {
+              // wait 1.5s then reload
+              setTimeout(() => window.location.reload(), 1500);
+            }
           }
-          modalInstance.hide();
-
-          // Live DOM Updates without reload
-          if (formId === 'addMoneyForm') {
-            // get amount added
-            const addedAmount = parseFloat(formData.get('amount'));
-
-            // find wallet element, get current amount and add new amount to it
-            const balanceDiv = document.getElementById('walletBalance');
-            const currentBalance = parseFloat(balanceDiv.textContent.replace('£', ''));
-            const newBalance = currentBalance + addedAmount;
-
-            balanceDiv.textContent = '£' + newBalance.toFixed(2);
-
-            // Clear form input 
-            form.reset()
-          }
-          else if (data.redirect) {
-            // redirect to homepage after deletion toast
-            setTimeout(() => window.location.href = data.redirect, 1500);
-          }
-          else {
-            // wait 1.5s then reload
-            setTimeout(() => window.location.reload(), 1500);
-          }
-        }
-      })
-      .catch(err => console.error("Error submitting form:", err));
+        })
+        .catch(err => console.error("Error submitting form:", err));
     });
   }
 

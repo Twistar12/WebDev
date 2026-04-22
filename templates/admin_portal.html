@@ -426,7 +426,7 @@
           <div class="row mb-4">
             <div class="col-md-6">
               <label>Ticket Price (£)</label>
-              <input type="number" step="1" class="form-control" name="price" min="1" max="50" placeholder="Enter Ticket Price" required>
+              <input type="number" step="1" class="form-control" name="price" min="0" max="50" placeholder="Enter Ticket Price" required>
             </div>
             <div class="col-md-3">
               <label>Event Capacity</label>
@@ -698,6 +698,9 @@
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+      if (this.dataset.submitting === 'true') return;
+      this.dataset.submitting = 'true';
+
         fetch(this.action, {
             method: 'POST',
             body: new FormData(this),
@@ -716,7 +719,10 @@
                 });
             }
         })
-        .catch(err => console.error('Error submitting form:', err));
+        .catch(err => console.error('Error submitting form:', err))
+        .finally(() => {
+          this.dataset.submitting = 'false';
+        });
     });
   }
 
@@ -826,7 +832,8 @@
       document.getElementById('edit_e_et').value = this.getAttribute('data-et');
       document.getElementById('edit_e_price').value = this.getAttribute('data-price');
       document.getElementById('edit_e_desc').value = this.getAttribute('data-desc');
-      document.getElementById('edit_e_img').value = this.getAttribute('data-img');
+      document.getElementById('edit_e_curr_img').value = this.getAttribute('data-img'); // Store current image URL in hidden field
+      document.getElementById('edit_e_img').value = '';                                  // Keep existing image unless a new file is selected
       document.getElementById('edit_e_acc').checked = this.getAttribute('data-acc') === '1';
     });
   });
@@ -834,6 +841,8 @@
   // Handle Create Event Form Submit via AJAX
   document.getElementById('addEventForm').addEventListener('submit', function(e) {
     e.preventDefault();
+    if (this.dataset.submitting === 'true') return;
+    this.dataset.submitting = 'true';
     fetch(this.action, {
       method: 'POST',
       body: new FormData(this),
@@ -874,6 +883,10 @@
         // Reset the form
         form.reset();
         }
+    })
+    .catch(err => console.error('Error creating event:', err))
+    .finally(() => {
+      this.dataset.submitting = 'false';
     });
   });
 
@@ -917,7 +930,6 @@
   }
 
 // Bind Update and Delete Event Forms to Universal Handler
-  handleFormSubmit('addEventForm');
   handleFormSubmit('updateEventForm');
   handleFormSubmit('deleteEventForm');
 

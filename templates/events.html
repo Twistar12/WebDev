@@ -331,6 +331,9 @@
           slotDisplay = `${ev.available_slots} left`;
         }
 
+        const numericPrice = parseFloat(String(ev.price).replace('£', ''));
+        const cardPriceLabel = !Number.isNaN(numericPrice) && numericPrice === 0 ? 'Free' : `£${ev.price}`;
+
         // `...` for multi-line strings
         card.innerHTML = `    
           <div class="event-card card h-100 d-flex flex-column justify-content-between">
@@ -340,7 +343,7 @@
               <div class="mt-2 mb-3">${availabilityHtml}</div>
               <p class="mb-1"><i class="fa fa-calendar me-2"></i>${displayDate}</p> 
               <p class="mb-1"><i class="fa fa-location-dot me-2"></i>${ev.venue}</p>
-              <p class="mb-1"><i class="fa fa-ticket me-2"></i>£${ev.price}</p>
+              <p class="mb-1"><i class="fa fa-ticket me-2"></i>${cardPriceLabel}</p>
               <p class="mb-1"><i class="fa fa-tags me-2"></i>${ev.category}</p>
               <small>Capacity: ${ev.capacity}</small><br>
               <p class="mt-2">${ev.desc.substring(0, 70)}</p>
