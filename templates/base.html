@@ -8,25 +8,27 @@
 
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/Bristol_Community_Events_icon.ico') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Tilt+Prism&display=swap');
-  
+
     .tilt-prism-regular {
       font-family: "Tilt Prism", sans-serif;
       font-weight: 400;
       font-style: normal;
     }
-  
+
     #title {
       font-size: 1em;
       transition: 0.3s ease all;
     }
-  
+
     @media (max-width: 405px) {
       #title {
         font-size: calc(0.6 * 1em);
@@ -44,7 +46,8 @@
       <div class="container">
         <!-- Logo -->
         <a href="{{ url_for('index') }}" class="navbar-brand d-flex align-items-center">
-          <img src="{{ url_for('static', filename='img/BCE_Logo_Dark.png') }}" alt="Bristol Community Events logo" class="brand-logo d-inline-block align-items-center me-2" style="height: 55px;">
+          <img src="{{ url_for('static', filename='img/BCE_Logo_Dark.png') }}" alt="Bristol Community Events logo"
+            class="brand-logo d-inline-block align-items-center me-2" style="height: 55px;">
           <span class="tilt-prism-regular mt-2 me-2" id="title">Bristol Community Events</span>
         </a>
         <!-- Mobile Toggle Button triggers when width < 992px -->
@@ -56,9 +59,9 @@
         <div class="collapse navbar-collapse" id="navbarMenu">
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-center">
             {% if 'user_id' in session %}
-              <li class="nav-item me-2">
-                <a class="nav-link button px-2 rounded-1" href="{{ url_for('dashboard') }}">Dashboard</a>
-              </li>
+            <li class="nav-item me-2">
+              <a class="nav-link button px-2 rounded-1" href="{{ url_for('dashboard') }}">Dashboard</a>
+            </li>
             {% else %}
             <li class="nav-item me-2">
               <a class="nav-link button px-2 rounded-1" href="{{ url_for('dashboard') }}">Dashboard</a>
@@ -73,10 +76,14 @@
           </ul>
           <!-- Auth Buttons -->
           <div class="d-flex justify-content-center mt-3 mt-lg-0 align-items-center">
+            
             {% if 'user_id' in session %}
-                <img src="{{ url_for('static', filename='img/avatars/' ~ (session['avatar_url'] if session['avatar_url'] else 'default_avatar.png')) }}" alt="Avatar" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #f72585;">
-                <span class="me-3">{{ session['username'] }}</span>
-                <a href="{{ url_for('logout') }}" class="btn btn-outline-light clear-btn px-4 py-2">Logout</a>
+            <img
+              src="{{ url_for('static', filename='img/avatars/' ~ (session['avatar_url'] if session['avatar_url'] else 'default_avatar.png')) }}"
+              alt="Avatar" class="rounded-circle me-2"
+              style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #f72585;">
+            <span class="me-3">{{ session['username'] }}</span>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-light clear-btn px-4 py-2">Logout</a>
             {% else %}
             <a href="{{ url_for('login') }}" class="login-btn me-2">Login</a>
             <a href="{{ url_for('signup') }}" class="signup-btn text-dark">Sign-up</a>
@@ -87,16 +94,16 @@
     </nav>
   </header>
 
-<div class="container mt-3 position-absolute top-0 start-50 translate-middle-x" style="z-index: 1050;">
+  <div class="container mt-3 position-absolute top-0 start-50 translate-middle-x" style="z-index: 1050;">
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
   </div>
 
@@ -104,7 +111,7 @@
     {% block content %}{% endblock %}
   </main>
 
-<!-- FOOTER -->
+  <!-- FOOTER -->
   <footer class="footer-dark text-light pt-5 pb-3 px-4 mt-5">
     <div class="container">
       <div class="row gy-4">
@@ -112,7 +119,7 @@
         <div class="col-12 col-md-4">
           <h5 class="mb-3 ubuntu-medium text-uppercase">Bristol Community Events</h5>
           <p class="text-muted">
-            Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.  
+            Bringing Bristol’s vibrant community together through concerts, workshops, food festivals, and more.
             Discover and create local events with us!
           </p>
         </div>
@@ -139,12 +146,13 @@
         </div>
         <div class="text-center small mt-0 text-muted">Follow us on our socials</div>
         <div class="social-icons mt-0 justify-content-center">
-            <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
-            <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
-            <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
-            <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i class="fa-brands fa-whatsapp"></i></a>
-          </div>
+          <a href="https://facebook.com" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://twitter.com" target="_blank" class="social-link"><i class="fab fa-x-twitter"></i></a>
+          <a href="https://instagram.com" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="https://youtube.com" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
+          <a href="https://www.whatsapp.com" target="_blank" class="social-link"><i
+              class="fa-brands fa-whatsapp"></i></a>
+        </div>
       </div>
 
       <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
@@ -153,13 +161,43 @@
       </div>
     </div>
   </footer>
-   <!-- Hidden Bootstrap Toast for displaying messages -->
+  <!-- Hidden Bootstrap Toast for displaying messages -->
   <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1100">
-    <div id="Toast" class="toast align-items-center text-white bg-danger border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="Toast" class="toast align-items-center text-white bg-danger border-0 shadow-lg" role="alert"
+      aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body fw-bold" id="toastMessage">
-          </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+  <!-- Cookie Consent -->
+  <div class="modal fade" id="cookieConsentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content"
+        style="background: rgba(30, 30, 40, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+
+        <div class="modal-header border-bottom border-secondary">
+          <h5 class="modal-title fw-bold">
+            <i class="fa-solid fa-cookie-bite text-warning me-2"></i>Cookie Preferences
+          </h5>
+        </div>
+
+        <div class="modal-body">
+          <p>We use cookies to ensure you get the best experience on Bristol Community Events.</p>
+          <p class="text-light small">We use functional cookies (to keep you logged in).This website may also use
+            non-essential cookies for analytics and marketing purposes. Do you consent to the use of non-essential
+            cookies?</p>
+        </div>
+
+        <div class="modal-footer border-top border-secondary d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-light clear-btn fw-bold px-4" id="btnOptOut">Opt Out</button>
+          <button type="button" class="btn btn-info text-dark search-btn fw-bold px-4" id="btnOptIn">Opt In</button>
+        </div>
+
       </div>
     </div>
   </div>
@@ -167,35 +205,63 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   {% block scripts %}
   <script>
-  // reusable toast trigger (message, success boolean)
-  function showToast(message, isSuccess) {
-    const toastEl = document.getElementById('Toast');
-    const msgEl = document.getElementById('toastMessage');
-    
-    if (toastEl && msgEl) {
+    // reusable toast trigger (message, success boolean)
+    function showToast(message, isSuccess) {
+      const toastEl = document.getElementById('Toast');
+      const msgEl = document.getElementById('toastMessage');
+
+      if (toastEl && msgEl) {
         msgEl.textContent = message;
         toastEl.classList.remove('bg-danger', 'bg-success');
         toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
         new bootstrap.Toast(toastEl, { delay: 3000 }).show();
+      }
     }
-  }
 
-  // Show one-time toast from query parameters, then clean the URL.
-  document.addEventListener('DOMContentLoaded', function () {
-    const params = new URLSearchParams(window.location.search);
-    const toastMessage = params.get('toast');
-    if (!toastMessage) return;
+    // Show one-time toast from query parameters, then clean the URL.
+    document.addEventListener('DOMContentLoaded', function () {
+      const params = new URLSearchParams(window.location.search);
+      const toastMessage = params.get('toast');
+      if (!toastMessage) return;
 
-    const isSuccess = params.get('toast_success') === '1';
-    showToast(toastMessage, isSuccess);
+      const isSuccess = params.get('toast_success') === '1';
+      showToast(toastMessage, isSuccess);
 
-    params.delete('toast');
-    params.delete('toast_success');
-    const cleaned = params.toString();
-    const newUrl = `${window.location.pathname}${cleaned ? `?${cleaned}` : ''}${window.location.hash}`;
-    window.history.replaceState({}, document.title, newUrl);
-  });
+      params.delete('toast');
+      params.delete('toast_success');
+      const cleaned = params.toString();
+      const newUrl = `${window.location.pathname}${cleaned ? `?${cleaned}` : ''}${window.location.hash}`;
+      window.history.replaceState({}, document.title, newUrl);
+    });
+
+    // COOKIE CONSENT LOGIC 
+    document.addEventListener("DOMContentLoaded", function () {
+      // Check browser's local storage for a saved preference
+      const cookieConsent = localStorage.getItem('bce_cookie_consent');
+
+      // If no preference is found, trigger the modal
+      if (!cookieConsent) {
+        const cookieModalEl = document.getElementById('cookieConsentModal');
+        const cookieModal = new bootstrap.Modal(cookieModalEl);
+        cookieModal.show();
+
+        // Handle Opt In
+        document.getElementById('btnOptIn').addEventListener('click', function () {
+          localStorage.setItem('bce_cookie_consent', 'accepted');
+          cookieModal.hide();
+          showToast('Cookie preferences saved: You have opted in.', true);
+        });
+
+        // Handle Opt Out
+        document.getElementById('btnOptOut').addEventListener('click', function () {
+          localStorage.setItem('bce_cookie_consent', 'rejected');
+          cookieModal.hide();
+          showToast('Cookie preferences saved: You have opted out.', true);
+        });
+      }
+    });
   </script>
   {% endblock %}
 </body>
+
 </html>

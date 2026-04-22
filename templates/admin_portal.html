@@ -12,34 +12,48 @@
     height: 100%;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
+
   .admin-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 0px 25px rgba(0, 0, 0, 0.568);
   }
+
   .table-dark-custom {
     background-color: transparent;
     color: white;
   }
+
   .table-dark-custom:hover {
     background-color: transparent;
     color: white;
   }
-  .table-dark-custom th { color: #ffc107; border-bottom: 1px solid #ffc107; }
-  .table-dark-custom td { border-bottom: 1px solid rgba(255,255,255,0.1); vertical-align: middle; }
 
-.scrollable-list {
+  .table-dark-custom th {
+    color: #ffc107;
+    border-bottom: 1px solid #ffc107;
+  }
+
+  .table-dark-custom td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    vertical-align: middle;
+  }
+
+  .scrollable-list {
     max-height: 300px;
     overflow-y: auto;
     padding-right: 5px;
   }
+
   /* Custom scrollbar for webkit */
   .scrollable-list::-webkit-scrollbar {
     width: 6px;
   }
+
   .scrollable-list::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
   }
+
   .modal-content {
     background: rgba(0, 0, 0, 0.486);
     color: #fff;
@@ -48,6 +62,7 @@
     backdrop-filter: blur(15px);
     box-shadow: #ffc107 0px 0px 5px;
   }
+
   .custom-tooltip .tooltip-inner {
     background-color: #ff0000;
     color: #000;
@@ -62,7 +77,8 @@
 <div class="container py-5">
   <div class="d-flex justify-content-between align-items-center mb-5">
     <h1 class="style-script-regular " style="font-size: 3.5rem;">Admin Portal</h1>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light clear-btn"><i class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light clear-btn"><i
+        class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard</a>
   </div>
 
   <div class="row g-4 mb-4">
@@ -90,10 +106,9 @@
                   </span>
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-outline-light edit-user-btn" 
-                          data-bs-toggle="modal" data-bs-target="#editUserModal"
-                          data-id="{{ u.User_ID }}" data-fname="{{ u.First_name }}" 
-                          data-lname="{{ u.Last_name }}" data-role="{{ u.Role }}">
+                  <button class="btn btn-sm btn-outline-light edit-user-btn" data-bs-toggle="modal"
+                    data-bs-target="#editUserModal" data-id="{{ u.User_ID }}" data-fname="{{ u.First_name }}"
+                    data-lname="{{ u.Last_name }}" data-role="{{ u.Role }}">
                     <i class="fa-solid fa-pen-to-square"></i> Edit
                   </button>
                 </td>
@@ -112,11 +127,12 @@
           <p>Generate financial and booking reports.</p>
           <form action="{{ url_for('generate_report') }}" method="POST">
             <select class="form-select bg-dark text-light mb-3" name="report_type">
-                <option value="profit_by_event">Profit by Event</option>
-                <option value="bookings_per_event">Bookings per Event</option>
-                <option value="revenue_by_venue">Revenue by Venue</option>
+              <option value="profit_by_event">Profit by Event</option>
+              <option value="bookings_per_event">Bookings per Event</option>
+              <option value="revenue_by_venue">Revenue by Venue</option>
             </select>
-            <button class="btn btn-warning warning-btn text-dark fw-bold w-100"><i class="fa-solid fa-download me-2"></i> Generate Report</button>
+            <button class="btn btn-warning warning-btn text-dark fw-bold w-100"><i
+                class="fa-solid fa-download me-2"></i> Generate Report</button>
           </form>
         </div>
       </div>
@@ -124,12 +140,13 @@
   </div>
 
   <div class="row g-4 mt-2">
-    
+
     <div class="col-lg-6">
       <div class="admin-card p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h4 class="text-warning mb-0"><i class="fa-solid fa-map-location-dot me-2"></i>Manage Venues</h4>
-          <button class="btn btn-sm btn-success success-btn" data-bs-toggle="modal" data-bs-target="#addVenueModal"><i class="fa-solid fa-plus me-1"></i> Add Venue</button>
+          <button class="btn btn-sm btn-success success-btn" data-bs-toggle="modal" data-bs-target="#addVenueModal"><i
+              class="fa-solid fa-plus me-1"></i> Add Venue</button>
         </div>
         <div class="scrollable-list">
           <table class="table table-dark-custom table-hover">
@@ -148,11 +165,10 @@
                 <td>{{ v.Type }}</td>
                 <td>{{ v.Max_Capacity }}</td>
                 <td>
-                  <button class="btn btn-sm btn-outline-light clear-btn edit-venue-btn" 
-                          data-bs-toggle="modal" data-bs-target="#editVenueModal"
-                          data-id="{{ v.Venue_ID }}" data-name="{{ v.Name }}" data-loc="{{ v.Location }}"
-                          data-addr="{{ v.Address }}" data-type="{{ v.Type }}" data-cap="{{ v.Max_Capacity }}"
-                          data-desc="{{ v.Description }}" data-img="{{ v.Image_URL }}">
+                  <button class="btn btn-sm btn-outline-light clear-btn edit-venue-btn" data-bs-toggle="modal"
+                    data-bs-target="#editVenueModal" data-id="{{ v.Venue_ID }}" data-name="{{ v.Name }}"
+                    data-loc="{{ v.Location }}" data-addr="{{ v.Address }}" data-type="{{ v.Type }}"
+                    data-cap="{{ v.Max_Capacity }}" data-desc="{{ v.Description }}" data-img="{{ v.Image_URL }}">
                     <i class="fa-solid fa-pen-to-square"></i> Edit
                   </button>
                 </td>
@@ -188,29 +204,31 @@
                 <td class="text-truncate" style="max-width: 150px;">
                   {{ e.Title }}
                   {% if e.Low_Sales_Warning %}
-                    <i class="fa-solid fa-triangle-exclamation text-danger ms-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip" title="Low Sales Warning: {{ e.Days_Until_Event }} days until event, Considered lowering prices!"></i>
+                  <i class="fa-solid fa-triangle-exclamation text-danger ms-2" data-bs-toggle="tooltip"
+                    data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                    title="Low Sales Warning: {{ e.Days_Until_Event }} days until event, Considered lowering prices!"></i>
                   {% endif %}
                 </td>
                 <td>{{ e.Venue }}</td>
                 <td>
                   {% if e.Status == 'upcoming' %}
-                    <span class="badge bg-success w-100">Upcoming</span>
+                  <span class="badge bg-success w-100">Upcoming</span>
                   {% elif e.Status == 'ongoing' %}
-                    <span class="badge bg-info w-100 text-dark">Ongoing</span>
+                  <span class="badge bg-info w-100 text-dark">Ongoing</span>
                   {% elif e.Status == 'sold_out' %}
-                    <span class="badge bg-danger w-100">Sold Out</span>
+                  <span class="badge bg-danger w-100">Sold Out</span>
                   {% else %}
-                    <span class="badge bg-secondary w-100">Event Ended</span>
+                  <span class="badge bg-secondary w-100">Event Ended</span>
                   {% endif %}
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-outline-light clear-btn edit-event-btn" 
-                          data-bs-toggle="modal" data-bs-target="#editEventModal"
-                          data-id="{{ e.Event_ID }}" data-title="{{ e.Title }}" data-vid="{{ e.Venue_ID }}"
-                          data-cid="{{ e.Category_ID }}" data-sd="{{ e.Start_date }}" data-st="{{ e.Start_time }}"
-                          data-ed="{{ e.End_date }}" data-et="{{ e.End_time }}" data-price="{{ e.Price }}" data-cap="{{ e.Total_Capacity}}"
-                          data-desc="{{ e.Description }}" data-img="{{ e.Image_URL }}" data-acc="{{ e.Accessibility_Flag }}"
-                          {% if e.Status == 'past' %}disabled{% endif %}>
+                  <button class="btn btn-sm btn-outline-light clear-btn edit-event-btn" data-bs-toggle="modal"
+                    data-bs-target="#editEventModal" data-id="{{ e.Event_ID }}" data-title="{{ e.Title }}"
+                    data-vid="{{ e.Venue_ID }}" data-cid="{{ e.Category_ID }}" data-sd="{{ e.Start_date }}"
+                    data-st="{{ e.Start_time }}" data-ed="{{ e.End_date }}" data-et="{{ e.End_time }}"
+                    data-price="{{ e.Price }}" data-cap="{{ e.Total_Capacity}}" data-desc="{{ e.Description }}"
+                    data-img="{{ e.Image_URL }}" data-acc="{{ e.Accessibility_Flag }}" {% if e.Status=='past'
+                    %}disabled{% endif %}>
                     <i class="fa-solid fa-pen-to-square"></i> Edit
                   </button>
                 </td>
@@ -245,27 +263,29 @@
               <tr style="color: white">
                 <td>{{ e.Title }}</td>
                 <td class="text-center">
-                  <span id="event-sold-count-{{ e.Event_ID }}">{{ e.Tickets_Sold|int if e.Tickets_Sold else 0 }}</span> / <span id="event-capacity-count-{{ e.Event_ID }}">{{ e.Total_Capacity|int if e.Total_Capacity else 0 }}</span>
+                  <span id="event-sold-count-{{ e.Event_ID }}">{{ e.Tickets_Sold|int if e.Tickets_Sold else 0 }}</span>
+                  / <span id="event-capacity-count-{{ e.Event_ID }}">{{ e.Total_Capacity|int if e.Total_Capacity else 0
+                    }}</span>
                 </td>
                 <td>
                   {% set cap = e.Total_Capacity|float if e.Total_Capacity else 0 %}
                   {% set sold = e.Tickets_Sold|float if e.Tickets_Sold else 0 %}
                   {% if cap > 0 %}
-                    <div class="progress" style="height: 20px;">
-                      {% set percent = ((sold / cap) * 100)|round(1) %}
-                      <div id="event-progress-bar-{{ e.Event_ID }}" class="progress-bar {% if percent >= 100 %}bg-success{% elif percent >= 75 %}bg-warning{% else %}bg-danger{% endif %}" 
-                           role="progressbar" style="width: {{ percent }}%;">
-                        {{ percent }}%
-                      </div>
+                  <div class="progress" style="height: 20px;">
+                    {% set percent = ((sold / cap) * 100)|round(1) %}
+                    <div id="event-progress-bar-{{ e.Event_ID }}"
+                      class="progress-bar {% if percent >= 100 %}bg-success{% elif percent >= 75 %}bg-warning{% else %}bg-danger{% endif %}"
+                      role="progressbar" style="width: {{ percent }}%;">
+                      {{ percent }}%
                     </div>
+                  </div>
                   {% else %}
-                    <span class="text-muted">N/A</span>
+                  <span class="text-muted">N/A</span>
                   {% endif %}
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-outline-info manage-bookings-btn" 
-                          data-bs-toggle="modal" data-bs-target="#manageBookingsModal"
-                          data-id="{{ e.Event_ID }}" data-title="{{ e.Title }}">
+                  <button class="btn btn-sm btn-outline-info manage-bookings-btn" data-bs-toggle="modal"
+                    data-bs-target="#manageBookingsModal" data-id="{{ e.Event_ID }}" data-title="{{ e.Title }}">
                     <i class="fa-solid fa-list-check"></i> Manage Bookings
                   </button>
                 </td>
@@ -279,368 +299,410 @@
     </div>
   </div>
 
-<div class="modal fade" id="manageBookingsModal" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0 d-flex justify-content-between align-items-center">
-        <h5 class="modal-title text-info"><i class="fa-solid fa-list-check me-2"></i>Manage Bookings: <span id="manageBookingsEventTitle"></span></h5>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-sm btn-outline-danger red-btn" id="cancelAllBookingsBtn" style="display:none;">
-            <i class="fa-solid fa-ban me-1"></i>Cancel All
-          </button>
+  <div class="modal fade" id="manageBookingsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0 d-flex justify-content-between align-items-center">
+          <h5 class="modal-title text-info"><i class="fa-solid fa-list-check me-2"></i>Manage Bookings: <span
+              id="manageBookingsEventTitle"></span></h5>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-danger red-btn" id="cancelAllBookingsBtn"
+              style="display:none;">
+              <i class="fa-solid fa-ban me-1"></i>Cancel All
+            </button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+        </div>
+        <div class="modal-body text-light">
+          <div id="bookingsLoading" class="text-center py-4 text-info">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div id="bookingsContent" class="d-none scrollable-list" style="max-height: 400px;">
+            <table class="table table-dark-custom">
+              <thead>
+                <tr>
+                  <th>Booking Date</th>
+                  <th>User</th>
+                  <th>Tickets</th>
+                  <th>Total Price</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsTableBody">
+                <!-- Bookings injected here dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="adminCancelBookingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger"
+        style="background: rgba(0, 0, 0, 0.486); color: #fff; border-radius: 10px; border: 1px solid #dc3545; backdrop-filter: blur(15px);">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Cancel & Refund
+            Booking</h5>
+          <button type="button" class="btn-close btn-close-white" aria-label="Close"
+            onclick="closeAdminCancelModal()"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="text-light mb-3">Warning: This action is irreversible. Are you sure you want to cancel this booking
+            and refund the user?</p>
+          <p class="fs-5 text-light text-center mb-4">
+            <strong class="text-success"><span id="adminCancelRefundText"></span></strong> will be refunded to their
+            wallet.<br>
+          </p>
+          <div class="d-flex gap-2 justify-content-center">
+            <button type="button" class="btn btn-outline-light clear-btn w-50" onclick="closeAdminCancelModal()">No,
+              Keep Booking</button>
+            <button type="button" class="btn btn-outline-danger red-btn w-50" id="confirmAdminCancelBtn">Yes, Cancel &
+              Refund</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-warning">Edit User Privileges</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-      </div>
-      <div class="modal-body text-light">
-        <div id="bookingsLoading" class="text-center py-4 text-info">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-        </div>
-        <div id="bookingsContent" class="d-none scrollable-list" style="max-height: 400px;">
-          <table class="table table-dark-custom">
-            <thead>
-              <tr>
-                <th>Booking Date</th>
-                <th>User</th>
-                <th>Tickets</th>
-                <th>Total Price</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="bookingsTableBody">
-              <!-- Bookings injected here dynamically -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="adminCancelBookingModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-danger" style="background: rgba(0, 0, 0, 0.486); color: #fff; border-radius: 10px; border: 1px solid #dc3545; backdrop-filter: blur(15px);">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Cancel & Refund Booking</h5>
-        <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeAdminCancelModal()"></button>
-      </div>
-      <div class="modal-body text-center">
-        <p class="text-light mb-3">Warning: This action is irreversible. Are you sure you want to cancel this booking and refund the user?</p>
-        <p class="fs-5 text-light text-center mb-4">
-          <strong class="text-success"><span id="adminCancelRefundText"></span></strong> will be refunded to their wallet.<br>
-        </p>
-        <div class="d-flex gap-2 justify-content-center">
-          <button type="button" class="btn btn-outline-light clear-btn w-50" onclick="closeAdminCancelModal()">No, Keep Booking</button>
-          <button type="button" class="btn btn-outline-danger red-btn w-50" id="confirmAdminCancelBtn">Yes, Cancel & Refund</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="editUserModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-warning">Edit User Privileges</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-light">
-        <form id="adminUpdateUserForm" action="{{ url_for('admin_update_user') }}" method="POST">
-          <input type="hidden" id="modal_user_id" name="user_id">
-          <div class="row mb-3">
-            <div class="col">
-              <label>First Name</label>
-              <input type="text" class="form-control" id="modal_fname" name="first_name" required>
-            </div>
-            <div class="col">
-              <label>Last Name</label>
-              <input type="text" class="form-control" id="modal_lname" name="last_name" required>
-            </div>
-          </div>
-          <div class="mb-4">
-            <label>System Role</label>
-            <select class="form-select" id="modal_role" name="role">
-              <option value="user">User</option>
-              <option value="admin">Administrator</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-warning warning-btn w-100 text-dark fw-bold">Update User</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="addEventModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-warning"><i class="fa-solid fa-calendar-plus me-2"></i>Add New Event</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-light">
-        <form id="addEventForm" action="{{ url_for('add_event') }}" method="POST" enctype="multipart/form-data">
-          <div class="mb-3">
-            <label>Event Title</label>
-            <input type="text" class="form-control" name="title" placeholder="Event Title" required>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label>Venue</label>
-              <select class="form-select" name="venue_id" required>
-                {% for v in all_venues %}
-                  <option value="{{ v.Venue_ID }}">{{ v.Name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label>Category</label>
-              <select class="form-select" name="category_id" required>
-                {% for c in all_categories %}
-                  <option value="{{ c.Category_ID }}">{{ c.Category_name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-3">
-              <label>Start Date</label>
-              <input type="date" class="form-control" name="start_date" required>
-            </div>
-            <div class="col-md-3">
-              <label>Start Time</label>
-              <input type="time" class="form-control" name="start_time" required>
-            </div>
-            <div class="col-md-3">
-              <label>End Date</label>
-              <input type="date" class="form-control" name="end_date" required>
-            </div>
-            <div class="col-md-3">
-              <label>End Time</label>
-              <input type="time" class="form-control" name="end_time" required>
-            </div>
-          </div>
-          <div class="row mb-4">
-            <div class="col-md-6">
-              <label>Ticket Price (£)</label>
-              <input type="number" step="1" class="form-control" name="price" min="0" max="50" placeholder="Enter Ticket Price" required>
-            </div>
-            <div class="col-md-3">
-              <label>Event Capacity</label>
-              <input type="number" class="form-control" name="capacity" min="1" placeholder="Enter Capacity" required>
-            </div>
-            <div class="col-md-3">
-              <label>Image</label>
-              <input type="file" class="form-control" name="image_url" accept="image/*">
-            </div>
-          </div>
-          <div class="mb-4">
-            <label>Description</label>
-            <textarea class="form-control" name="description" rows="2" placeholder="Enter Event Description" required></textarea>
-          </div>
-          <button type="submit" class="btn btn-success success-btn w-100 fw-bold">Publish Event</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="addVenueModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-warning"><i class="fa-solid fa-plus me-2"></i>Add New Venue</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-light">
-        <form id="addVenueForm" action="{{ url_for('add_venue') }}" method="POST" enctype="multipart/form-data">
-          <div class="mb-3"><label>Venue Name</label><input type="text" class="form-control" name="name" placeholder="Venue" required></div>
-          <div class="row mb-3">
-            <div class="col-6"><label>Location Area</label><input type="text" class="form-control" name="location" placeholder="Location" required></div>
-            <div class="col-6"><label>Type</label><input type="text" class="form-control" name="type" placeholder="Type" required></div>
-          </div>
-          <div class="mb-3"><label>Address</label><input type="text" class="form-control" name="address" placeholder="Address" required></div>
-          <div class="row mb-3">
-            <div class="col-6"><label>Max Capacity</label><input type="number" class="form-control" name="capacity" min="1" placeholder="Max Capacity" required></div>
-            <div class="col-6"><label>Image</label><input type="file" class="form-control" name="image_url" accept="image/*"></div>
-          </div>
-          <div class="mb-4"><label>Description</label><textarea class="form-control" name="description" rows="2" placeholder="Description"></textarea></div>
-          <button type="submit" class="btn btn-success w-100 fw-bold">Save Venue</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="editVenueModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-warning">Edit Venue</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-light">
-        <form id="updateVenueForm" action="{{ url_for('update_venue') }}" method="POST" enctype="multipart/form-data">
-          <input type="hidden" id="edit_v_id" name="venue_id">
-          <input type="hidden" id="edit_v_curr_img" name="current_image_url">
-
-          <div class="mb-3"><label>Venue Name</label><input type="text" class="form-control" id="edit_v_name" name="name" placeholder="Venue Name" required></div>
-          <div class="row mb-3">
-            <div class="col-6"><label>Location Area</label><input type="text" class="form-control" id="edit_v_loc" name="location" placeholder="Location Area" required></div>
-            <div class="col-6"><label>Type</label><input type="text" class="form-control" id="edit_v_type" name="type" placeholder="Type" required></div>
-          </div>
-          <div class="mb-3"><label>Address</label><input type="text" class="form-control" id="edit_v_addr" name="address" placeholder="Address" required></div>
-          <div class="row mb-3">
-            <div class="col-6"><label>Max Capacity</label><input type="number" class="form-control" id="edit_v_cap" name="capacity" min="1" placeholder="Max Capacity" required></div>
-            <div class="col-6"><label>Upload Image</label><input type="file" class="form-control" id="edit_v_img" name="image_url" accept="image/*"></div>
-          </div>
-          <div class="mb-4"><label>Description</label><textarea class="form-control" id="edit_v_desc" name="description" rows="2" placeholder="Description"></textarea></div>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-danger red-btn" data-bs-toggle="modal" data-bs-target="#deleteVenueModal" data-bs-dismiss="modal">Delete</button>
-            <button type="submit" class="btn btn-warning  warning-btn w-100 fw-bold text-dark">Save Changes</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="deleteVenueModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-danger">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Delete Venue</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-light">
-        <p>Warning: Deleting a venue will automatically delete <b class="text-danger text-uppercase">all events, bookings, and tickets</b> associated with it.</p>
-        <form id="deleteVenueForm" action="{{ url_for('delete_venue') }}" method="POST">
-          <input type="hidden" id="del_v_id" name="venue_id">
-          <div class="mb-4">
-            <label>Confirm Admin Password</label>
-            <input type="password" class="form-control" name="password" required>
-          </div>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-light clear-btn w-50" data-bs-toggle="modal" data-bs-target="#editVenueModal" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-outline-danger red-btn w-50">Confirm Deletion</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="editEventModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content" style="background: #1a1a1a; border: 1px solid #ffc107;">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-warning">Edit Event</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-light">
-        <form id="updateEventForm" action="{{ url_for('update_event') }}" method="POST" enctype="multipart/form-data">
-          <input type="hidden" id="edit_e_id" name="event_id">
-          <input type="hidden" id="edit_e_curr_img" name="current_image_url">
-          
-          <div class="mb-3"><label>Event Title</label><input type="text" class="form-control" id="edit_e_title" name="title" required></div>
-          <div class="row mb-3">
-            <div class="col-md-6"><label>Venue</label>
-              <select class="form-select" id="edit_e_venue" name="venue_id" required>
-                {% for v in all_venues %}<option value="{{ v.Venue_ID }}">{{ v.Name }}</option>{% endfor %}
-              </select>
-            </div>
-            <div class="col-md-3"><label>Category</label>
-              <select class="form-select" id="edit_e_cat" name="category_id" required>
-                {% for c in all_categories %}<option value="{{ c.Category_ID }}">{{ c.Category_name }}</option>{% endfor %}
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label>Event Capacity</label>
-              <input type="number" class="form-control" id="edit_e_cap" name="capacity" min="1" placeholder="Max Attendees" required>
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-3"><label>Start Date</label><input type="date" class="form-control" id="edit_e_sd" name="start_date" ></div>
-            <div class="col-md-3"><label>Start Time</label><input type="time" class="form-control" id="edit_e_st" name="start_time" ></div>
-            <div class="col-md-3"><label>End Date</label><input type="date" class="form-control" id="edit_e_ed" name="end_date" ></div>
-            <div class="col-md-3"><label>End Time</label><input type="time" class="form-control" id="edit_e_et" name="end_time" ></div>
-          </div>
-          <div class="row mb-4">
-            <div class="col-md-4"><label>Price (£)</label><input type="number" step="0.01" class="form-control" id="edit_e_price" name="price" required></div>
-            <div class="col-md-5"><label>Image</label><input type="file" class="form-control" id="edit_e_img" name="image_url" accept="image/*"></div>
-            <div class="col-md-3 d-flex align-items-end">
-              <div class="form-check form-switch fs-5">
-                <input class="form-check-input" type="checkbox" id="edit_e_acc" name="accessibility_flag" value="1">
-                <label class="form-check-label fs-6 mt-1">Accessible</label>
+        <div class="modal-body text-light">
+          <form id="adminUpdateUserForm" action="{{ url_for('admin_update_user') }}" method="POST">
+            <input type="hidden" id="modal_user_id" name="user_id">
+            <div class="row mb-3">
+              <div class="col">
+                <label>First Name</label>
+                <input type="text" class="form-control" id="modal_fname" name="first_name" required>
+              </div>
+              <div class="col">
+                <label>Last Name</label>
+                <input type="text" class="form-control" id="modal_lname" name="last_name" required>
               </div>
             </div>
-          </div>
-          <div class="mb-4"><label>Description</label><textarea class="form-control" id="edit_e_desc" name="description" rows="2" required></textarea></div>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-danger red-btn w-50" data-bs-toggle="modal" data-bs-target="#deleteEventModal" data-bs-dismiss="modal">Delete Event</button>
-            <button type="submit" class="btn btn-warning warning-btn w-50 fw-bold text-dark">Save Changes</button>
-          </div>
-        </form>
+            <div class="mb-4">
+              <label>System Role</label>
+              <select class="form-select" id="modal_role" name="role">
+                <option value="user">User</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-warning warning-btn w-100 text-dark fw-bold">Update User</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="modal fade" id="deleteEventModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-danger">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Warning: Delete Event</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-light text-center">
-        <p>Are you sure you want to permanently delete this event?</p>
-        <p class="text-danger small">This action will destroy all associated tickets, waitlist entries, and bookings instantly.</p>
-        <form id="deleteEventForm" action="{{ url_for('delete_event') }}" method="POST">
-          <input type="hidden" id="del_e_id" name="event_id">
-          <div class="d-flex gap-2 mt-4">
-            <button type="button" class="btn btn-light clear-btn w-50" data-bs-toggle="modal" data-bs-target="#editEventModal" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-outline-danger red-btn w-50">Yes, Delete It</button>
-          </div>
-        </form>
+  <div class="modal fade" id="addEventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-warning"><i class="fa-solid fa-calendar-plus me-2"></i>Add New Event</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-light">
+          <form id="addEventForm" action="{{ url_for('add_event') }}" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label>Event Title</label>
+              <input type="text" class="form-control" name="title" placeholder="Event Title" required>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label>Venue</label>
+                <select class="form-select" name="venue_id" required>
+                  {% for v in all_venues %}
+                  <option value="{{ v.Venue_ID }}">{{ v.Name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label>Category</label>
+                <select class="form-select" name="category_id" required>
+                  {% for c in all_categories %}
+                  <option value="{{ c.Category_ID }}">{{ c.Category_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label>Start Date</label>
+                <input type="date" class="form-control" name="start_date" required>
+              </div>
+              <div class="col-md-3">
+                <label>Start Time</label>
+                <input type="time" class="form-control" name="start_time" required>
+              </div>
+              <div class="col-md-3">
+                <label>End Date</label>
+                <input type="date" class="form-control" name="end_date" required>
+              </div>
+              <div class="col-md-3">
+                <label>End Time</label>
+                <input type="time" class="form-control" name="end_time" required>
+              </div>
+            </div>
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <label>Ticket Price (£)</label>
+                <input type="number" step="1" class="form-control" name="price" min="0" max="50"
+                  placeholder="Enter Ticket Price" required>
+              </div>
+              <div class="col-md-3">
+                <label>Event Capacity</label>
+                <input type="number" class="form-control" name="capacity" min="1" placeholder="Enter Capacity" required>
+              </div>
+              <div class="col-md-3">
+                <label>Image</label>
+                <input type="file" class="form-control" name="image_url" accept="image/*">
+              </div>
+            </div>
+            <div class="mb-4">
+              <label>Description</label>
+              <textarea class="form-control" name="description" rows="2" placeholder="Enter Event Description"
+                required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success success-btn w-100 fw-bold">Publish Event</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  // Teleport modals to body
-  document.querySelectorAll('.modal').forEach(modal => document.body.appendChild(modal));
+  <div class="modal fade" id="addVenueModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-warning"><i class="fa-solid fa-plus me-2"></i>Add New Venue</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-light">
+          <form id="addVenueForm" action="{{ url_for('add_venue') }}" method="POST" enctype="multipart/form-data">
+            <div class="mb-3"><label>Venue Name</label><input type="text" class="form-control" name="name"
+                placeholder="Venue" required></div>
+            <div class="row mb-3">
+              <div class="col-6"><label>Location Area</label><input type="text" class="form-control" name="location"
+                  placeholder="Location" required></div>
+              <div class="col-6"><label>Type</label><input type="text" class="form-control" name="type"
+                  placeholder="Type" required></div>
+            </div>
+            <div class="mb-3"><label>Address</label><input type="text" class="form-control" name="address"
+                placeholder="Address" required></div>
+            <div class="row mb-3">
+              <div class="col-6"><label>Max Capacity</label><input type="number" class="form-control" name="capacity"
+                  min="1" placeholder="Max Capacity" required></div>
+              <div class="col-6"><label>Image</label><input type="file" class="form-control" name="image_url"
+                  accept="image/*"></div>
+            </div>
+            <div class="mb-4"><label>Description</label><textarea class="form-control" name="description" rows="2"
+                placeholder="Description"></textarea></div>
+            <button type="submit" class="btn btn-success w-100 fw-bold">Save Venue</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  // Get current logged in admin's user ID
-  const currentAdminId = {{ session['user_id'] }};
+  <div class="modal fade" id="editVenueModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-warning">Edit Venue</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-light">
+          <form id="updateVenueForm" action="{{ url_for('update_venue') }}" method="POST" enctype="multipart/form-data">
+            <input type="hidden" id="edit_v_id" name="venue_id">
+            <input type="hidden" id="edit_v_curr_img" name="current_image_url">
 
-  // reusable toast trigger (message, success boolean)
-  function showToast(message, isSuccess) {
-    const toastEl = document.getElementById('Toast');
-    const msgEl = document.getElementById('toastMessage');
-    
-    if (toastEl && msgEl) {
+            <div class="mb-3"><label>Venue Name</label><input type="text" class="form-control" id="edit_v_name"
+                name="name" placeholder="Venue Name" required></div>
+            <div class="row mb-3">
+              <div class="col-6"><label>Location Area</label><input type="text" class="form-control" id="edit_v_loc"
+                  name="location" placeholder="Location Area" required></div>
+              <div class="col-6"><label>Type</label><input type="text" class="form-control" id="edit_v_type" name="type"
+                  placeholder="Type" required></div>
+            </div>
+            <div class="mb-3"><label>Address</label><input type="text" class="form-control" id="edit_v_addr"
+                name="address" placeholder="Address" required></div>
+            <div class="row mb-3">
+              <div class="col-6"><label>Max Capacity</label><input type="number" class="form-control" id="edit_v_cap"
+                  name="capacity" min="1" placeholder="Max Capacity" required></div>
+              <div class="col-6"><label>Upload Image</label><input type="file" class="form-control" id="edit_v_img"
+                  name="image_url" accept="image/*"></div>
+            </div>
+            <div class="mb-4"><label>Description</label><textarea class="form-control" id="edit_v_desc"
+                name="description" rows="2" placeholder="Description"></textarea></div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-danger red-btn" data-bs-toggle="modal"
+                data-bs-target="#deleteVenueModal" data-bs-dismiss="modal">Delete</button>
+              <button type="submit" class="btn btn-warning  warning-btn w-100 fw-bold text-dark">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="deleteVenueModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Delete Venue</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-light">
+          <p>Warning: Deleting a venue will automatically delete <b class="text-danger text-uppercase">all events,
+              bookings, and tickets</b> associated with it.</p>
+          <form id="deleteVenueForm" action="{{ url_for('delete_venue') }}" method="POST">
+            <input type="hidden" id="del_v_id" name="venue_id">
+            <div class="mb-4">
+              <label>Confirm Admin Password</label>
+              <input type="password" class="form-control" name="password" required>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-light clear-btn w-50" data-bs-toggle="modal"
+                data-bs-target="#editVenueModal" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-outline-danger red-btn w-50">Confirm Deletion</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="editEventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content" style="background: #1a1a1a; border: 1px solid #ffc107;">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-warning">Edit Event</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-light">
+          <form id="updateEventForm" action="{{ url_for('update_event') }}" method="POST" enctype="multipart/form-data">
+            <input type="hidden" id="edit_e_id" name="event_id">
+            <input type="hidden" id="edit_e_curr_img" name="current_image_url">
+
+            <div class="mb-3"><label>Event Title</label><input type="text" class="form-control" id="edit_e_title"
+                name="title" required></div>
+            <div class="row mb-3">
+              <div class="col-md-6"><label>Venue</label>
+                <select class="form-select" id="edit_e_venue" name="venue_id" required>
+                  {% for v in all_venues %}<option value="{{ v.Venue_ID }}">{{ v.Name }}</option>{% endfor %}
+                </select>
+              </div>
+              <div class="col-md-3"><label>Category</label>
+                <select class="form-select" id="edit_e_cat" name="category_id" required>
+                  {% for c in all_categories %}<option value="{{ c.Category_ID }}">{{ c.Category_name }}</option>{%
+                  endfor %}
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label>Event Capacity</label>
+                <input type="number" class="form-control" id="edit_e_cap" name="capacity" min="1"
+                  placeholder="Max Attendees" required>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-3"><label>Start Date</label><input type="date" class="form-control" id="edit_e_sd"
+                  name="start_date"></div>
+              <div class="col-md-3"><label>Start Time</label><input type="time" class="form-control" id="edit_e_st"
+                  name="start_time"></div>
+              <div class="col-md-3"><label>End Date</label><input type="date" class="form-control" id="edit_e_ed"
+                  name="end_date"></div>
+              <div class="col-md-3"><label>End Time</label><input type="time" class="form-control" id="edit_e_et"
+                  name="end_time"></div>
+            </div>
+            <div class="row mb-4">
+              <div class="col-md-4"><label>Price (£)</label><input type="number" step="0.01" class="form-control"
+                  id="edit_e_price" name="price" required></div>
+              <div class="col-md-5"><label>Image</label><input type="file" class="form-control" id="edit_e_img"
+                  name="image_url" accept="image/*"></div>
+              <div class="col-md-3 d-flex align-items-end">
+                <div class="form-check form-switch fs-5">
+                  <input class="form-check-input" type="checkbox" id="edit_e_acc" name="accessibility_flag" value="1">
+                  <label class="form-check-label fs-6 mt-1">Accessible</label>
+                </div>
+              </div>
+            </div>
+            <div class="mb-4"><label>Description</label><textarea class="form-control" id="edit_e_desc"
+                name="description" rows="2" required></textarea></div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-danger red-btn w-50" data-bs-toggle="modal"
+                data-bs-target="#deleteEventModal" data-bs-dismiss="modal">Delete Event</button>
+              <button type="submit" class="btn btn-warning warning-btn w-50 fw-bold text-dark">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="deleteEventModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Warning: Delete Event
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-light text-center">
+          <p>Are you sure you want to permanently delete this event?</p>
+          <p class="text-danger small">This action will destroy all associated tickets, waitlist entries, and bookings
+            instantly.</p>
+          <form id="deleteEventForm" action="{{ url_for('delete_event') }}" method="POST">
+            <input type="hidden" id="del_e_id" name="event_id">
+            <div class="d-flex gap-2 mt-4">
+              <button type="button" class="btn btn-light clear-btn w-50" data-bs-toggle="modal"
+                data-bs-target="#editEventModal" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-outline-danger red-btn w-50">Yes, Delete It</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Teleport modals to body
+    document.querySelectorAll('.modal').forEach(modal => document.body.appendChild(modal));
+
+    // Get current logged in admin's user ID
+    const currentAdminId = {{ session['user_id'] }};
+
+    // reusable toast trigger (message, success boolean)
+    function showToast(message, isSuccess) {
+      const toastEl = document.getElementById('Toast');
+      const msgEl = document.getElementById('toastMessage');
+
+      if (toastEl && msgEl) {
         msgEl.textContent = message;
         toastEl.classList.remove('bg-danger', 'bg-success');
         toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
         new bootstrap.Toast(toastEl, { delay: 3000 }).show();
+      }
     }
-  }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all tooltips on the page
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-      new bootstrap.Tooltip(tooltipTriggerEl);
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize all tooltips on the page
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
     });
-  });
 
-  // date and time input enforcer - prevent event scheduling in past
-  function enforceDateTimeRules() {
+    // date and time input enforcer - prevent event scheduling in past
+    function enforceDateTimeRules() {
       const now = new Date();
       // Get local YYYY-MM-DD (padded)
       const todayDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
@@ -649,88 +711,88 @@
 
       // Restrict Calendar to prevent past dates
       document.querySelectorAll('input[type="date"]').forEach(dateInput => {
-          dateInput.setAttribute('min', todayDate);
-          
-          // Default to today if left empty on blur (clicking away)
-          dateInput.addEventListener('blur', function() {
-              if (!this.value) this.value = todayDate;
-          });
+        dateInput.setAttribute('min', todayDate);
+
+        // Default to today if left empty on blur (clicking away)
+        dateInput.addEventListener('blur', function () {
+          if (!this.value) this.value = todayDate;
+        });
       });
 
       document.querySelectorAll('input[type="time"]').forEach(timeInput => {
-          // Default to current time if left empty
-          timeInput.addEventListener('blur', function() {
-              if (!this.value) this.value = currentTime;
-          });
+        // Default to current time if left empty
+        timeInput.addEventListener('blur', function () {
+          if (!this.value) this.value = currentTime;
+        });
 
-          // Prevent past time if the selected date is TODAY
-          timeInput.addEventListener('change', function() {
-              const form = this.closest('form');
-              if (!form) return;
-              
-              // Find the corresponding date input (start_date or end_date)
-              const isStart = this.name === 'start_time';
-              const dateInput = form.querySelector(`[name="${isStart ? 'start_date' : 'end_date'}"]`);
-              
-              if (dateInput && dateInput.value === todayDate) {
-                  // Re-calculate current time exactly when they click
-                  const checkNow = new Date();
-                  const checkTime = String(checkNow.getHours()).padStart(2, '0') + ':' + String(checkNow.getMinutes()).padStart(2, '0');
-                  
-                  if (this.value < checkTime) {
-                      showToast('Cannot set time in the past for today\'s date!', false);
-                      this.value = checkTime; // Force it back to current time
-                  }
-              }
-          });
+        // Prevent past time if the selected date is TODAY
+        timeInput.addEventListener('change', function () {
+          const form = this.closest('form');
+          if (!form) return;
+
+          // Find the corresponding date input (start_date or end_date)
+          const isStart = this.name === 'start_time';
+          const dateInput = form.querySelector(`[name="${isStart ? 'start_date' : 'end_date'}"]`);
+
+          if (dateInput && dateInput.value === todayDate) {
+            // Re-calculate current time exactly when they click
+            const checkNow = new Date();
+            const checkTime = String(checkNow.getHours()).padStart(2, '0') + ':' + String(checkNow.getMinutes()).padStart(2, '0');
+
+            if (this.value < checkTime) {
+              showToast('Cannot set time in the past for today\'s date!', false);
+              this.value = checkTime; // Force it back to current time
+            }
+          }
+        });
       });
-  }
-
-  // Run the enforcer immediately when the page loads
-  enforceDateTimeRules();
-
-  // Universal Form Handler for AJAX submissions
-  function handleFormSubmit(formId) {
-    const form = document.getElementById(formId);
-    if (!form) {
-        return;
     }
 
-    form.addEventListener('submit', function(e) {
+    // Run the enforcer immediately when the page loads
+    enforceDateTimeRules();
+
+    // Universal Form Handler for AJAX submissions
+    function handleFormSubmit(formId) {
+      const form = document.getElementById(formId);
+      if (!form) {
+        return;
+      }
+
+      form.addEventListener('submit', function (e) {
         e.preventDefault();
-      if (this.dataset.submitting === 'true') return;
-      this.dataset.submitting = 'true';
+        if (this.dataset.submitting === 'true') return;
+        this.dataset.submitting = 'true';
 
         fetch(this.action, {
-            method: 'POST',
-            body: new FormData(this),
-            headers: { "X-Requested-With": "XMLHttpRequest" }
+          method: 'POST',
+          body: new FormData(this),
+          headers: { "X-Requested-With": "XMLHttpRequest" }
         })
-        .then(r => r.json())
-        .then(data => {
+          .then(r => r.json())
+          .then(data => {
             showToast(data.message, data.success);
             if (data.success) {
-                // Hide any open modals
-                document.querySelectorAll('.modal').forEach(modal => {
-                    const bsModal = bootstrap.Modal.getInstance(modal);
-                    if (bsModal) {
-                        bsModal.hide();
-                    }
-                });
+              // Hide any open modals
+              document.querySelectorAll('.modal').forEach(modal => {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                if (bsModal) {
+                  bsModal.hide();
+                }
+              });
             }
-        })
-        .catch(err => console.error('Error submitting form:', err))
-        .finally(() => {
-          this.dataset.submitting = 'false';
-        });
-    });
-  }
+          })
+          .catch(err => console.error('Error submitting form:', err))
+          .finally(() => {
+            this.dataset.submitting = 'false';
+          });
+      });
+    }
 
-  // Populate User Modal when an "Edit" button is clicked
-  document.querySelectorAll('.edit-user-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    // Populate User Modal when an "Edit" button is clicked
+    document.querySelectorAll('.edit-user-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
         const targetUserId = parseInt(this.getAttribute('data-id'));
-        
+
         document.getElementById('modal_user_id').value = targetUserId;
         document.getElementById('modal_fname').value = this.getAttribute('data-fname');
         document.getElementById('modal_lname').value = this.getAttribute('data-lname');
@@ -746,22 +808,22 @@
         } else {
           userOption.disabled = false;
         }
+      });
     });
-  });
 
-  // Handle Form Submit via AJAX 
-  document.getElementById('adminUpdateUserForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    fetch(this.action, {
-      method: 'POST',
-      body: new FormData(this),
-      headers: { "X-Requested-With": "XMLHttpRequest" }
-    })
-    .then(r => r.json())
-    .then(data => {
-        showToast(data.message, data.success);
-    
-        if (data.success) {
+    // Handle Form Submit via AJAX 
+    document.getElementById('adminUpdateUserForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+        .then(r => r.json())
+        .then(data => {
+          showToast(data.message, data.success);
+
+          if (data.success) {
             // Hide modal
             bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
 
@@ -770,92 +832,92 @@
 
             // Update row data
             if (row) {
-                row.querySelector('.user-name-col').textContent = data.first_name + ' ' + data.last_name;
-                // update role badge
-                const badge = row.querySelector('.user-role-col .badge');
-                badge.textContent = data.role.toUpperCase();
-                badge.className = data.role === 'admin' ? 'badge bg-warning text-dark' : 'badge bg-secondary';
+              row.querySelector('.user-name-col').textContent = data.first_name + ' ' + data.last_name;
+              // update role badge
+              const badge = row.querySelector('.user-role-col .badge');
+              badge.textContent = data.role.toUpperCase();
+              badge.className = data.role === 'admin' ? 'badge bg-warning text-dark' : 'badge bg-secondary';
 
-                // update button's hidden data attributes
-                const editBtn = row.querySelector('.edit-user-btn');
-                editBtn.setAttribute('data-fname', data.first_name);
-                editBtn.setAttribute('data-lname', data.last_name);
-                editBtn.setAttribute('data-role', data.role);
+              // update button's hidden data attributes
+              const editBtn = row.querySelector('.edit-user-btn');
+              editBtn.setAttribute('data-fname', data.first_name);
+              editBtn.setAttribute('data-lname', data.last_name);
+              editBtn.setAttribute('data-role', data.role);
 
             }
-        }
+          }
+        });
     });
-  });
 
 
-// VENUE EDITS
+    // VENUE EDITS
 
-// Populate Edit Venue Modal
-  document.querySelectorAll('.edit-venue-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const vId = this.getAttribute('data-id');
-      document.getElementById('edit_v_id').value = vId;
-      document.getElementById('del_v_id').value = vId; // Pass to delete form
-      document.getElementById('edit_v_name').value = this.getAttribute('data-name');
-      document.getElementById('edit_v_loc').value = this.getAttribute('data-loc');
-      document.getElementById('edit_v_addr').value = this.getAttribute('data-addr');
-      document.getElementById('edit_v_type').value = this.getAttribute('data-type');
-      document.getElementById('edit_v_cap').value = this.getAttribute('data-cap');
-      document.getElementById('edit_v_desc').value = this.getAttribute('data-desc');
-      document.getElementById('edit_v_curr_img').value = this.getAttribute('data-img'); // Store current image URL in hidden field
-      document.getElementById('edit_v_img').value = '';                                 // Clear file input to prevent accidental overwrite if new image not provided 
+    // Populate Edit Venue Modal
+    document.querySelectorAll('.edit-venue-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const vId = this.getAttribute('data-id');
+        document.getElementById('edit_v_id').value = vId;
+        document.getElementById('del_v_id').value = vId; // Pass to delete form
+        document.getElementById('edit_v_name').value = this.getAttribute('data-name');
+        document.getElementById('edit_v_loc').value = this.getAttribute('data-loc');
+        document.getElementById('edit_v_addr').value = this.getAttribute('data-addr');
+        document.getElementById('edit_v_type').value = this.getAttribute('data-type');
+        document.getElementById('edit_v_cap').value = this.getAttribute('data-cap');
+        document.getElementById('edit_v_desc').value = this.getAttribute('data-desc');
+        document.getElementById('edit_v_curr_img').value = this.getAttribute('data-img'); // Store current image URL in hidden field
+        document.getElementById('edit_v_img').value = '';                                 // Clear file input to prevent accidental overwrite if new image not provided 
+      });
     });
-  });
 
-  // Bind Venue Forms to Universal Handler 
-  handleFormSubmit('addVenueForm');
-  handleFormSubmit('updateVenueForm');
-  handleFormSubmit('deleteVenueForm');
-
+    // Bind Venue Forms to Universal Handler 
+    handleFormSubmit('addVenueForm');
+    handleFormSubmit('updateVenueForm');
+    handleFormSubmit('deleteVenueForm');
 
 
-// EVENT EDITS
-// Populate Edit Event Modal
-  document.querySelectorAll('.edit-event-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const form = document.getElementById('updateEventForm');
-      const eId = this.getAttribute('data-id');
-      document.getElementById('edit_e_id').value = eId;
-      document.getElementById('del_e_id').value = eId; // Pass to delete form
-      document.getElementById('edit_e_title').value = this.getAttribute('data-title');
-      document.getElementById('edit_e_venue').value = this.getAttribute('data-vid');
-      document.getElementById('edit_e_cat').value = this.getAttribute('data-cid');
-      document.getElementById('edit_e_cap').value = this.getAttribute('data-cap');
-      document.getElementById('edit_e_sd').value = this.getAttribute('data-sd');
-      document.getElementById('edit_e_st').value = this.getAttribute('data-st');
-      document.getElementById('edit_e_ed').value = this.getAttribute('data-ed');
-      document.getElementById('edit_e_et').value = this.getAttribute('data-et');
-      document.getElementById('edit_e_price').value = this.getAttribute('data-price');
-      document.getElementById('edit_e_desc').value = this.getAttribute('data-desc');
-      document.getElementById('edit_e_curr_img').value = this.getAttribute('data-img'); // Store current image URL in hidden field
-      document.getElementById('edit_e_img').value = '';                                  // Keep existing image unless a new file is selected
-      document.getElementById('edit_e_acc').checked = this.getAttribute('data-acc') === '1';
+
+    // EVENT EDITS
+    // Populate Edit Event Modal
+    document.querySelectorAll('.edit-event-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const form = document.getElementById('updateEventForm');
+        const eId = this.getAttribute('data-id');
+        document.getElementById('edit_e_id').value = eId;
+        document.getElementById('del_e_id').value = eId; // Pass to delete form
+        document.getElementById('edit_e_title').value = this.getAttribute('data-title');
+        document.getElementById('edit_e_venue').value = this.getAttribute('data-vid');
+        document.getElementById('edit_e_cat').value = this.getAttribute('data-cid');
+        document.getElementById('edit_e_cap').value = this.getAttribute('data-cap');
+        document.getElementById('edit_e_sd').value = this.getAttribute('data-sd');
+        document.getElementById('edit_e_st').value = this.getAttribute('data-st');
+        document.getElementById('edit_e_ed').value = this.getAttribute('data-ed');
+        document.getElementById('edit_e_et').value = this.getAttribute('data-et');
+        document.getElementById('edit_e_price').value = this.getAttribute('data-price');
+        document.getElementById('edit_e_desc').value = this.getAttribute('data-desc');
+        document.getElementById('edit_e_curr_img').value = this.getAttribute('data-img'); // Store current image URL in hidden field
+        document.getElementById('edit_e_img').value = '';                                  // Keep existing image unless a new file is selected
+        document.getElementById('edit_e_acc').checked = this.getAttribute('data-acc') === '1';
+      });
     });
-  });
 
-  // Handle Create Event Form Submit via AJAX
-  document.getElementById('addEventForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    if (this.dataset.submitting === 'true') return;
-    this.dataset.submitting = 'true';
-    fetch(this.action, {
-      method: 'POST',
-      body: new FormData(this),
-      headers: { "X-Requested-With": "XMLHttpRequest" }
-    })
-    .then(r => r.json())
-    .then(data => {
-        showToast(data.message, data.success);
+    // Handle Create Event Form Submit via AJAX
+    document.getElementById('addEventForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (this.dataset.submitting === 'true') return;
+      this.dataset.submitting = 'true';
+      fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+        .then(r => r.json())
+        .then(data => {
+          showToast(data.message, data.success);
 
-        if (data.success) {
+          if (data.success) {
             // Hide modal
             bootstrap.Modal.getInstance(document.getElementById('addEventModal')).hide();
-            
+
             // Append new event to the list without page refresh
             const form = this;
             const title = form.querySelector('[name="title"]').value;
@@ -869,8 +931,8 @@
             const tbody = document.getElementById('eventsTableBody');
             const tr = document.createElement('tr');
             if (tbody) {
-                tr.style.color = 'white';
-                tr.innerHTML = `
+              tr.style.color = 'white';
+              tr.innerHTML = `
                     <td>${title}</td>
                     <td>${venueName}</td>
                     <td>${startDate}</td>
@@ -878,141 +940,141 @@
                     <td>
                     <button class="btn btn-sm btn-outline-info search-btn">Manage</button>
                     </td>`;
-            tbody.appendChild(tr);
+              tbody.appendChild(tr);
             }
-        // Reset the form
-        form.reset();
-        }
-    })
-    .catch(err => console.error('Error creating event:', err))
-    .finally(() => {
-      this.dataset.submitting = 'false';
+            // Reset the form
+            form.reset();
+          }
+        })
+        .catch(err => console.error('Error creating event:', err))
+        .finally(() => {
+          this.dataset.submitting = 'false';
+        });
     });
-  });
 
-  // Validate event date AND time constraints
-  function setupEventDateValidation(formId) {
-    const form = document.getElementById(formId);
-    if (!form) return;
+    // Validate event date AND time constraints
+    function setupEventDateValidation(formId) {
+      const form = document.getElementById(formId);
+      if (!form) return;
 
-    const startDateInput = form.querySelector('[name="start_date"]');
-    const startTimeInput = form.querySelector('[name="start_time"]');
-    const endDateInput = form.querySelector('[name="end_date"]');
-    const endTimeInput = form.querySelector('[name="end_time"]');
+      const startDateInput = form.querySelector('[name="start_date"]');
+      const startTimeInput = form.querySelector('[name="start_time"]');
+      const endDateInput = form.querySelector('[name="end_date"]');
+      const endTimeInput = form.querySelector('[name="end_time"]');
 
-    const validateDatesAndTimes = () => {
-      // Ensure all 4 fields have values before comparing
-      if (!startDateInput.value || !endDateInput.value || !startTimeInput.value || !endTimeInput.value) return;
+      const validateDatesAndTimes = () => {
+        // Ensure all 4 fields have values before comparing
+        if (!startDateInput.value || !endDateInput.value || !startTimeInput.value || !endTimeInput.value) return;
 
-      // Combine Date and Time into JS Date objects for exact comparison
-      const startDateTime = new Date(`${startDateInput.value}T${startTimeInput.value}`);
-      const endDateTime = new Date(`${endDateInput.value}T${endTimeInput.value}`);
+        // Combine Date and Time into JS Date objects for exact comparison
+        const startDateTime = new Date(`${startDateInput.value}T${startTimeInput.value}`);
+        const endDateTime = new Date(`${endDateInput.value}T${endTimeInput.value}`);
 
-      if (endDateTime <= startDateTime) {
-        showToast("End date/time must be after start date/time. Adjusting end time to be 1 hour after start time.", false);
-        
-        // Reset end fields to safely match start fields + 1 hour
-        endDateInput.value = startDateInput.value;
-        
-        // Add 1 hour to start time safely
-        let newHour = parseInt(startTimeInput.value.split(':')[0]) + 1;
-        let mins = startTimeInput.value.split(':')[1];
-        if (newHour >= 24) newHour = 23; // cap at 11:XX PM
-        endTimeInput.value = `${String(newHour).padStart(2, '0')}:${mins}`;
-      }
-    };
+        if (endDateTime <= startDateTime) {
+          showToast("End date/time must be after start date/time. Adjusting end time to be 1 hour after start time.", false);
 
-    // Listen to changes on ALL 4 inputs
-    startDateInput.addEventListener('change', validateDatesAndTimes);
-    startTimeInput.addEventListener('change', validateDatesAndTimes);
-    endDateInput.addEventListener('change', validateDatesAndTimes);
-    endTimeInput.addEventListener('change', validateDatesAndTimes);
-  }
+          // Reset end fields to safely match start fields + 1 hour
+          endDateInput.value = startDateInput.value;
 
-// Bind Update and Delete Event Forms to Universal Handler
-  handleFormSubmit('updateEventForm');
-  handleFormSubmit('deleteEventForm');
+          // Add 1 hour to start time safely
+          let newHour = parseInt(startTimeInput.value.split(':')[0]) + 1;
+          let mins = startTimeInput.value.split(':')[1];
+          if (newHour >= 24) newHour = 23; // cap at 11:XX PM
+          endTimeInput.value = `${String(newHour).padStart(2, '0')}:${mins}`;
+        }
+      };
 
-  // Manage Bookings for each event
-  let currentEventId = null;
+      // Listen to changes on ALL 4 inputs
+      startDateInput.addEventListener('change', validateDatesAndTimes);
+      startTimeInput.addEventListener('change', validateDatesAndTimes);
+      endDateInput.addEventListener('change', validateDatesAndTimes);
+      endTimeInput.addEventListener('change', validateDatesAndTimes);
+    }
 
-  function updateEventTicketsSold(eventId, ticketsCancelled) {
-    const soldCountEl = document.getElementById(`event-sold-count-${eventId}`);
-    const capacityEl = document.getElementById(`event-capacity-count-${eventId}`);
-    const progressBarEl = document.getElementById(`event-progress-bar-${eventId}`);
+    // Bind Update and Delete Event Forms to Universal Handler
+    handleFormSubmit('updateEventForm');
+    handleFormSubmit('deleteEventForm');
 
-    if (!soldCountEl || !capacityEl || !progressBarEl) return;
+    // Manage Bookings for each event
+    let currentEventId = null;
 
-    const currentSold = parseInt(soldCountEl.textContent, 10) || 0;
-    const capacity = parseInt(capacityEl.textContent, 10) || 0;
-    const nextSold = Math.max(0, currentSold - (parseInt(ticketsCancelled, 10) || 0));
+    function updateEventTicketsSold(eventId, ticketsCancelled) {
+      const soldCountEl = document.getElementById(`event-sold-count-${eventId}`);
+      const capacityEl = document.getElementById(`event-capacity-count-${eventId}`);
+      const progressBarEl = document.getElementById(`event-progress-bar-${eventId}`);
 
-    soldCountEl.textContent = nextSold;
+      if (!soldCountEl || !capacityEl || !progressBarEl) return;
 
-    if (capacity > 0) {
-      const percent = Math.round((nextSold / capacity) * 1000) / 10;
-      progressBarEl.style.width = `${percent}%`;
-      progressBarEl.textContent = `${percent}%`;
-      progressBarEl.classList.remove('bg-success', 'bg-warning', 'bg-danger');
-      if (percent >= 100) {
-        progressBarEl.classList.add('bg-success');
-      } else if (percent >= 75) {
-        progressBarEl.classList.add('bg-warning');
-      } else {
-        progressBarEl.classList.add('bg-danger');
+      const currentSold = parseInt(soldCountEl.textContent, 10) || 0;
+      const capacity = parseInt(capacityEl.textContent, 10) || 0;
+      const nextSold = Math.max(0, currentSold - (parseInt(ticketsCancelled, 10) || 0));
+
+      soldCountEl.textContent = nextSold;
+
+      if (capacity > 0) {
+        const percent = Math.round((nextSold / capacity) * 1000) / 10;
+        progressBarEl.style.width = `${percent}%`;
+        progressBarEl.textContent = `${percent}%`;
+        progressBarEl.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+        if (percent >= 100) {
+          progressBarEl.classList.add('bg-success');
+        } else if (percent >= 75) {
+          progressBarEl.classList.add('bg-warning');
+        } else {
+          progressBarEl.classList.add('bg-danger');
+        }
       }
     }
-  }
 
-  document.querySelectorAll('.manage-bookings-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const eventId = this.getAttribute('data-id');
-      const eventTitle = this.getAttribute('data-title');
-      currentEventId = eventId;
-      
-      document.getElementById('manageBookingsEventTitle').textContent = eventTitle;
-      document.getElementById('cancelAllBookingsBtn').style.display = 'none';
-      
-      const loading = document.getElementById('bookingsLoading');
-      const content = document.getElementById('bookingsContent');
-      const tbody = document.getElementById('bookingsTableBody');
-      
-      loading.classList.remove('d-none');
-      content.classList.add('d-none');
-      tbody.innerHTML = '';
-      
-      fetch(`/admin/event_bookings/${eventId}`)
-        .then(response => response.json())
-        .then(data => {
-          loading.classList.add('d-none');
-          content.classList.remove('d-none');
-          
-          if (data.bookings && data.bookings.length > 0) {
-            // Check if there are any active bookings
-            const hasActiveBookings = data.bookings.some(b => b.Booking_Status !== 'Cancelled');
-            document.getElementById('cancelAllBookingsBtn').style.display = hasActiveBookings ? 'block' : 'none';
-            
-            data.bookings.forEach(b => {
-              const tr = document.createElement('tr');
-              tr.id = `booking-row-${b.Booking_ID}`;
-              
-              let statusBadge = '';
-              let actionHtml = '';
-              
-              if (b.Booking_Status === 'Cancelled') {
-                statusBadge = '<span class="badge bg-danger w-100">Cancelled</span>';
-                actionHtml = '<span class="text-muted">Refunded</span>';
-              } else {
-                statusBadge = '<span class="badge bg-success w-100">Active</span>';
-                actionHtml = `<button class="btn btn-sm btn-outline-danger cancel-booking-btn" data-bid="${b.Booking_ID}" data-price="${parseFloat(b.Total_Price).toFixed(2)}" data-tickets="${b.Tickets_Purchased}">
+    document.querySelectorAll('.manage-bookings-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const eventId = this.getAttribute('data-id');
+        const eventTitle = this.getAttribute('data-title');
+        currentEventId = eventId;
+
+        document.getElementById('manageBookingsEventTitle').textContent = eventTitle;
+        document.getElementById('cancelAllBookingsBtn').style.display = 'none';
+
+        const loading = document.getElementById('bookingsLoading');
+        const content = document.getElementById('bookingsContent');
+        const tbody = document.getElementById('bookingsTableBody');
+
+        loading.classList.remove('d-none');
+        content.classList.add('d-none');
+        tbody.innerHTML = '';
+
+        fetch(`/admin/event_bookings/${eventId}`)
+          .then(response => response.json())
+          .then(data => {
+            loading.classList.add('d-none');
+            content.classList.remove('d-none');
+
+            if (data.bookings && data.bookings.length > 0) {
+              // Check if there are any active bookings
+              const hasActiveBookings = data.bookings.some(b => b.Booking_Status !== 'Cancelled');
+              document.getElementById('cancelAllBookingsBtn').style.display = hasActiveBookings ? 'block' : 'none';
+
+              data.bookings.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.id = `booking-row-${b.Booking_ID}`;
+
+                let statusBadge = '';
+                let actionHtml = '';
+
+                if (b.Booking_Status === 'Cancelled') {
+                  statusBadge = '<span class="badge bg-danger w-100">Cancelled</span>';
+                  actionHtml = '<span class="text-muted">Refunded</span>';
+                } else {
+                  statusBadge = '<span class="badge bg-success w-100">Active</span>';
+                  actionHtml = `<button class="btn btn-sm btn-outline-danger cancel-booking-btn" data-bid="${b.Booking_ID}" data-price="${parseFloat(b.Total_Price).toFixed(2)}" data-tickets="${b.Tickets_Purchased}">
                                 <i class="fa-solid fa-ban"></i> Cancel & Refund
                               </button>`;
-              }
-              
-              const dateStr = new Date(b.Booking_date).toLocaleString();
-              
-              tr.style.color = "white";
-              tr.innerHTML = `
+                }
+
+                const dateStr = new Date(b.Booking_date).toLocaleString();
+
+                tr.style.color = "white";
+                tr.innerHTML = `
                 <td>${dateStr}</td>
                 <td>@${b.Username} (${b.First_name} ${b.Last_name})</td>
                 <td>${b.Tickets_Purchased}</td>
@@ -1020,129 +1082,129 @@
                 <td class="booking-status-col">${statusBadge}</td>
                 <td class="booking-action-col">${actionHtml}</td>
               `;
-              tbody.appendChild(tr);
-            });
-            
-            // Attach event listeners to cancel buttons
-            document.querySelectorAll('.cancel-booking-btn').forEach(cBtn => {
-              cBtn.addEventListener('click', function() {
-                const bId = this.getAttribute('data-bid');
-                const price = this.getAttribute('data-price');
-                
-                // Hide manage bookings modal
-                const manageModalEl = document.getElementById('manageBookingsModal');
-                const manageModal = bootstrap.Modal.getInstance(manageModalEl);
-                if(manageModal) manageModal.hide();
-                
-                // Set data in cancel modal
-                document.getElementById('adminCancelRefundText').textContent = `£${price}`;
-                
-                const confirmBtn = document.getElementById('confirmAdminCancelBtn');
-                // Remove old event listeners
-                const newConfirmBtn = confirmBtn.cloneNode(true);
-                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-                
-                newConfirmBtn.addEventListener('click', function() {
-                  cancelBooking(bId, price);
-                });
-                
-                // Show cancel modal
-                const cancelModal = new bootstrap.Modal(document.getElementById('adminCancelBookingModal'));
-                cancelModal.show();
+                tbody.appendChild(tr);
               });
+
+              // Attach event listeners to cancel buttons
+              document.querySelectorAll('.cancel-booking-btn').forEach(cBtn => {
+                cBtn.addEventListener('click', function () {
+                  const bId = this.getAttribute('data-bid');
+                  const price = this.getAttribute('data-price');
+
+                  // Hide manage bookings modal
+                  const manageModalEl = document.getElementById('manageBookingsModal');
+                  const manageModal = bootstrap.Modal.getInstance(manageModalEl);
+                  if (manageModal) manageModal.hide();
+
+                  // Set data in cancel modal
+                  document.getElementById('adminCancelRefundText').textContent = `£${price}`;
+
+                  const confirmBtn = document.getElementById('confirmAdminCancelBtn');
+                  // Remove old event listeners
+                  const newConfirmBtn = confirmBtn.cloneNode(true);
+                  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+                  newConfirmBtn.addEventListener('click', function () {
+                    cancelBooking(bId, price);
+                  });
+
+                  // Show cancel modal
+                  const cancelModal = new bootstrap.Modal(document.getElementById('adminCancelBookingModal'));
+                  cancelModal.show();
+                });
+              });
+
+            } else {
+              tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No bookings found for this event.</td></tr>';
+            }
+          })
+          .catch(err => {
+            loading.classList.add('d-none');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading bookings.</td></tr>';
+            content.classList.remove('d-none');
+          });
+      });
+    });
+
+    function closeAdminCancelModal() {
+      const cancelModalEl = document.getElementById('adminCancelBookingModal');
+      const cancelModal = bootstrap.Modal.getInstance(cancelModalEl);
+      if (cancelModal) cancelModal.hide();
+
+      const manageModalEl = document.getElementById('manageBookingsModal');
+      const manageModal = bootstrap.Modal.getInstance(manageModalEl) || new bootstrap.Modal(manageModalEl);
+      manageModal.show();
+    }
+
+    // Cancel All Bookings Button Handler
+    document.getElementById('cancelAllBookingsBtn').addEventListener('click', function () {
+      if (confirm('Are you sure you want to cancel ALL bookings for this event and refund all users? This action cannot be undone.')) {
+        cancelAllBookings(currentEventId);
+      }
+    });
+
+    function cancelBooking(bookingId, price) {
+      fetch(`/admin/cancel_booking/${bookingId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+        .then(r => r.json())
+        .then(data => {
+          // Close cancel modal
+          const cancelModalEl = document.getElementById('adminCancelBookingModal');
+          const cancelModal = bootstrap.Modal.getInstance(cancelModalEl);
+          if (cancelModal) cancelModal.hide();
+
+          showToast(data.message, data.success);
+          if (data.success) {
+            const row = document.getElementById(`booking-row-${bookingId}`);
+            if (row) {
+              row.querySelector('.booking-status-col').innerHTML = '<span class="badge bg-danger w-100">Cancelled</span>';
+              row.querySelector('.booking-action-col').innerHTML = '<span class="text-muted">Refunded</span>';
+            }
+            updateEventTicketsSold(data.event_id, data.tickets_cancelled);
+          }
+
+          // Re-open manage bookings modal
+          const manageModalEl = document.getElementById('manageBookingsModal');
+          const manageModal = bootstrap.Modal.getInstance(manageModalEl) || new bootstrap.Modal(manageModalEl);
+          manageModal.show();
+        })
+        .catch(err => {
+          showToast('An error occurred while cancelling the booking.', false);
+        });
+    }
+
+    function cancelAllBookings(eventId) {
+      fetch(`/admin/api/cancel_all_bookings/${eventId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+        .then(r => r.json())
+        .then(data => {
+          showToast(data.message, data.success);
+          if (data.success) {
+            // Update all active booking rows to cancelled
+            document.querySelectorAll('.booking-status-col').forEach(statusCol => {
+              const row = statusCol.closest('tr');
+              if (row && row.querySelector('.booking-action-col button')) {
+                statusCol.innerHTML = '<span class="badge bg-danger w-100">Cancelled</span>';
+                row.querySelector('.booking-action-col').innerHTML = '<span class="text-muted">Refunded</span>';
+              }
             });
-            
-          } else {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No bookings found for this event.</td></tr>';
+            updateEventTicketsSold(data.event_id, data.tickets_cancelled);
+            document.getElementById('cancelAllBookingsBtn').style.display = 'none';
           }
         })
         .catch(err => {
-          loading.classList.add('d-none');
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading bookings.</td></tr>';
-          content.classList.remove('d-none');
+          showToast('An error occurred while cancelling all bookings.', false);
         });
-    });
-  });
-
-  function closeAdminCancelModal() {
-      const cancelModalEl = document.getElementById('adminCancelBookingModal');
-      const cancelModal = bootstrap.Modal.getInstance(cancelModalEl);
-      if(cancelModal) cancelModal.hide();
-      
-      const manageModalEl = document.getElementById('manageBookingsModal');
-      const manageModal = bootstrap.Modal.getInstance(manageModalEl) || new bootstrap.Modal(manageModalEl);
-      manageModal.show();
-  }
-
-  // Cancel All Bookings Button Handler
-  document.getElementById('cancelAllBookingsBtn').addEventListener('click', function() {
-    if (confirm('Are you sure you want to cancel ALL bookings for this event and refund all users? This action cannot be undone.')) {
-      cancelAllBookings(currentEventId);
     }
-  });
-
-  function cancelBooking(bookingId, price) {
-    fetch(`/admin/cancel_booking/${bookingId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        "X-Requested-With": "XMLHttpRequest"
-      }
-    })
-    .then(r => r.json())
-    .then(data => {
-      // Close cancel modal
-      const cancelModalEl = document.getElementById('adminCancelBookingModal');
-      const cancelModal = bootstrap.Modal.getInstance(cancelModalEl);
-      if(cancelModal) cancelModal.hide();
-        
-      showToast(data.message, data.success);
-      if (data.success) {
-        const row = document.getElementById(`booking-row-${bookingId}`);
-        if (row) {
-          row.querySelector('.booking-status-col').innerHTML = '<span class="badge bg-danger w-100">Cancelled</span>';
-          row.querySelector('.booking-action-col').innerHTML = '<span class="text-muted">Refunded</span>';
-        }
-        updateEventTicketsSold(data.event_id, data.tickets_cancelled);
-      }
-      
-      // Re-open manage bookings modal
-      const manageModalEl = document.getElementById('manageBookingsModal');
-      const manageModal = bootstrap.Modal.getInstance(manageModalEl) || new bootstrap.Modal(manageModalEl);
-      manageModal.show();
-    })
-    .catch(err => {
-      showToast('An error occurred while cancelling the booking.', false);
-    });
-  }
-
-  function cancelAllBookings(eventId) {
-    fetch(`/admin/api/cancel_all_bookings/${eventId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        "X-Requested-With": "XMLHttpRequest"
-      }
-    })
-    .then(r => r.json())
-    .then(data => {
-      showToast(data.message, data.success);
-      if (data.success) {
-        // Update all active booking rows to cancelled
-        document.querySelectorAll('.booking-status-col').forEach(statusCol => {
-          const row = statusCol.closest('tr');
-          if (row && row.querySelector('.booking-action-col button')) {
-            statusCol.innerHTML = '<span class="badge bg-danger w-100">Cancelled</span>';
-            row.querySelector('.booking-action-col').innerHTML = '<span class="text-muted">Refunded</span>';
-          }
-        });
-        updateEventTicketsSold(data.event_id, data.tickets_cancelled);
-        document.getElementById('cancelAllBookingsBtn').style.display = 'none';
-      }
-    })
-    .catch(err => {
-      showToast('An error occurred while cancelling all bookings.', false);
-    });
-  }
-</script>
-{% endblock %}
+  </script>
+  {% endblock %}

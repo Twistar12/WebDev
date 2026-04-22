@@ -87,34 +87,35 @@
               <i class="fa fa-sliders me-2"></i>Advanced Filters
             </a>
           </div>
-            <!-- Collapsible Advanced Filters -->
-            <div class="collapse mt-3" id="advancedFilters">
-              <div class="advanced-filters-card text-white rounded-3 p-4 mx-auto" style="max-width: 700px;">
-                <div class="row g-3 justify-content-around">
+          <!-- Collapsible Advanced Filters -->
+          <div class="collapse mt-3" id="advancedFilters">
+            <div class="advanced-filters-card text-white rounded-3 p-4 mx-auto" style="max-width: 700px;">
+              <div class="row g-3 justify-content-around">
 
-                  <!-- Venue Type -->
-                  <div class="col-md-6 col-lg-4 text-center">
-                    <label class="form-label"><i class="fa-solid fa-building me-2"></i>Venue Type</label>
-                    <select class="form-select" id="venueTypeFilter" name="venue_type">
-                      <option value="">Any Type</option>
-                      {% for vt in venue_types %}
-                      <option value="{{ vt }}">{{ vt }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
+                <!-- Venue Type -->
+                <div class="col-md-6 col-lg-4 text-center">
+                  <label class="form-label"><i class="fa-solid fa-building me-2"></i>Venue Type</label>
+                  <select class="form-select" id="venueTypeFilter" name="venue_type">
+                    <option value="">Any Type</option>
+                    {% for vt in venue_types %}
+                    <option value="{{ vt }}">{{ vt }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
 
-                  <!-- Accessibility -->
-                  <div class="col-md-6 col-lg-4 text-center">
-                    <label class="form-label"><i class="fa-solid fa-wheelchair me-2"></i>Accessibility</label>
-                    <div
-                      class="form-check form-switch cursor-pointer mt-1 d-flex justify-content-center align-items-center" style="padding: 0;">
-                      <input class="form-check-input fs-4 m-0" type="checkbox" role="switch" id="wheelchairAccess" name="accessibility" value="1"
-                        style="cursor: pointer;">
-                    </div>
+                <!-- Accessibility -->
+                <div class="col-md-6 col-lg-4 text-center">
+                  <label class="form-label"><i class="fa-solid fa-wheelchair me-2"></i>Accessibility</label>
+                  <div
+                    class="form-check form-switch cursor-pointer mt-1 d-flex justify-content-center align-items-center"
+                    style="padding: 0;">
+                    <input class="form-check-input fs-4 m-0" type="checkbox" role="switch" id="wheelchairAccess"
+                      name="accessibility" value="1" style="cursor: pointer;">
                   </div>
                 </div>
               </div>
             </div>
+          </div>
       </form>
     </div>
   </div>
@@ -153,7 +154,8 @@
               {% for venue in venue_carousel %}
               <div class="carousel-item {% if loop.first %}active{% endif %}">
                 <img src="{{ url_for('static', filename='img/venue_carousel/' ~ venue.Image_URL) }}"
-                  alt="{{ venue.Name }}" class="d-block w-100" style="height:400px;object-fit:cover;">
+                  alt="{{ venue.Name }}" class="d-block w-100" style="height:400px;object-fit:cover;" {% if not
+                  loop.first %}loading="lazy" {% endif %}>
                 <div class="carousel-caption">
                   <h5>{{ venue.Name }}</h5>
                   <p>{{ venue.Description }}</p>
@@ -186,18 +188,18 @@
     let max = parseInt(maxSlider.value);
 
     if (min > max) { // If sliders cross, swap values and update labels
-        [min, max] = [max, min];
-        minSlider.value = min;
-        maxSlider.value = max;
+      [min, max] = [max, min];
+      minSlider.value = min;
+      maxSlider.value = max;
     }
 
     // Calculate percentage positions for the track fill AFTER resolving cross
     const percent1 = (min / minSlider.max) * 100;
-    const percent2 = (max / maxSlider.max) * 100; 
+    const percent2 = (max / maxSlider.max) * 100;
 
     // Update the track background using a linear gradient
     track.style.background = `linear-gradient(to right, #dee2e6 ${percent1}%, #FC5637 ${percent1}%, #FC5637 ${percent2}%, #dee2e6 ${percent2}%)`;
-    
+
     // Update label text
     document.getElementById("priceLabel").textContent = `£${min} - £${max}`;
   }

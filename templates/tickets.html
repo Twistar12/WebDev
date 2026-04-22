@@ -309,45 +309,50 @@
     </div>
 </div>
 
-<div class="modal fade ticket-card-modal" id="cancelReceiptModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content cancel-modal-content">
-      <div class="modal-header border-bottom border-secondary">
-        <h5 class="modal-title text-success text-center"><i class="fa-solid fa-circle-check me-2"></i>Cancellation Confirmed</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="location.reload()"></button>
-      </div>
-      <div class="modal-body text-center">
-        <p class="mb-4">Your ticket has been successfully cancelled. The refund has been credited to your wallet.</p>
-        
-        <div class="bg-dark p-3 rounded mb-4 text-start border border-secondary">
-          <div class="fs-5 d-flex justify-content-between mb-1">
-            <span>Cancellation Reference:</span>
-            <span class="fs-5 mb-3 font-monospace text-warning" id="cancel_rcpt_ref"></span>
-          </div>
-          <div class="d-flex justify-content-between mb-1">
-            <span>Ticket Price:</span>
-            <span id="cancel_rcpt_base"></span>
-          </div>
-          <div class="d-flex justify-content-between mb-1 text-danger">
-            <span>Cancellation Charge (<span id="cancel_rcpt_charge_pct"></span>):</span>
-            <span id="cancel_rcpt_charge"></span>
-          </div>
-          <hr class="border-secondary my-2">
-          <div class="d-flex justify-content-between fs-5 fw-bold text-success">
-            <span>Total Refunded:</span>
-            <span id="cancel_rcpt_refund"></span>
-          </div>
-        </div>
-
-        <p class="text-muted small mb-2">Cancelled Ticket Code:</p>
-        <div class="d-flex flex-wrap gap-2 justify-content-center mb-3" id="cancel_rcpt_tickets">
+<div class="modal fade ticket-card-modal" id="cancelReceiptModal" tabindex="-1" aria-hidden="true"
+    data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content cancel-modal-content">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title text-success text-center"><i
+                        class="fa-solid fa-circle-check me-2"></i>Cancellation Confirmed</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                    onclick="location.reload()"></button>
             </div>
-      </div>
-      <div class="modal-footer border-top border-secondary justify-content-center">
-        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal" onclick="location.reload()">Close & Refresh</button>
-      </div>
+            <div class="modal-body text-center">
+                <p class="mb-4">Your ticket has been successfully cancelled. The refund has been credited to your
+                    wallet.</p>
+
+                <div class="bg-dark p-3 rounded mb-4 text-start border border-secondary">
+                    <div class="fs-5 d-flex justify-content-between mb-1">
+                        <span>Cancellation Reference:</span>
+                        <span class="fs-5 mb-3 font-monospace text-warning" id="cancel_rcpt_ref"></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Ticket Price:</span>
+                        <span id="cancel_rcpt_base"></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 text-danger">
+                        <span>Cancellation Charge (<span id="cancel_rcpt_charge_pct"></span>):</span>
+                        <span id="cancel_rcpt_charge"></span>
+                    </div>
+                    <hr class="border-secondary my-2">
+                    <div class="d-flex justify-content-between fs-5 fw-bold text-success">
+                        <span>Total Refunded:</span>
+                        <span id="cancel_rcpt_refund"></span>
+                    </div>
+                </div>
+
+                <p class="text-muted small mb-2">Cancelled Ticket Code:</p>
+                <div class="d-flex flex-wrap gap-2 justify-content-center mb-3" id="cancel_rcpt_tickets">
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary justify-content-center">
+                <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal"
+                    onclick="location.reload()">Close & Refresh</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
@@ -751,7 +756,7 @@
                     // Hide cancel modal
                     const cancellationModal = bootstrap.Modal.getInstance(document.getElementById('cancelModal'));
                     if (cancellationModal) cancellationModal.hide();
-                    
+
                     // Show cancellation receipt modal
                     const refNo = data.ref_no || Math.random().toString(36).substring(2, 10).toUpperCase();
                     document.getElementById('cancel_rcpt_ref').textContent = '#' + refNo;

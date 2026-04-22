@@ -13,14 +13,17 @@
     color: white;
     transition: all 0.3s ease-in-out;
   }
+
   .booking-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 0px 25px rgba(0, 0, 0, 0.568);
   }
+
   /* Custom Toggle Buttons for Dates (Derived from Payment CSS) */
   .date-checkbox-wrapper input[type="checkbox"] {
-    display: none; 
+    display: none;
   }
+
   .date-btn {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -35,12 +38,14 @@
     cursor: pointer;
     margin: 0;
   }
+
   .date-btn:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
   }
+
   /* When the hidden checkbox is checked, style the adjacent label! */
-  .date-checkbox-wrapper input[type="checkbox"]:checked + label.date-btn {
+  .date-checkbox-wrapper input[type="checkbox"]:checked+label.date-btn {
     background: linear-gradient(90deg, #7209b7, #f72585);
     border-color: #f72585;
     box-shadow: 0 0 10px rgba(247, 37, 133, 0.6);
@@ -54,14 +59,16 @@
     backdrop-filter: blur(15px);
     box-shadow: #03f123 0px 0px 5px;
   }
+
   .ticket-code {
     font-family: monospace;
     font-size: 1.2rem;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     padding: 5px 10px;
     border-radius: 5px;
     letter-spacing: 2px;
   }
+
   /* Custom Payment Toggle Buttons */
   .payment-options {
     display: flex;
@@ -70,13 +77,18 @@
     justify-content: center;
     margin-bottom: 1.5rem;
   }
-  .payment-options > div {
+
+  .payment-options>div {
     flex: 1 1 0;
-    min-width: 130px; /* Prevents squishing on very small mobile screens */
+    min-width: 130px;
+    /* Prevents squishing on very small mobile screens */
   }
+
   .payment-options input[type="radio"] {
-    display: none; /* Hide the default radio circles */
+    display: none;
+    /* Hide the default radio circles */
   }
+
   .payment-btn {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -93,11 +105,13 @@
     margin: 0;
     width: 100%;
   }
+
   .payment-btn:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
   }
-  .payment-options input[type="radio"]:checked + label.payment-btn {
+
+  .payment-options input[type="radio"]:checked+label.payment-btn {
     background: linear-gradient(90deg, #7209b7, #f72585);
     border-color: #f72585;
     box-shadow: 0 0 10px rgba(247, 37, 133, 0.6);
@@ -110,12 +124,13 @@
   <div class="row justify-content-center">
     <div class="col-lg-8">
       <h1 class="style-script-regular text-center text-warning mb-4" style="font-size: 3.5rem;">Secure Checkout</h1>
-      
+
       <form id="bookingForm" action="{{ url_for('process_booking') }}" method="POST">
         <input type="hidden" name="event_id" value="{{ event.Event_ID }}">
-        
+
         <div class="booking-card mb-4">
-          <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i class="fa-solid fa-calendar-check me-2"></i>Event Details</h4>
+          <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i
+              class="fa-solid fa-calendar-check me-2"></i>Event Details</h4>
           <div class="row g-3">
             <div class="col-md-8">
               <label class="text-white small">Event Name</label>
@@ -123,45 +138,51 @@
             </div>
             <div class="col-md-4">
               <label class="text-white small">Price Per Day/Ticket</label>
-              <input type="text" class="form-control" id="price_per_day" value="£{{ '%.2f'|format(event.Price) }}" data-val="{{ event.Price }}" readonly>
+              <input type="text" class="form-control" id="price_per_day" value="£{{ '%.2f'|format(event.Price) }}"
+                data-val="{{ event.Price }}" readonly>
             </div>
-            
-            <div class="col-12 mt-3">
-              <label class="text-light mb-2 fw-bold"><i class="fa-regular fa-calendar-check me-2"></i>Select Days to Attend</label>
-              
-              <div class="d-flex flex-wrap gap-3 p-3 border border-secondary rounded" style="background: rgba(0,0,0,0.3);">
 
-              {% set today_str = current_time.strftime('%Y-%m-%d') %}
-                
+            <div class="col-12 mt-3">
+              <label class="text-light mb-2 fw-bold"><i class="fa-regular fa-calendar-check me-2"></i>Select Days to
+                Attend</label>
+
+              <div class="d-flex flex-wrap gap-3 p-3 border border-secondary rounded"
+                style="background: rgba(0,0,0,0.3);">
+
+                {% set today_str = current_time.strftime('%Y-%m-%d') %}
+
                 {% if event_days|length == 1 %}
-                  {% if event_days[0].Date|string >= today_str %}
-                    <div class="date-checkbox-wrapper">
-                      <input class="day-checkbox" type="checkbox" name="selected_days" id="day_single" value="{{ event_days[0].Day_ID }}" checked onclick="return false;">
-                      <label class="date-btn" for="day_single">
-                        <i class="fa-solid fa-calendar-day"></i> {{ event_days[0].Date }} (Single Day)
-                      </label>
-                    </div>
-                  {% else %}
-                     <span class="text-danger"><i class="fa-solid fa-clock me-1"></i> This event has already passed.</span>
-                  {% endif %}
+                {% if event_days[0].Date|string >= today_str %}
+                <div class="date-checkbox-wrapper">
+                  <input class="day-checkbox" type="checkbox" name="selected_days" id="day_single"
+                    value="{{ event_days[0].Day_ID }}" checked onclick="return false;">
+                  <label class="date-btn" for="day_single">
+                    <i class="fa-solid fa-calendar-day"></i> {{ event_days[0].Date }} (Single Day)
+                  </label>
+                </div>
                 {% else %}
-                  {% set ns = namespace(future_days=0) %}
-                  
-                  {% for day in event_days %}
-                    {% if day.Date|string >= today_str %}
-                      {% set ns.future_days = ns.future_days + 1 %}
-                      <div class="date-checkbox-wrapper">
-                        <input class="day-checkbox" type="checkbox" name="selected_days" id="day_{{ loop.index }}" value="{{ day.Day_ID }}">
-                        <label class="date-btn" for="day_{{ loop.index }}">
-                          <i class="fa-solid fa-calendar-day"></i> {{ day.Date }}
-                        </label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}
-                  
-                  {% if ns.future_days == 0 %}
-                      <span class="text-danger"><i class="fa-solid fa-clock me-1"></i> All available dates for this event have passed.</span>
-                  {% endif %}
+                <span class="text-danger"><i class="fa-solid fa-clock me-1"></i> This event has already passed.</span>
+                {% endif %}
+                {% else %}
+                {% set ns = namespace(future_days=0) %}
+
+                {% for day in event_days %}
+                {% if day.Date|string >= today_str %}
+                {% set ns.future_days = ns.future_days + 1 %}
+                <div class="date-checkbox-wrapper">
+                  <input class="day-checkbox" type="checkbox" name="selected_days" id="day_{{ loop.index }}"
+                    value="{{ day.Day_ID }}">
+                  <label class="date-btn" for="day_{{ loop.index }}">
+                    <i class="fa-solid fa-calendar-day"></i> {{ day.Date }}
+                  </label>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                {% if ns.future_days == 0 %}
+                <span class="text-danger"><i class="fa-solid fa-clock me-1"></i> All available dates for this event have
+                  passed.</span>
+                {% endif %}
                 {% endif %}
 
               </div>
@@ -170,11 +191,13 @@
         </div>
 
         <div class="booking-card mb-4">
-          <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i class="fa-solid fa-user me-2"></i>Attendee Details</h4>
+          <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i
+              class="fa-solid fa-user me-2"></i>Attendee Details</h4>
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Full Name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="full_name" value="{{ user.First_name }} {{ user.Last_name }}" required>
+              <input type="text" class="form-control" name="full_name"
+                value="{{ user.First_name }} {{ user.Last_name }}" required>
             </div>
             <div class="col-md-6">
               <label class="form-label">Email Address <span class="text-danger">*</span></label>
@@ -186,25 +209,29 @@
             </div>
             <div class="col-md-6">
               <label class="form-label">Number of Tickets <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" id="num_tickets" name="num_tickets" min="1" max="10" value="1" required>
+              <input type="number" class="form-control" id="num_tickets" name="num_tickets" min="1" max="10" value="1"
+                required>
             </div>
             <div class="col-12 mt-3">
               <div class="form-check form-switch fs-5">
                 <input class="form-check-input" type="checkbox" id="student_discount" name="student_discount">
                 <label class="form-check-label fs-6 mt-1" for="student_discount">Apply 10% Student Discount</label>
               </div>
-              <small class="text-danger d-block mt-1"><i class="fa-solid fa-circle-info me-1"></i>Valid Student ID must be presented at the venue.</small>
+              <small class="text-danger d-block mt-1"><i class="fa-solid fa-circle-info me-1"></i>Valid Student ID must
+                be presented at the venue.</small>
             </div>
           </div>
         </div>
 
         <div class="booking-card mb-4">
-          <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i class="fa-solid fa-credit-card me-2"></i>Payment & Summary</h4>
+          <h4 class="text-warning border-bottom border-secondary pb-2 mb-4"><i
+              class="fa-solid fa-credit-card me-2"></i>Payment & Summary</h4>
           <input type="hidden" id="wallet_balance" value="{{ wallet_balance|default(0) }}">
-          
+
           <div class="bg-dark p-3 rounded mb-4 border border-secondary">
             <div class="d-flex justify-content-between mb-2">
-              <span>Base Price (<span id="summary_tickets">1</span> ticket(s) × <span id="summary_days">1</span> day(s)):</span>
+              <span>Base Price (<span id="summary_tickets">1</span> ticket(s) × <span id="summary_days">1</span>
+                day(s)):</span>
               <span id="summary_base">£0.00</span>
             </div>
             {% if disc_percent > 0 %}
@@ -213,7 +240,8 @@
               <span id="summary_early">-£0.00</span>
             </div>
             {% endif %}
-            <div class="d-flex justify-content-between mb-2 text-info" id="student_row" style="display: none !important;">
+            <div class="d-flex justify-content-between mb-2 text-info" id="student_row"
+              style="display: none !important;">
               <span>Student Discount (10%):</span>
               <span id="summary_student">-£0.00</span>
             </div>
@@ -226,37 +254,38 @@
 
           <div class="payment-options">
             <div class="row g-3">
-            <div class="col-12 col-md-6 col-lg-3 text-nowrap">
-              <input type="radio" name="payment" id="wallet" value="wallet" checked>
-              <label class="payment-btn" for="wallet">
-                <i class="fa-solid fa-wallet"></i> Wallet
-              </label>
-            </div>
-            
-            <div class="col-12 col-md-6 col-lg-3 text-nowrap">
-              <input type="radio" name="payment" id="apple" value="apple">
-              <label class="payment-btn" for="apple">
-                <i class="fa-brands fa-apple"></i> Apple Pay
-              </label>
-            </div>
+              <div class="col-12 col-md-6 col-lg-3 text-nowrap">
+                <input type="radio" name="payment" id="wallet" value="wallet" checked>
+                <label class="payment-btn" for="wallet">
+                  <i class="fa-solid fa-wallet"></i> Wallet
+                </label>
+              </div>
 
-            <div class="col-12 col-md-6 col-lg-3 text-nowrap">
-              <input type="radio" name="payment" id="google" value="google">
-              <label class="payment-btn" for="google">
-                <i class="fa-brands fa-google "></i> Google Pay
-              </label>
-            </div>
+              <div class="col-12 col-md-6 col-lg-3 text-nowrap">
+                <input type="radio" name="payment" id="apple" value="apple">
+                <label class="payment-btn" for="apple">
+                  <i class="fa-brands fa-apple"></i> Apple Pay
+                </label>
+              </div>
 
-            <div class="col-12 col-md-6 col-lg-3 text-nowrap">
-              <input type="radio" name="payment" id="paypal" value="paypal">
-              <label class="payment-btn" for="paypal">
-                <i class="fa-brands fa-paypal"></i> PayPal
-              </label>
+              <div class="col-12 col-md-6 col-lg-3 text-nowrap">
+                <input type="radio" name="payment" id="google" value="google">
+                <label class="payment-btn" for="google">
+                  <i class="fa-brands fa-google "></i> Google Pay
+                </label>
+              </div>
+
+              <div class="col-12 col-md-6 col-lg-3 text-nowrap">
+                <input type="radio" name="payment" id="paypal" value="paypal">
+                <label class="payment-btn" for="paypal">
+                  <i class="fa-brands fa-paypal"></i> PayPal
+                </label>
+              </div>
             </div>
           </div>
-        </div>
 
-          <button type="submit" class="btn btn-warning w-100 fw-bold fs-5 mt-5 p-3" id="confirmBtn">Confirm & Pay</button>
+          <button type="submit" class="btn btn-warning w-100 fw-bold fs-5 mt-5 p-3" id="confirmBtn">Confirm &
+            Pay</button>
         </div>
       </form>
     </div>
@@ -273,16 +302,21 @@
       <div class="modal-body px-4 pb-4">
         <p class="text-center text-muted">A copy of this receipt has been saved to your dashboard.</p>
         <div class="bg-dark p-3 rounded mb-4">
-          <div class="d-flex justify-content-between mb-2 border-bottom border-secondary pb-2" style="color: red"><span>Reference No:</span><strong id="rcpt_ref"></strong></div>
-          <div class="d-flex justify-content-between mb-2"><span>Base Price:</span><strong id="rcpt_base"></strong></div>
-          <div class="d-flex justify-content-between mb-2 text-success"><span>Advanced Booking Discount:</span><strong id="rcpt_early"></strong></div>
-          <div class="d-flex justify-content-between mb-2 text-info"><span>Student Discount:</span><strong id="rcpt_student"></strong></div>
+          <div class="d-flex justify-content-between mb-2 border-bottom border-secondary pb-2" style="color: red">
+            <span>Reference No:</span><strong id="rcpt_ref"></strong></div>
+          <div class="d-flex justify-content-between mb-2"><span>Base Price:</span><strong id="rcpt_base"></strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2 text-success"><span>Advanced Booking Discount:</span><strong
+              id="rcpt_early"></strong></div>
+          <div class="d-flex justify-content-between mb-2 text-info"><span>Student Discount:</span><strong
+              id="rcpt_student"></strong></div>
           <hr class="border-secondary">
-          <div class="d-flex justify-content-between fs-5 text-warning"><span>Total Paid:</span><strong id="rcpt_total"></strong></div>
+          <div class="d-flex justify-content-between fs-5 text-warning"><span>Total Paid:</span><strong
+              id="rcpt_total"></strong></div>
         </div>
         <h5 class="mb-3 text-center">Your Ticket Codes:</h5>
         <div id="rcpt_tickets" class="d-flex flex-column gap-2 text-center mb-4">
-          </div>
+        </div>
         <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light clear-btn w-100">Return to Dashboard</a>
       </div>
     </div>
@@ -290,34 +324,35 @@
 </div>
 
 <script>
- // Move modal to body
+  // Move modal to body
   document.body.appendChild(document.getElementById("receiptModal"));
-  
+
   function showToast(message, isSuccess) {
     const toastEl = document.getElementById('Toast');
     const msgEl = document.getElementById('toastMessage');
-    
+
     if (toastEl && msgEl) {
-        msgEl.textContent = message;
-        toastEl.classList.remove('bg-danger', 'bg-success');
-        toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
-        new bootstrap.Toast(toastEl, { delay: 3000 }).show();
+      msgEl.textContent = message;
+      toastEl.classList.remove('bg-danger', 'bg-success');
+      toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+      new bootstrap.Toast(toastEl, { delay: 3000 }).show();
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
-  // Live Price Calculator
-  const priceInput = document.getElementById('price_per_day');
-  const rawPrice = priceInput.getAttribute('data-val').toString().replace(/[^0-9.]/g, ''); // Remove currency symbols and commas
-  const pricePerDay = parseFloat(rawPrice) || 0; // Fallback to 0 if parsing fails
+  document.addEventListener('DOMContentLoaded', function () {
+    // Live Price Calculator
+    const priceInput = document.getElementById('price_per_day');
+    const rawPrice = priceInput.getAttribute('data-val').toString().replace(/[^0-9.]/g, ''); // Remove currency symbols and commas
+    const pricePerDay = parseFloat(rawPrice) || 0; // Fallback to 0 if parsing fails
 
-  const advancedDiscountPercent = {{ disc_percent|default(0) }};
-  
+    const advancedDiscountPercent = {{ disc_percent|default (0)
+  }};
+
   function calculateTotal() {
     const numTickets = parseInt(document.getElementById('num_tickets').value) || 1;
     const studentCheck = document.getElementById('student_discount');
     const isStudent = studentCheck ? studentCheck.checked : false;
-    
+
     // Count checked days (Fallback to 1 if it's a single day readonly event)
     const checkboxes = document.querySelectorAll('.day-checkbox:checked');
     const selectedDays = checkboxes.length > 0 ? checkboxes.length : 1;
@@ -329,28 +364,28 @@
     const finalTotal = baseTotal - advancedDiscount - studentDiscount;
 
     // Update DOM
-    if(document.getElementById('summary_tickets')) {
-        document.getElementById('summary_tickets').textContent = numTickets;
+    if (document.getElementById('summary_tickets')) {
+      document.getElementById('summary_tickets').textContent = numTickets;
     }
-    if(document.getElementById('summary_days')) {
-        document.getElementById('summary_days').textContent = selectedDays;
+    if (document.getElementById('summary_days')) {
+      document.getElementById('summary_days').textContent = selectedDays;
     }
-    if(document.getElementById('summary_base')) {
-        document.getElementById('summary_base').textContent = `£${baseTotal.toFixed(2)}`;
+    if (document.getElementById('summary_base')) {
+      document.getElementById('summary_base').textContent = `£${baseTotal.toFixed(2)}`;
     }
 
     const advancedDiscountEl = document.getElementById('summary_early');
-    if(advancedDiscountEl) {
-        advancedDiscountEl.textContent = `-£${advancedDiscount.toFixed(2)}`;
+    if (advancedDiscountEl) {
+      advancedDiscountEl.textContent = `-£${advancedDiscount.toFixed(2)}`;
     }
 
-    const studentRow  = document.getElementById('student_row')
-    if(studentRow) {
-        studentRow.style.setProperty('display', isStudent ? 'flex' : 'none', 'important');
-        document.getElementById('summary_student').textContent = `-£${studentDiscount.toFixed(2)}`;
+    const studentRow = document.getElementById('student_row')
+    if (studentRow) {
+      studentRow.style.setProperty('display', isStudent ? 'flex' : 'none', 'important');
+      document.getElementById('summary_student').textContent = `-£${studentDiscount.toFixed(2)}`;
     }
-    if(document.getElementById('summary_total')) {
-        document.getElementById('summary_total').textContent = `£${finalTotal.toFixed(2)}`;
+    if (document.getElementById('summary_total')) {
+      document.getElementById('summary_total').textContent = `£${finalTotal.toFixed(2)}`;
     }
 
     // Payment validation against wallet
@@ -388,50 +423,50 @@
   // Form Submission via AJAX
   const bookingForm = document.getElementById('bookingForm');
   if (bookingForm) {
-    bookingForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('confirmBtn');
-    const originalBtnText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Processing...';
+    bookingForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('confirmBtn');
+      const originalBtnText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Processing...';
 
-    fetch(this.action, {
-      method: 'POST',
-      body: new FormData(this),
-      headers: {'X-Requested-With': 'XMLHttpRequest'} // AJAX request
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        // Populate Receipt Modal
-        document.getElementById('rcpt_ref').textContent = `#${data.receipt.ref_no}`;
-        document.getElementById('rcpt_base').textContent = data.receipt.base;
-        document.getElementById('rcpt_early').textContent = data.receipt.advanced_disc;
-        document.getElementById('rcpt_student').textContent = data.receipt.student_disc;
-        document.getElementById('rcpt_total').textContent = data.receipt.final;
-        
-        const ticketsDiv = document.getElementById('rcpt_tickets');
-        ticketsDiv.innerHTML = '';
-        data.receipt.tickets.forEach(code => {
-          ticketsDiv.innerHTML += `<div class="ticket-code">${code}</div>`;
+      fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' } // AJAX request
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            // Populate Receipt Modal
+            document.getElementById('rcpt_ref').textContent = `#${data.receipt.ref_no}`;
+            document.getElementById('rcpt_base').textContent = data.receipt.base;
+            document.getElementById('rcpt_early').textContent = data.receipt.advanced_disc;
+            document.getElementById('rcpt_student').textContent = data.receipt.student_disc;
+            document.getElementById('rcpt_total').textContent = data.receipt.final;
+
+            const ticketsDiv = document.getElementById('rcpt_tickets');
+            ticketsDiv.innerHTML = '';
+            data.receipt.tickets.forEach(code => {
+              ticketsDiv.innerHTML += `<div class="ticket-code">${code}</div>`;
+            });
+
+            // Show success modal
+            new bootstrap.Modal(document.getElementById('receiptModal')).show();
+          } else {
+            // Show error toast
+            showToast(data.message || "An error occurred while processing your booking. Please try again.", false);
+          }
+          btn.disabled = false;
+          btn.innerHTML = originalBtnText;
+        })
+        .catch(err => {
+          console.error("Booking Error:", err);
+          showToast("An unexpected error occurred. Please try again later.", false);
+          btn.disabled = false;
+          btn.innerHTML = originalBtnText;
         });
-
-        // Show success modal
-        new bootstrap.Modal(document.getElementById('receiptModal')).show();
-      } else {
-        // Show error toast
-        showToast(data.message || "An error occurred while processing your booking. Please try again.", false);
-      }
-      btn.disabled = false;
-      btn.innerHTML = originalBtnText;
-    })
-    .catch(err => {
-      console.error("Booking Error:", err);
-      showToast("An unexpected error occurred. Please try again later.", false);
-      btn.disabled = false;
-      btn.innerHTML = originalBtnText;
     });
-  });
   }
 });
 </script>

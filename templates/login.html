@@ -3,71 +3,72 @@
 {% block title %}Login | Bristol Community Events{% endblock %}
 
 {% block content %}
-  <div class="container my-5">
-    <section class="secondary-hero py-5 d-flex flex-wrap align-items-center position-relative text-white"
-      style="box-shadow: 0 0 5px rgba(0, 0, 0, 255); border: none;">
-      <div class="container">
-        <div class="row align-items-center">
-          <!-- Image Carousel -->
-          <div class="col-12 col-lg-6 me-0 mb-4 mb-lg-0" id="carousel">
-            <div class="carousel slide rounded-3 overflow-hidden me-3" data-bs-ride="carousel">
-              <div class="carousel-inner">
-                <div class="carousel-item active" data-bs-interval="3000">
-                  <img src="{{ url_for('static', filename='img/login_carousel/hamza-nouasria-unsplash.jpg') }}" alt="Dining Table at Party"
-                    class="d-block w-100" style="height:400px;object-fit:cover;">
-                </div>
-                <div class="carousel-item" data-bs-interval="3000">
-                  <img src="{{ url_for('static', filename='img/login_carousel/jakob-dalbjorn-unsplash.jpg') }}" alt="Social Gathering" class="d-block w-100"
-                    style="height:400px;object-fit:cover;">
-                </div>
-                <div class="carousel-item" data-bs-interval="3000">
-                  <img src="{{ url_for('static', filename='img/login_carousel/pablo-heimplatz-unsplash.jpg') }}" alt="Confetti at Party" class="d-block w-100"
-                    style="height:400px;object-fit:cover;">
-                </div>
-                <div class="carousel-item" data-bs-interval="3000">
-                  <img src="{{ url_for('static', filename='img/login_carousel/saile-ilyas-unsplash.jpg') }}" alt="Buffet" class="d-block w-100"
-                    style="height:400px;object-fit:cover;">
-                </div>
+<div class="container my-5">
+  <section class="secondary-hero py-5 d-flex flex-wrap align-items-center position-relative text-white"
+    style="box-shadow: 0 0 5px rgba(0, 0, 0, 255); border: none;">
+    <div class="container">
+      <div class="row align-items-center">
+        <!-- Image Carousel -->
+        <div class="col-12 col-lg-6 me-0 mb-4 mb-lg-0" id="carousel">
+          <div class="carousel slide rounded-3 overflow-hidden me-3" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-item active" data-bs-interval="3000">
+                <img src="{{ url_for('static', filename='img/login_carousel/hamza-nouasria-unsplash.jpg') }}"
+                  alt="Dining Table at Party" class="d-block w-100" style="height:400px;object-fit:cover;"
+                  loading="eager">
+              </div>
+              <div class="carousel-item" data-bs-interval="3000">
+                <img src="{{ url_for('static', filename='img/login_carousel/jakob-dalbjorn-unsplash.jpg') }}"
+                  alt="Social Gathering" class="d-block w-100" style="height:400px;object-fit:cover;" loading="lazy">
+              </div>
+              <div class="carousel-item" data-bs-interval="3000">
+                <img src="{{ url_for('static', filename='img/login_carousel/pablo-heimplatz-unsplash.jpg') }}"
+                  alt="Confetti at Party" class="d-block w-100" style="height:400px;object-fit:cover;" loading="lazy">
+              </div>
+              <div class="carousel-item" data-bs-interval="3000">
+                <img src="{{ url_for('static', filename='img/login_carousel/saile-ilyas-unsplash.jpg') }}" alt="Buffet"
+                  class="d-block w-100" style="height:400px;object-fit:cover;" loading="lazy">
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="col-12 col-lg-6 mb-4 mb-lg-0">
-            <h2 class="ubuntu-medium mb-4 text-center">Login</h2>
-            <!-- Login Form -->
-            <form id="loginForm" action="{{ url_for('login') }}" class="needs-validation" method="post" novalidate>
-              <div class="form-floating mb-3">
-                <input type="email" class="form-control" id="floatingEmail" name="email" placeholder="name@example.com"
-                  required>
-                <label for="floatingEmail" class="text-dark">Email address</label>
-                <div class="invalid-feedback">
-                  Please enter a valid email address.
-                </div>
-              </div>
-              <div class="form-floating mb-3">
-                <input type="password" class="form-control" id="floatingPassword" name="password" placeholder="Password"
-                  required>
-                <label for="floatingPassword" class="form-label text-dark">Password</label>
-                <div class="invalid-feedback">
-                  Please enter your password.
-                </div>
-              </div>
-              <div>
-                <button type="submit" class="btn btn-outline-light clear-btn w-100 mt-3">Login</button>
-              </div>
-            </form>
-            <!-- Remember Me and Sign Up Link -->
-            <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="form-check me-3">
-                <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" form="loginForm">
-                <label class="form-check-label me-2" for="rememberMe">Remember Me</label>
-              </div>
-              <div class="text-end">
-                <a href="{{ url_for('signup') }}" class="text-white">Don't have an account? Sign Up</a>
+        <div class="col-12 col-lg-6 mb-4 mb-lg-0">
+          <h2 class="ubuntu-medium mb-4 text-center">Login</h2>
+          <!-- Login Form -->
+          <form id="loginForm" action="{{ url_for('login') }}" class="needs-validation" method="post" novalidate>
+            <div class="form-floating mb-3">
+              <input type="email" class="form-control" id="floatingEmail" name="email" placeholder="name@example.com"
+                required>
+              <label for="floatingEmail" class="text-dark">Email address</label>
+              <div class="invalid-feedback">
+                Please enter a valid email address.
               </div>
             </div>
-            
-            <!-- <div class="text-center">
+            <div class="form-floating mb-3">
+              <input type="password" class="form-control" id="floatingPassword" name="password" placeholder="Password"
+                required>
+              <label for="floatingPassword" class="form-label text-dark">Password</label>
+              <div class="invalid-feedback">
+                Please enter your password.
+              </div>
+            </div>
+            <div>
+              <button type="submit" class="btn btn-outline-light clear-btn w-100 mt-3">Login</button>
+            </div>
+          </form>
+          <!-- Remember Me and Sign Up Link -->
+          <div class="d-flex justify-content-between align-items-center my-3">
+            <div class="form-check me-3">
+              <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" form="loginForm">
+              <label class="form-check-label me-2" for="rememberMe">Remember Me</label>
+            </div>
+            <div class="text-end">
+              <a href="{{ url_for('signup') }}" class="text-white">Don't have an account? Sign Up</a>
+            </div>
+          </div>
+
+          <!-- <div class="text-center">
               <hr>
               <p class="mb-3">Or login with:</p>
               <div class="d-flex justify-content-center gap-3 mb-3">
@@ -82,38 +83,38 @@
                 </button>
               </div>
             </div> -->
-            
-          </div>
+
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
+</div>
 
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function (event) {
-      // Stop form from submitting and reloading the page
-      event.preventDefault(); 
-      
-      const form = this; // Get form element for validationa and data extraction
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function (event) {
+    // Stop form from submitting and reloading the page
+    event.preventDefault();
 
-      // Client-side validation - Boostrap validation classes
-      if (!form.checkValidity()) {
-        event.stopPropagation();
-        form.classList.add('was-validated');
-        return;
+    const form = this; // Get form element for validationa and data extraction
+
+    // Client-side validation - Boostrap validation classes
+    if (!form.checkValidity()) {
+      event.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // Extract all form data to send via AJAX
+    const formData = new FormData(form);
+
+    // Send AJAX POST request to login route with form data
+    fetch("{{ url_for('login') }}", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-Requested-With": "XMLHttpRequest" // Tells Flask this is an AJAX request
       }
-      
-      // Extract all form data to send via AJAX
-      const formData = new FormData(form);
-
-      // Send AJAX POST request to login route with form data
-      fetch("{{ url_for('login') }}", {
-        method: "POST",
-        body: formData,
-        headers: {
-          "X-Requested-With": "XMLHttpRequest" // Tells Flask this is an AJAX request
-        }
-      })
+    })
       .then(response => response.json())
       .then(data => {
         if (data.success) {
@@ -123,7 +124,7 @@
           // If login fails, inject the error message and pop up the toast!
           document.getElementById('toastMessage').textContent = data.message;
           const toastElement = document.getElementById('loginToast');
-          
+
           let toast = bootstrap.Toast.getInstance(toastElement);
           if (!toast) {
             toast = new bootstrap.Toast(toastElement, { delay: 4000 }); // Stays on screen for 4 seconds
@@ -142,6 +143,6 @@
         }
         toast.show();
       });
-    });
-  </script>
+  });
+</script>
 {% endblock %}

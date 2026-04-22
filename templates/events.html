@@ -3,80 +3,88 @@
 {% block title %}Events | Bristol Community Events{% endblock %}
 
 {% block styles %}
-  <style>
-    .event-card {
-      background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border-radius: 12px;
-      color: #fff;
-    }
-    .event-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
-    }
-    .underline {
-      position: relative;
-      display: inline-block
-    }
-    .underline::before{
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -4px;
-      width: 100%;
-      height: 3px;
-      background: white;
-      border-radius: 2px;
-      transform: scaleX(0);
-      transition: transform 0.3s ease;
-    }
-    .event-card:hover .underline::before{ 
-      transform: scaleX(1);
-    }
+<style>
+  .event-card {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 12px;
+    color: #fff;
+  }
 
+  .event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+  }
+
+  .underline {
+    position: relative;
+    display: inline-block
+  }
+
+  .underline::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 100%;
+    height: 3px;
+    background: white;
+    border-radius: 2px;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .event-card:hover .underline::before {
+    transform: scaleX(1);
+  }
+
+  .event-card img {
+    height: 220px;
+    /* consistent height for all */
+    object-fit: cover;
+    /* crops edges to maintain aspect ratio */
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px 8px 0 0;
+  }
+
+  /* Optionally, slightly smaller on mobile for better layout */
+  @media (max-width: 576px) {
     .event-card img {
-      height: 220px;          /* consistent height for all */
-      object-fit: cover;      /* crops edges to maintain aspect ratio */
-      width: 100%;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px 8px 0 0;
+      height: 180px;
     }
+  }
 
-    /* Optionally, slightly smaller on mobile for better layout */
-    @media (max-width: 576px) {
-      .event-card img {
-        height: 180px;
-      }
-    }
+  .modal-content {
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 
-    .modal-content {
-      background: rgba(0, 0, 0, 0.8);
-      color: #fff;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .book-btn {
-      background: linear-gradient(135deg, #400177 15%, #1c003a 100%);
-      color: white;
-      text-decoration: none;
-      border: 1px solid rgba(193, 2, 183, 0.385);
-      box-shadow: 0 0 10px rgba(85, 4, 94, 0.651);
-      transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-                  color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-                  transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .book-btn:hover {
-      background: linear-gradient(90deg, #7209b7, #f72585);
-      color: white;
-      text-decoration: none;
-      border:1px solid rgba(193, 2, 183, 0.385);
-      box-shadow: 0 0 10px rgba(85, 4, 94, 0.651);
-      font-weight: 600;
-      transform: scale(1.02);
-    }
-  </style>
+  .book-btn {
+    background: linear-gradient(135deg, #400177 15%, #1c003a 100%);
+    color: white;
+    text-decoration: none;
+    border: 1px solid rgba(193, 2, 183, 0.385);
+    box-shadow: 0 0 10px rgba(85, 4, 94, 0.651);
+    transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .book-btn:hover {
+    background: linear-gradient(90deg, #7209b7, #f72585);
+    color: white;
+    text-decoration: none;
+    border: 1px solid rgba(193, 2, 183, 0.385);
+    box-shadow: 0 0 10px rgba(85, 4, 94, 0.651);
+    font-weight: 600;
+    transform: scale(1.02);
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -87,7 +95,7 @@
 <!-- Hidden data for login status -->
 <script id="login-status-bridge" type="application/json">
   {{ is_logged_in | tojson | safe }}
-</script> 
+</script>
 
 <section class="container py-5">
   <h1 class="text-center mb-4 style-script-regular" style="font-size: 3.5rem;">Upcoming Events</h1>
@@ -99,49 +107,54 @@
         <select class="form-select" name="venue" id="venueFilter">
           <option value="">All Venues</option>
           {% for v in venues %}
-            <option value="{{ v }}" {% if request.args.get('venue') == v %}selected{% endif %}>{{ v }}</option>
+          <option value="{{ v }}" {% if request.args.get('venue')==v %}selected{% endif %}>{{ v }}</option>
           {% endfor %}
         </select>
       </div>
 
       <div class="col-md-6 col-lg-3">
-          <label class="form-label d-flex justify-content-between">
-            <span><i class="fa-solid fa-sterling-sign me-2"></i>Price Range</span>
-            <span id="priceLabel" class="fw-bold">£0 - £50</span>
-          </label>
-          <div class="slider-box">
-            <div class="price-input-container">
-              <div class="slider-track" id="track"></div>
-              <input type="range" id="minPrice" name="min_price" min="0" max="50" value="{{ request.args.get('min_price', '0') }}" step="5">
-              <input type="range" id="maxPrice" name="max_price" min="0" max="50" value="{{ request.args.get('max_price', '50') }}" step="5">
-            </div>
+        <label class="form-label d-flex justify-content-between">
+          <span><i class="fa-solid fa-sterling-sign me-2"></i>Price Range</span>
+          <span id="priceLabel" class="fw-bold">£0 - £50</span>
+        </label>
+        <div class="slider-box">
+          <div class="price-input-container">
+            <div class="slider-track" id="track"></div>
+            <input type="range" id="minPrice" name="min_price" min="0" max="50"
+              value="{{ request.args.get('min_price', '0') }}" step="5">
+            <input type="range" id="maxPrice" name="max_price" min="0" max="50"
+              value="{{ request.args.get('max_price', '50') }}" step="5">
           </div>
         </div>
+      </div>
 
       <div class="col-md-6 col-lg-3">
         <label for="dateFilter" class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Dates</label>
         <div class="input-group">
-          <input type="date" name="start_date" class="form-control px-2" value="{{ request.args.get('start_date', '') }}" id="dateFilterStart">
+          <input type="date" name="start_date" class="form-control px-2"
+            value="{{ request.args.get('start_date', '') }}" id="dateFilterStart">
           <span class="input-group-text px-2 text-dark border-secondary">to</span>
-          <input type="date" name="end_date" class="form-control px-2" value="{{ request.args.get('end_date', '') }}" id="dateFilterEnd">
+          <input type="date" name="end_date" class="form-control px-2" value="{{ request.args.get('end_date', '') }}"
+            id="dateFilterEnd">
         </div>
       </div>
 
       <div class="col-md-6 col-lg-3">
         <label for="categoryFilter" class="form-label"><i class="fa fa-tags me-2"></i>Category</label>
         <select class="form-select" name="category" id="categoryFilter">
-              <option value="">Any Category</option>
-              {% for c in categories %}
-                <option value="{{ c }}" {% if request.args.get('category') == c %}selected{% endif %}>{{ c }}</option>
-              {% endfor %}
-            </select> 
+          <option value="">Any Category</option>
+          {% for c in categories %}
+          <option value="{{ c }}" {% if request.args.get('category')==c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
       </div>
 
       <div class="col-md-4 col-lg-3 mx-auto">
         <button type="button" class="btn btn-outline-light w-100 clear-btn" id="clearFilters">Clear Filters</button>
       </div>
       <div class="col-md-4 col-lg-3 mx-auto">
-        <button class="btn btn-outline-light clear-btn w-100" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+        <button class="btn btn-outline-light clear-btn w-100" type="button" data-bs-toggle="collapse"
+          data-bs-target="#advancedFilters">
           <i class="fa-solid fa-sliders me-2"></i>Advanced Filters
         </button>
       </div>
@@ -150,21 +163,25 @@
       <div class="collapse mt-3" id="advancedFilters">
         <div class="advanced-filters-card text-white rounded-3 p-4 mx-auto" style="max-width: 700px;">
           <div class="row g-3 justify-content-around">
-             <!-- Venue Type -->
+            <!-- Venue Type -->
             <div class="col-md-6 col-lg-4 text-center">
               <label class="form-label"><i class="fa-solid fa-building me-2"></i>Venue Type</label>
               <select class="form-select" id="venueTypeFilter" name="venue_type">
                 <option value="">Any Type</option>
                 {% for type in venue_types %}
-                <option value="{{ type }}" {% if request.args.get('venue_type') == type %}selected{% endif %}>{{ type }}</option>
+                <option value="{{ type }}" {% if request.args.get('venue_type')==type %}selected{% endif %}>{{ type }}
+                </option>
                 {% endfor %}
               </select>
             </div>
-            
+
             <div class="col-md-6 col-lg-4 text-center">
               <label class="form-label"><i class="fa-solid fa-wheelchair me-2"></i>Accessibility</label>
-              <div class="form-check form-switch cursor-pointer mt-1 d-flex justify-content-center align-items-center" style="padding: 0;">
-                <input class="form-check-input fs-4 m-0" type="checkbox" role="switch" id="accessibilityFilter" name="accessibility" value="1" {% if request.args.get('accessibility') %}checked{% endif %} style="cursor: pointer;">
+              <div class="form-check form-switch cursor-pointer mt-1 d-flex justify-content-center align-items-center"
+                style="padding: 0;">
+                <input class="form-check-input fs-4 m-0" type="checkbox" role="switch" id="accessibilityFilter"
+                  name="accessibility" value="1" {% if request.args.get('accessibility') %}checked{% endif %}
+                  style="cursor: pointer;">
               </div>
             </div>
           </div>
@@ -180,162 +197,162 @@
   </div>
 </section>
 
-  <!-- Event Modal -->
-  <div class="modal fade" id="eventModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content p-4">
-        <div class="modal-header border-0">
-          <h5 class="modal-title" id="eventTitle">Event Modal</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <!-- Event Image -->
-           <img id="eventImage" src="#" alt="Event Image" class="img-fluid rounded-3 mb-3">
-           <!-- Event Description -->
-          <p id="eventDesc" class="mb-4"></p>
+<!-- Event Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="eventTitle">Event Modal</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Event Image -->
+        <img id="eventImage" src="#" alt="Event Image" class="img-fluid rounded-3 mb-3" loading="lazy">
+        <!-- Event Description -->
+        <p id="eventDesc" class="mb-4"></p>
 
-          <!-- Event Details-->
-          <ul class="list-unstyled mt-3"> <!-- Bootstrap List Typography-->
-            <li><strong>Date:</strong> <span id="eventDate"></span></li>
-            <li><strong>Venue:</strong> <span id="eventVenue"></span></li>
-            <li><strong>Price (per day):</strong> £<span id="eventPrice"></span></li>
-            <li><strong>Category:</strong> <span id="eventCategory"></span></li>
-            <li><strong>Capacity:</strong> <span id="eventCapacity"></span></li>
-            <li><strong>Available Slots:</strong> <span id="eventSlots"></span></li>
-          </ul>
-        </div>
-        <div class="modal-footer border-0">
-          <!-- Query for what event is selected inserted by JS -->
-          <button class="btn book-btn w-100" id="bookNowBtn" type="button">Book Now</button>
-        </div>
+        <!-- Event Details-->
+        <ul class="list-unstyled mt-3"> <!-- Bootstrap List Typography-->
+          <li><strong>Date:</strong> <span id="eventDate"></span></li>
+          <li><strong>Venue:</strong> <span id="eventVenue"></span></li>
+          <li><strong>Price (per day):</strong> £<span id="eventPrice"></span></li>
+          <li><strong>Category:</strong> <span id="eventCategory"></span></li>
+          <li><strong>Capacity:</strong> <span id="eventCapacity"></span></li>
+          <li><strong>Available Slots:</strong> <span id="eventSlots"></span></li>
+        </ul>
+      </div>
+      <div class="modal-footer border-0">
+        <!-- Query for what event is selected inserted by JS -->
+        <button class="btn book-btn w-100" id="bookNowBtn" type="button">Book Now</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Scripts -->
-  <script>
-    // take string from hidden div and convert to JS object 
-    // Prevent XSS by using Flask's tojson filter and safe to ensure it's properly escaped and parsed as JSON
-    const dataBridgeText = document.getElementById('events-data-bridge').textContent;
-    const fetchedEvents = JSON.parse(dataBridgeText);
+<!-- Scripts -->
+<script>
+  // take string from hidden div and convert to JS object 
+  // Prevent XSS by using Flask's tojson filter and safe to ensure it's properly escaped and parsed as JSON
+  const dataBridgeText = document.getElementById('events-data-bridge').textContent;
+  const fetchedEvents = JSON.parse(dataBridgeText);
 
-    const isLoggedIn = JSON.parse(document.getElementById('login-status-bridge').textContent);
+  const isLoggedIn = JSON.parse(document.getElementById('login-status-bridge').textContent);
 
-    const staticImgPath = "{{ url_for('static', filename='img/event_cards/') }}";
+  const staticImgPath = "{{ url_for('static', filename='img/event_cards/') }}";
 
-    // Move modal to body to prevent stacking context issues (dark unclickable screen)
-    document.body.appendChild(document.getElementById("eventModal"));
+  // Move modal to body to prevent stacking context issues (dark unclickable screen)
+  document.body.appendChild(document.getElementById("eventModal"));
 
-    // Insert event cards in .container with #eventsContainer
-    const container = document.getElementById("eventsContainer");
+  // Insert event cards in .container with #eventsContainer
+  const container = document.getElementById("eventsContainer");
 
-    // Slider logic
-    const minSlider = document.getElementById("minPrice");
-    const maxSlider = document.getElementById("maxPrice");
-    const track = document.getElementById("track");
+  // Slider logic
+  const minSlider = document.getElementById("minPrice");
+  const maxSlider = document.getElementById("maxPrice");
+  const track = document.getElementById("track");
 
-    function updateTrack() {
-      const min = parseInt(minSlider.value);
-      const max = parseInt(maxSlider.value);
+  function updateTrack() {
+    const min = parseInt(minSlider.value);
+    const max = parseInt(maxSlider.value);
 
-      // Calculate percentage positions for the track fill
-      const percent1 = (min / minSlider.max) * 100;
-      const percent2 = (max / maxSlider.max) * 100; 
+    // Calculate percentage positions for the track fill
+    const percent1 = (min / minSlider.max) * 100;
+    const percent2 = (max / maxSlider.max) * 100;
 
-      // Update the track background using a linear gradient
-      track.style.background = `linear-gradient(to right, #dee2e6 ${percent1}%, #FC5637 ${percent1}%, #FC5637 ${percent2}%, #dee2e6 ${percent2}%)`;
-    }
+    // Update the track background using a linear gradient
+    track.style.background = `linear-gradient(to right, #dee2e6 ${percent1}%, #FC5637 ${percent1}%, #FC5637 ${percent2}%, #dee2e6 ${percent2}%)`;
+  }
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0); // Set to start of today for accurate comparison
+  const today = new Date()
+  today.setHours(0, 0, 0, 0); // Set to start of today for accurate comparison
 
-    // Calculate 2-month booking window
-    const twoMonthsFromNow = new Date(today);
-    twoMonthsFromNow.setMonth(twoMonthsFromNow.getMonth() + 2);
+  // Calculate 2-month booking window
+  const twoMonthsFromNow = new Date(today);
+  twoMonthsFromNow.setMonth(twoMonthsFromNow.getMonth() + 2);
 
-    // Helper function to check if event is within 2-month booking window
-    function isWithinBookingWindow(eventDateString) {
-      const eventDate = new Date(eventDateString);
-      eventDate.setHours(0, 0, 0, 0);
-      return eventDate <= twoMonthsFromNow;
-    }
+  // Helper function to check if event is within 2-month booking window
+  function isWithinBookingWindow(eventDateString) {
+    const eventDate = new Date(eventDateString);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate <= twoMonthsFromNow;
+  }
 
-    function renderEvents(events) {
-      container.innerHTML = "";
+  function renderEvents(events) {
+    container.innerHTML = "";
 
-      // If no events found when filters applied, show message
-      if (events.length === 0) {
-        container.innerHTML = `
+    // If no events found when filters applied, show message
+    if (events.length === 0) {
+      container.innerHTML = `
         <div class="col-12 text-center text-white py-5">
           <i class="fa-regular fa-face-sad-cry fa-shake fa-3x mb-3"></i>
           <h4>No Events Found</h4>
           <p class="text-light">Try adjusting your filters or check back later for more events!</p>
         </div>`;
-        return;
+      return;
+    }
+
+    // For loop using forEach()
+    events.forEach(ev => {
+      const card = document.createElement("div"); // Start to create cards in this container
+      card.className = "col-md-6 col-lg-4 mb-4";
+
+      // Check event times
+      const now = new Date();
+      const eventStart = new Date(ev.date);
+      const eventEnd = ev.end_date ? new Date(ev.end_date) : eventStart;
+
+      const isPastEvent = eventEnd < now;
+      const isOngoingEvent = eventStart <= now && eventEnd >= now;
+      const isWithinWindow = isWithinBookingWindow(ev.date);
+
+      // Availability badge
+      let availabilityHtml = '';
+      if (isPastEvent) {
+        availabilityHtml = `<span class="badge bg-secondary mb-2">Event Ended</span>`;
+      } else if (isOngoingEvent) {
+        availabilityHtml = `<span class="badge bg-info mb-2 text-dark">Ongoing</span>`;
+      } else if (!isWithinWindow) {
+        availabilityHtml = `<span class="badge bg-primary mb-2">Coming Soon</span>`;
+      } else if (ev.available_slots <= 0) {
+        availabilityHtml = `<span class="badge bg-danger mb-2">SOLD OUT</span>`;
+      } else {
+        availabilityHtml = `<span class="badge bg-success mb-2">${ev.available_slots} Tickets Available</span>`;
       }
 
-      // For loop using forEach()
-      events.forEach(ev => {                   
-        const card = document.createElement("div"); // Start to create cards in this container
-        card.className = "col-md-6 col-lg-4 mb-4";
-
-        // Check event times
-        const now = new Date();
-        const eventStart = new Date(ev.date);
-        const eventEnd = ev.end_date ? new Date(ev.end_date) : eventStart;
-        
-        const isPastEvent = eventEnd < now;
-        const isOngoingEvent = eventStart <= now && eventEnd >= now;
-        const isWithinWindow = isWithinBookingWindow(ev.date);
-
-        // Availability badge
-        let availabilityHtml = '';
-        if (isPastEvent) {
-            availabilityHtml = `<span class="badge bg-secondary mb-2">Event Ended</span>`;
-        } else if (isOngoingEvent) {
-            availabilityHtml = `<span class="badge bg-info mb-2 text-dark">Ongoing</span>`;
-        } else if (!isWithinWindow) {
-            availabilityHtml = `<span class="badge bg-primary mb-2">Coming Soon</span>`;
-        } else if (ev.available_slots <= 0) {
-            availabilityHtml = `<span class="badge bg-danger mb-2">SOLD OUT</span>`;
-        } else {
-            availabilityHtml = `<span class="badge bg-success mb-2">${ev.available_slots} Tickets Available</span>`;
-        }
-
-        // Button logic for cards
-        let buttonHtml = '';
-        if (isPastEvent) {
-            buttonHtml = `<button class="btn btn-secondary w-100 fw-bold disabled">Event Ended</button>`;
-        } else if (!isWithinWindow) {
-            buttonHtml = `<button class="btn btn-primary w-100 fw-bold disabled">Coming Soon</button>`;
-        } else if (ev.available_slots <= 0) {
-            buttonHtml = `<button onclick="addToWaitlist(${ev.event_id})" class="btn btn-light text-dark w-100 fw-bold"><i class="fa-solid fa-list me-2"></i>Add to Waiting List</button>`;
-        } else {
-            buttonHtml = `<a href="/booking/${ev.event_id}" class="btn btn-warning w-100 fw-bold">Book Now</a>`;
-        }
+      // Button logic for cards
+      let buttonHtml = '';
+      if (isPastEvent) {
+        buttonHtml = `<button class="btn btn-secondary w-100 fw-bold disabled">Event Ended</button>`;
+      } else if (!isWithinWindow) {
+        buttonHtml = `<button class="btn btn-primary w-100 fw-bold disabled">Coming Soon</button>`;
+      } else if (ev.available_slots <= 0) {
+        buttonHtml = `<button onclick="addToWaitlist(${ev.event_id})" class="btn btn-light text-dark w-100 fw-bold"><i class="fa-solid fa-list me-2"></i>Add to Waiting List</button>`;
+      } else {
+        buttonHtml = `<a href="/booking/${ev.event_id}" class="btn btn-warning w-100 fw-bold">Book Now</a>`;
+      }
 
 
-        // format multi-day dates for cards
-        let displayDate = ev.date;
-        if (ev.end_date && ev.end_date !== ev.date) {
-          displayDate += ` to ${ev.end_date}`;
-        }
+      // format multi-day dates for cards
+      let displayDate = ev.date;
+      if (ev.end_date && ev.end_date !== ev.date) {
+        displayDate += ` to ${ev.end_date}`;
+      }
 
-        // slot display logic for cards
-        let slotDisplay;
-        if (isPastEvent) {
-          slotDisplay = `<span class="text-info">Event Ended</span>`;
-        } else if (ev.available_slots <= 0) {
-          slotDisplay = `<span class="text-danger fw-bold">SOLD OUT</span>`;
-        } else {
-          slotDisplay = `${ev.available_slots} left`;
-        }
+      // slot display logic for cards
+      let slotDisplay;
+      if (isPastEvent) {
+        slotDisplay = `<span class="text-info">Event Ended</span>`;
+      } else if (ev.available_slots <= 0) {
+        slotDisplay = `<span class="text-danger fw-bold">SOLD OUT</span>`;
+      } else {
+        slotDisplay = `${ev.available_slots} left`;
+      }
 
-        const numericPrice = parseFloat(String(ev.price).replace('£', ''));
-        const cardPriceLabel = !Number.isNaN(numericPrice) && numericPrice === 0 ? 'Free' : `£${ev.price}`;
+      const numericPrice = parseFloat(String(ev.price).replace('£', ''));
+      const cardPriceLabel = !Number.isNaN(numericPrice) && numericPrice === 0 ? 'Free' : `£${ev.price}`;
 
-        // `...` for multi-line strings
-        card.innerHTML = `    
+      // `...` for multi-line strings
+      card.innerHTML = `    
           <div class="event-card card h-100 d-flex flex-column justify-content-between">
             <img src="${staticImgPath}${ev.image}" class="card-img-top rounded-1" alt="${ev.title}" loading="lazy" style="max-height: 199px; object-fit: cover;">
             <div class="card-body p-4">
@@ -351,198 +368,198 @@
             <div class="card-footer bg-transparent border-0 p-4 pt-0 d-flex flex-column gap-2">
             <button class="btn btn-outline-light clear-btn m-2" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openEvent(${fetchedEvents.indexOf(ev)})">View More</button> <!-- Pass JS Index instead of object -->
           </div>`;
-        container.appendChild(card);
-      });
+      container.appendChild(card);
+    });
+  }
+
+  // Populate the modal
+  function openEvent(eventIndex) {
+    const ev = fetchedEvents[eventIndex];
+    console.log("Event Data:", ev);
+    document.getElementById("eventTitle").textContent = ev.title;
+
+    let displayDate = ev.date;
+    if (ev.end_date && ev.end_date !== ev.date) {
+      displayDate += ` to ${ev.end_date}`;
     }
+    document.getElementById("eventDate").textContent = displayDate;
 
-    // Populate the modal
-    function openEvent(eventIndex) {
-      const ev = fetchedEvents[eventIndex];
-      console.log("Event Data:", ev);
-      document.getElementById("eventTitle").textContent = ev.title;
+    document.getElementById("eventVenue").textContent = ev.venue;
+    document.getElementById("eventPrice").textContent = ev.price;
+    document.getElementById("eventCategory").textContent = ev.category;
+    document.getElementById("eventCapacity").textContent = ev.capacity;
 
-      let displayDate = ev.date;
-      if (ev.end_date && ev.end_date !== ev.date) {
-        displayDate += ` to ${ev.end_date}`;
-      }
-      document.getElementById("eventDate").textContent = displayDate;
+    // Check if event is within booking window for slots display
+    const isWithinWindow = isWithinBookingWindow(ev.date);
+    if (!isWithinWindow) {
+      document.getElementById("eventSlots").textContent = "Coming Soon!!!";
+    } else {
+      document.getElementById("eventSlots").textContent = ev.available_slots <= 0 ? "SOLD OUT" : ev.available_slots;
+    }
+    document.getElementById("eventDesc").textContent = ev.desc;
 
-      document.getElementById("eventVenue").textContent = ev.venue;
-      document.getElementById("eventPrice").textContent = ev.price;
-      document.getElementById("eventCategory").textContent = ev.category;
-      document.getElementById("eventCapacity").textContent = ev.capacity;
-      
-      // Check if event is within booking window for slots display
-      const isWithinWindow = isWithinBookingWindow(ev.date);
-      if (!isWithinWindow) {
-        document.getElementById("eventSlots").textContent = "Coming Soon!!!";
-      } else {
-        document.getElementById("eventSlots").textContent = ev.available_slots <= 0 ? "SOLD OUT" : ev.available_slots;
-      }
-      document.getElementById("eventDesc").textContent = ev.desc;
+    // Add event image
+    const img = document.getElementById("eventImage");
+    img.src = `${staticImgPath}${ev.image}`;
+    img.alt = ev.title;
 
-      // Add event image
-      const img = document.getElementById("eventImage");
-      img.src = `${staticImgPath}${ev.image}`;
-      img.alt = ev.title;
+    // Book Now button logic for modal
+    const now = new Date();
+    const eventStart = new Date(ev.date);
+    const eventEnd = ev.end_date ? new Date(ev.end_date) : eventStart;
 
-      // Book Now button logic for modal
-      const now = new Date();
-      const eventStart = new Date(ev.date);
-      const eventEnd = ev.end_date ? new Date(ev.end_date) : eventStart;
+    const isPastEvent = eventEnd < now;
+    const isOngoingEvent = eventStart <= now && eventEnd >= now;
 
-      const isPastEvent = eventEnd < now;
-      const isOngoingEvent = eventStart <= now && eventEnd >= now;
-      
-      const bookNowBtn = document.getElementById("bookNowBtn");
+    const bookNowBtn = document.getElementById("bookNowBtn");
 
-      // reset onclick behaviour so old events dont trigger new events booking page
+    // reset onclick behaviour so old events dont trigger new events booking page
+    bookNowBtn.onclick = null;
+
+    if (isPastEvent) {
+      // Event in past
+      bookNowBtn.className = "btn btn-secondary disabled w-100 fw-bold";
+      bookNowBtn.innerHTML = '<i class="fa-solid fa-ban me-2"></i>Event Ended';
+      bookNowBtn.disabled = true;
       bookNowBtn.onclick = null;
-
-      if (isPastEvent) {
-        // Event in past
-        bookNowBtn.className = "btn btn-secondary disabled w-100 fw-bold"; 
-        bookNowBtn.innerHTML = '<i class="fa-solid fa-ban me-2"></i>Event Ended';
-        bookNowBtn.disabled = true;
-        bookNowBtn.onclick = null;
-      } else if (isOngoingEvent && ev.available_slots > 0) {
-        bookNowBtn.className = "btn btn-info w-100 fw-bold text-dark"; 
-        bookNowBtn.innerHTML = "Book Now (Ongoing)";
-        bookNowBtn.disabled = false;
-        bookNowBtn.onclick = function() {
-          handleBookNowClick(`/booking/${ev.event_id}`);
-        }
-      } else if (!isWithinWindow) {
-        // Event is outside 2-month booking window
-        bookNowBtn.className = "btn btn-primary search-btn w-100 fw-bold";
-        bookNowBtn.innerHTML = '<i class="fa-solid fa-clock me-2"></i>Coming Soon';
-        bookNowBtn.disabled = true;
-        bookNowBtn.onclick = null;
-      } else if (ev.available_slots <= 0) {
-        // Event is sold out - change to waiting list button
-         bookNowBtn.className = "btn btn-outline-light clear-btn w-100 fw-bold";
-         bookNowBtn.innerHTML = '<i class="fa-solid fa-list me-2"></i>Add to Waiting List'; 
-         bookNowBtn.disabled = false;
-         bookNowBtn.onclick = function() {
-          handleAddToWaitlist(ev.event_id); 
-         }
-      } else {
-        // Event is available for booking
-        bookNowBtn.className = "btn btn-warning w-100 fw-bold"; 
-        bookNowBtn.textContent = "Book Now";
-        bookNowBtn.disabled = false;
-        bookNowBtn.onclick = function() {
-          handleBookNowClick(`/booking/${ev.event_id}`);
-        }
+    } else if (isOngoingEvent && ev.available_slots > 0) {
+      bookNowBtn.className = "btn btn-info w-100 fw-bold text-dark";
+      bookNowBtn.innerHTML = "Book Now (Ongoing)";
+      bookNowBtn.disabled = false;
+      bookNowBtn.onclick = function () {
+        handleBookNowClick(`/booking/${ev.event_id}`);
+      }
+    } else if (!isWithinWindow) {
+      // Event is outside 2-month booking window
+      bookNowBtn.className = "btn btn-primary search-btn w-100 fw-bold";
+      bookNowBtn.innerHTML = '<i class="fa-solid fa-clock me-2"></i>Coming Soon';
+      bookNowBtn.disabled = true;
+      bookNowBtn.onclick = null;
+    } else if (ev.available_slots <= 0) {
+      // Event is sold out - change to waiting list button
+      bookNowBtn.className = "btn btn-outline-light clear-btn w-100 fw-bold";
+      bookNowBtn.innerHTML = '<i class="fa-solid fa-list me-2"></i>Add to Waiting List';
+      bookNowBtn.disabled = false;
+      bookNowBtn.onclick = function () {
+        handleAddToWaitlist(ev.event_id);
+      }
+    } else {
+      // Event is available for booking
+      bookNowBtn.className = "btn btn-warning w-100 fw-bold";
+      bookNowBtn.textContent = "Book Now";
+      bookNowBtn.disabled = false;
+      bookNowBtn.onclick = function () {
+        handleBookNowClick(`/booking/${ev.event_id}`);
       }
     }
+  }
 
-    function filterEvents() {
-      const venue = document.getElementById("venueFilter").value;
-      const startDate = document.getElementById("dateFilterStart").value;
-      const endDate = document.getElementById("dateFilterEnd").value;
-      const category = document.getElementById("categoryFilter").value;
-      const venueType = document.getElementById("venueTypeFilter") ? document.getElementById("venueTypeFilter").value : "";
-      const isAccessible = document.getElementById("accessibilityFilter") ? document.getElementById("accessibilityFilter").checked : false;
+  function filterEvents() {
+    const venue = document.getElementById("venueFilter").value;
+    const startDate = document.getElementById("dateFilterStart").value;
+    const endDate = document.getElementById("dateFilterEnd").value;
+    const category = document.getElementById("categoryFilter").value;
+    const venueType = document.getElementById("venueTypeFilter") ? document.getElementById("venueTypeFilter").value : "";
+    const isAccessible = document.getElementById("accessibilityFilter") ? document.getElementById("accessibilityFilter").checked : false;
 
-      let minPrice = parseInt(document.getElementById("minPrice").value);
-      let maxPrice = parseInt(document.getElementById("maxPrice").value);
+    let minPrice = parseInt(document.getElementById("minPrice").value);
+    let maxPrice = parseInt(document.getElementById("maxPrice").value);
 
-      if (minPrice > maxPrice) { // If sliders cross, swap values and update labels
-        [minPrice, maxPrice] = [maxPrice, minPrice];
-        document.getElementById("minPrice").value = minPrice;
-        document.getElementById("maxPrice").value = maxPrice;
-      }
+    if (minPrice > maxPrice) { // If sliders cross, swap values and update labels
+      [minPrice, maxPrice] = [maxPrice, minPrice];
+      document.getElementById("minPrice").value = minPrice;
+      document.getElementById("maxPrice").value = maxPrice;
+    }
 
-      updateTrack();
-      // Update label text
-      document.getElementById("priceLabel").textContent = `£${minPrice} - £${maxPrice}`;
+    updateTrack();
+    // Update label text
+    document.getElementById("priceLabel").textContent = `£${minPrice} - £${maxPrice}`;
 
-      let filtered = fetchedEvents;
+    let filtered = fetchedEvents;
 
-      // List only upcoming events unless user filters to get older events
-      const isPastSearch = startDate && new Date(startDate) < new Date();
-      if (!isPastSearch) {
-        // Filter to only show upcoming events by default
-        filtered = filtered.filter(e => {
-          const eventEnd = e.end_date ? new Date(e.end_date) : new Date(e.date);
-          return eventEnd >= today;
-        });
-      }
-
-      if (venue) filtered = filtered.filter(e => e.venue === venue); // Check for filters applied and add only those satisfying the filter in 'filtered'
-      if (category) filtered = filtered.filter(e => e.category === category); // Filter events that satisfy the category
-      if (venueType) filtered = filtered.filter(e => e.venue_type === venueType); // Filter events that satisfy the venue type
-      if (isAccessible) filtered = filtered.filter(e => e.Accessibility_Flag == 1); // Filter events that satisfy the accessibility flag
-
+    // List only upcoming events unless user filters to get older events
+    const isPastSearch = startDate && new Date(startDate) < new Date();
+    if (!isPastSearch) {
+      // Filter to only show upcoming events by default
       filtered = filtered.filter(e => {
-        const p = parseFloat(e.price.replace('£', '')); // Remove £ sign and parse price as float for comparison
-        return p >= minPrice && p <= maxPrice; // Check if event price is within selected range
+        const eventEnd = e.end_date ? new Date(e.end_date) : new Date(e.date);
+        return eventEnd >= today;
       });
-
-      if (startDate && endDate) {
-        filtered = filtered.filter(e => {
-          const eventStart = new Date(e.date);
-          const eventEnd = e.end_date ? new Date(e.end_date) : eventStart; // If no end date, use start date
-          return (eventStart >= new Date(startDate) && eventStart <= new Date(endDate)) ||
-                 (eventEnd >= new Date(startDate) && eventEnd <= new Date(endDate)) ||
-                 (eventStart <= new Date(startDate) && eventEnd >= new Date(endDate)); // Check if event overlaps with filter range
-        });
-      }
-
-      renderEvents(filtered); // Render all events populated in 'filtered' that satisfy the following filters
     }
 
-    // Listen for slider input change
-    minSlider.addEventListener("input", filterEvents);
-    maxSlider.addEventListener("input", filterEvents);
-    updateTrack(); // Initialize track on page load
+    if (venue) filtered = filtered.filter(e => e.venue === venue); // Check for filters applied and add only those satisfying the filter in 'filtered'
+    if (category) filtered = filtered.filter(e => e.category === category); // Filter events that satisfy the category
+    if (venueType) filtered = filtered.filter(e => e.venue_type === venueType); // Filter events that satisfy the venue type
+    if (isAccessible) filtered = filtered.filter(e => e.Accessibility_Flag == 1); // Filter events that satisfy the accessibility flag
 
-    // Add event listener to listen for a value change in the respective ids and apply filterEvents function
-    document.getElementById("venueFilter").addEventListener("change", filterEvents); 
-    document.getElementById("dateFilterStart").addEventListener("change", filterEvents);
-    document.getElementById("dateFilterEnd").addEventListener("change", filterEvents);
-    document.getElementById("categoryFilter").addEventListener("change", filterEvents);
-    if(document.getElementById("venueTypeFilter")) document.getElementById("venueTypeFilter").addEventListener("change", filterEvents);
-    if(document.getElementById("accessibilityFilter")) document.getElementById("accessibilityFilter").addEventListener("change", filterEvents);
-
-    document.getElementById("clearFilters").addEventListener("click", () => { // Clear filters button
-      document.getElementById("filterForm").reset(); 
-      document.getElementById("minPrice").value = 0; // Reset price sliders to default
-      document.getElementById("maxPrice").value = 50;
-      document.getElementById("priceLabel").textContent = "£0 - £50"; // Reset price label
-      if(document.getElementById("venueTypeFilter")) document.getElementById("venueTypeFilter").value = "";
-      if(document.getElementById("accessibilityFilter")) document.getElementById("accessibilityFilter").checked = false;
-      filterEvents(fetchedEvents); // Re-render all events without filters
+    filtered = filtered.filter(e => {
+      const p = parseFloat(e.price.replace('£', '')); // Remove £ sign and parse price as float for comparison
+      return p >= minPrice && p <= maxPrice; // Check if event price is within selected range
     });
 
-    filterEvents(fetchedEvents); // hides past events by default load
-
-    function handleBookNowClick(bookingUrl) {
-      if (!isLoggedIn) {
-        showToast('Please log in to book tickets', false);
-        return;
-      }
-      window.location.href = bookingUrl;
+    if (startDate && endDate) {
+      filtered = filtered.filter(e => {
+        const eventStart = new Date(e.date);
+        const eventEnd = e.end_date ? new Date(e.end_date) : eventStart; // If no end date, use start date
+        return (eventStart >= new Date(startDate) && eventStart <= new Date(endDate)) ||
+          (eventEnd >= new Date(startDate) && eventEnd <= new Date(endDate)) ||
+          (eventStart <= new Date(startDate) && eventEnd >= new Date(endDate)); // Check if event overlaps with filter range
+      });
     }
 
-    function handleAddToWaitlist(eventId) {
-      if (!isLoggedIn) {
-        showToast('Please log in to add to waiting list', false);
-        return;
-      }
-      addToWaitlist(eventId);
-    }
+    renderEvents(filtered); // Render all events populated in 'filtered' that satisfy the following filters
+  }
 
-    function addToWaitlist(eventId) {
-      fetch('add_to_waitlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest' 
-        },
-        body: JSON.stringify({ event_id: eventId })
-      })
+  // Listen for slider input change
+  minSlider.addEventListener("input", filterEvents);
+  maxSlider.addEventListener("input", filterEvents);
+  updateTrack(); // Initialize track on page load
+
+  // Add event listener to listen for a value change in the respective ids and apply filterEvents function
+  document.getElementById("venueFilter").addEventListener("change", filterEvents);
+  document.getElementById("dateFilterStart").addEventListener("change", filterEvents);
+  document.getElementById("dateFilterEnd").addEventListener("change", filterEvents);
+  document.getElementById("categoryFilter").addEventListener("change", filterEvents);
+  if (document.getElementById("venueTypeFilter")) document.getElementById("venueTypeFilter").addEventListener("change", filterEvents);
+  if (document.getElementById("accessibilityFilter")) document.getElementById("accessibilityFilter").addEventListener("change", filterEvents);
+
+  document.getElementById("clearFilters").addEventListener("click", () => { // Clear filters button
+    document.getElementById("filterForm").reset();
+    document.getElementById("minPrice").value = 0; // Reset price sliders to default
+    document.getElementById("maxPrice").value = 50;
+    document.getElementById("priceLabel").textContent = "£0 - £50"; // Reset price label
+    if (document.getElementById("venueTypeFilter")) document.getElementById("venueTypeFilter").value = "";
+    if (document.getElementById("accessibilityFilter")) document.getElementById("accessibilityFilter").checked = false;
+    filterEvents(fetchedEvents); // Re-render all events without filters
+  });
+
+  filterEvents(fetchedEvents); // hides past events by default load
+
+  function handleBookNowClick(bookingUrl) {
+    if (!isLoggedIn) {
+      showToast('Please log in to book tickets', false);
+      return;
+    }
+    window.location.href = bookingUrl;
+  }
+
+  function handleAddToWaitlist(eventId) {
+    if (!isLoggedIn) {
+      showToast('Please log in to add to waiting list', false);
+      return;
+    }
+    addToWaitlist(eventId);
+  }
+
+  function addToWaitlist(eventId) {
+    fetch('add_to_waitlist', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ event_id: eventId })
+    })
       .then(response => response.json())
       .then(data => {
         showToast(data.message, data.success); // Show success or error message based on response
@@ -558,6 +575,6 @@
         }
       })
       .catch(err => console.error('Error adding to waiting list:', err));
-    }
-  </script>
+  }
+</script>
 {% endblock %}

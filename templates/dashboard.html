@@ -277,7 +277,7 @@
           {% for ev in upcoming_events %}
           <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
             <img src="{{ url_for('static', filename='img/event_cards/' ~ ev.image) }}" class="rounded me-3"
-              style="width: 50px; height: 50px; object-fit: cover;">
+              style="width: 50px; height: 50px; object-fit: cover;" loading="lazy">
             <div>
               <h6 class="mb-0 text-truncate" style="max-width: 200px;">{{ ev.title }}</h6>
               <small class="text-info">{{ ev.date }}</small>
