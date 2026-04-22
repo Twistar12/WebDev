@@ -133,30 +133,13 @@
             <div class="form-check mb-3 d-inline-block">
               <input class="form-check-input" type="checkbox" id="terms" name="terms" value="1" required>
               <label class="form-check-label" for="terms">
-                <span class="text-white">I agree to the <a href="#" class="text-white">Terms and Conditions</a></span>
-                <!-- Add a modal of terms and conditions -->
+                <span class="text-white">I agree to the <a href="#" class="text-white" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a></span>
               </label>
             </div>
 
             <!-- Submit Button -->
             <button type="submit" class="btn btn-outline-light w-100 search-btn mb-3">Create Account</button>
             <hr>
-            <!-- Social Login Options -->
-            <!-- <div class="text-center">
-              <p class="mb-3">Or sign up with:</p>
-              <div class="d-flex justify-content-center gap-3 mb-3">
-                <button type="button" class="btn btn-outline-light">
-                  <i class="fab fa-google"></i>
-                </button>
-                <button type="button" class="btn btn-outline-light">
-                  <i class="fab fa-apple"></i>
-                </button>
-                <button type="button" class="btn btn-outline-light">
-                  <i class="fab fa-facebook-f"></i>
-                </button>
-              </div>
-              
-            </div> -->
             <div>
                 <a href="{{ url_for('login') }}" class="text-white">Already have an account? Login</a>
             </div>
@@ -165,12 +148,43 @@
       </div>
     </section>
   </div>
+  <div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered"> <div class="modal-content bg-dark text-light border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title"><i class="fa-solid fa-file-contract me-2"></i>Terms and Conditions</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0 text-center" style="height: 70vh;">
+        
+        <iframe src="{{ url_for('static', filename='terms_and_conditions.pdf') }}#toolbar=0" 
+                width="100%" 
+                height="100%" 
+                style="border: none;">
+            
+            <div class="p-5 d-flex flex-column justify-content-center align-items-center h-100">
+                <i class="fa-solid fa-file-pdf fa-3x text-danger mb-3"></i>
+                <p>Your browser does not support viewing PDFs inline.</p>
+                <a href="{{ url_for('static', filename='terms_and_conditions.pdf') }}" target="_blank" class="btn btn-warning mt-2">
+                    Click here to download the PDF
+                </a>
+            </div>
+
+        </iframe>
+
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Form Validation and AJAX Submission Script -->
   <script>
+    document.querySelectorAll('.modal').forEach(modal => document.body.appendChild(modal));
     (function () {
       'use strict'
       

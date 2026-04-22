@@ -260,19 +260,6 @@
       return eventDate <= twoMonthsFromNow;
     }
 
-
-    function showToast(message, isSuccess) {
-      const toastEl = document.getElementById('Toast');
-      const msgEl = document.getElementById('toastMessage');
-    
-      if (toastEl && msgEl) {
-          msgEl.textContent = message;
-          toastEl.classList.remove('bg-danger', 'bg-success');
-          toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
-          new bootstrap.Toast(toastEl, { delay: 3000 }).show();
-      }
-    }
-
     function renderEvents(events) {
       container.innerHTML = "";
 
@@ -510,7 +497,6 @@
 
     // Add event listener to listen for a value change in the respective ids and apply filterEvents function
     document.getElementById("venueFilter").addEventListener("change", filterEvents); 
-    // document.getElementById("priceFilter").addEventListener("change", filterEvents);
     document.getElementById("dateFilterStart").addEventListener("change", filterEvents);
     document.getElementById("dateFilterEnd").addEventListener("change", filterEvents);
     document.getElementById("categoryFilter").addEventListener("change", filterEvents);

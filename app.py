@@ -60,12 +60,23 @@ def events():
     dbcursor = conn.cursor(dictionary=True) 
 
     # fetch all events from database
-    dbcursor.execute('SELECT ec.*, e.Start_date AS full_start, e.End_date AS full_end, e.Accessibility_Flag, (SELECT v.Type FROM Venues v WHERE v.Name = ec.venue LIMIT 1) AS venue_type FROM Event_Cards ec JOIN Events e ON ec.event_id = e.Event_ID ORDER BY e.Start_date ASC')
+    # Use live ticket counts so cancelled tickets return to the available pool immediately.
+    dbcursor.execute('''SELECT ec.*, e.Start_date AS full_start, e.End_date AS full_end, e.Accessibility_Flag,
+                     (SELECT v.Type FROM Venues v WHERE v.Name = ec.venue LIMIT 1) AS venue_type,
+                     COALESCE((SELECT SUM(Day_Capacity) FROM Event_Days WHERE Event_ID = e.Event_ID), e.Capacity, ec.capacity, 0) AS live_capacity,
+                     (SELECT COUNT(*) FROM Tickets t JOIN Bookings b ON t.Booking_ID = b.Booking_ID WHERE b.Event_ID = e.Event_ID AND t.Ticket_Status != 'Cancelled') AS live_tickets_sold
+                     FROM Event_Cards ec
+                     JOIN Events e ON ec.event_id = e.Event_ID
+                     ORDER BY e.Start_date ASC''')
     fetched_events = dbcursor.fetchall()
 
     for ev in fetched_events:
         ev['date'] = str(ev['full_start']) if ev['full_start'] else "" # Use full datetime for precision
         ev['end_date'] = str(ev['full_end']) if ev['full_end'] else "" # Use full datetime for precision
+        capacity = int(ev.get('live_capacity') or 0)
+        tickets_sold = int(ev.get('live_tickets_sold') or 0)
+        ev['capacity'] = capacity
+        ev['available_slots'] = max(0, capacity - tickets_sold)
 
     # fetch distinct venues and categories for dropdown filters dynamically from database
     dbcursor.execute('SELECT DISTINCT venue FROM Event_Cards WHERE venue IS NOT NULL ORDER BY venue ASC')
@@ -233,7 +244,7 @@ def logout():
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
-        return jsonify({'success': False, 'message': 'Please log in to access the dashboard.', 'redirect': url_for('login')})
+        return redirect(url_for('index', toast='Please log in to access the dashboard.', toast_success='0'))
     
     user_id = session['user_id']
 
@@ -318,7 +329,8 @@ def dashboard():
 
     dbcursor.execute('''SELECT b.Booking_ID, e.Title, b.Tickets_Purchased, 
                         b.Ticket_Price AS Total_Price, 
-                        e.Start_date
+                        e.Start_date,
+                        b.Booking_Status
                      FROM Bookings b
                      JOIN Events e ON b.Event_ID = e.Event_ID
                      WHERE b.User_ID = %s
@@ -329,8 +341,11 @@ def dashboard():
     for t in ticket_history:
         # Use pseudo-random seeded with Booking_ID instead of hash to avoid small ints returning themselves
         t['Ref_No'] = f"{random.Random(t['Booking_ID']).randint(0, 0xffffff):06X}"
-        # Determine status roughly
-        t['Live_Status'] = 'Valid' if t['Start_date'] >= datetime.now() else 'Expired'
+        # Determine status, prioritising explicit booking cancellation.
+        if t.get('Booking_Status') == 'Cancelled':
+            t['Live_Status'] = 'Cancelled'
+        else:
+            t['Live_Status'] = 'Valid' if t['Start_date'] >= datetime.now() else 'Expired'
 
 
 
@@ -633,7 +648,7 @@ def admin_portal():
                         DATEDIFF(e.Start_date, CURDATE()) AS Days_Until_Event,
                         DATEDIFF(e.End_date, CURDATE()) AS Days_After_Event,
                         (SELECT SUM(Day_Capacity) FROM Event_Days WHERE Event_ID = e.Event_ID) AS Total_Capacity,
-                        (SELECT COUNT(*) FROM Tickets t JOIN Bookings b ON t.Booking_ID = b.Booking_ID WHERE b.Event_ID = e.Event_ID) AS Tickets_Sold
+                        (SELECT COUNT(*) FROM Tickets t JOIN Bookings b ON t.Booking_ID = b.Booking_ID WHERE b.Event_ID = e.Event_ID AND t.Ticket_Status != 'Cancelled') AS Tickets_Sold
                      FROM Events e
                      JOIN Venues v on e.Venue_ID = v.Venue_ID
                      JOIN Event_Days ed on e.Event_ID = ed.Event_ID
@@ -681,6 +696,191 @@ def admin_portal():
 
     return render_template('admin_portal.html', current_time=now, all_users=all_users, all_events=all_events, all_venues=all_venues, all_categories=all_categories)
 
+@app.route('/admin/event_bookings/<int:event_id>')
+def get_event_bookings(event_id):
+    if session.get('role') != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorised'}), 401
+    
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+    
+    dbcursor.execute('''
+        SELECT b.Booking_ID, b.Booking_date, b.Ticket_Price AS Total_Price, b.Booking_Status, b.Tickets_Purchased,
+               u.Username, u.First_name, u.Last_name
+        FROM Bookings b
+        JOIN Users u ON b.User_ID = u.User_ID
+        WHERE b.Event_ID = %s
+        ORDER BY b.Booking_date DESC
+    ''', (event_id,))
+    
+    bookings = dbcursor.fetchall()
+    
+    # Convert dates to strings for JSON
+    for b in bookings:
+        if b['Booking_date']:
+            b['Booking_date'] = b['Booking_date'].strftime('%Y-%m-%d %H:%M:%S')
+            
+    dbcursor.close()
+    conn.close()
+    
+    return jsonify({'success': True, 'bookings': bookings})
+
+
+@app.route('/admin/cancel_booking/<int:booking_id>', methods=['POST'])
+def admin_cancel_booking(booking_id):
+    if session.get('role') != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorised'}), 401
+        
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Get booking info & event info
+        dbcursor.execute('''
+            SELECT b.Booking_ID, b.User_ID, b.Event_ID, b.Ticket_Price AS Total_Price, b.Tickets_Purchased, b.Booking_Status,
+                   e.Start_date
+            FROM Bookings b
+            JOIN Events e ON b.Event_ID = e.Event_ID
+            WHERE b.Booking_ID = %s
+        ''', (booking_id,))
+        
+        booking = dbcursor.fetchone()
+        
+        if not booking:
+            return jsonify({'success': False, 'message': 'Booking not found.'})
+            
+        if booking['Booking_Status'] == 'Cancelled':
+            return jsonify({'success': False, 'message': 'Booking is already cancelled.'})
+            
+        # Instead of partial refunds, admin cancels the entire remaining active tickets and gives full refund of those active tickets
+        # Let's count active tickets
+        dbcursor.execute('''
+            SELECT COUNT(*) as Active_Tickets
+            FROM Tickets
+            WHERE Booking_ID = %s AND Ticket_Status != 'Cancelled'
+        ''', (booking_id,))
+        active_count = dbcursor.fetchone()['Active_Tickets']
+        
+        if active_count == 0:
+            # Mark booking as cancelled if no active tickets
+            dbcursor.execute('UPDATE Bookings SET Booking_Status = %s WHERE Booking_ID = %s', ('Cancelled', booking_id))
+            conn.commit()
+            return jsonify({'success': False, 'message': 'No active tickets to cancel for this booking.'})
+            
+        # Full refund per active ticket based on individual ticket price
+        individual_price = float(booking['Total_Price']) / int(booking['Tickets_Purchased']) if int(booking['Tickets_Purchased']) > 0 else 0.0
+        refund_amount = individual_price * active_count
+        
+        # Update tickets to cancelled
+        dbcursor.execute('''
+            UPDATE Tickets
+            SET Ticket_Status = 'Cancelled'
+            WHERE Booking_ID = %s AND Ticket_Status != 'Cancelled'
+        ''', (booking_id,))
+        
+        # Update booking status
+        dbcursor.execute('''
+            UPDATE Bookings
+            SET Booking_Status = 'Cancelled'
+            WHERE Booking_ID = %s
+        ''', (booking_id,))
+        
+        # Refund user wallet
+        if refund_amount > 0:
+            dbcursor.execute('''
+                INSERT INTO Transactions (User_ID, Booking_ID, Amount, Payment_method, Transaction_Date)
+                VALUES (%s, %s, %s, %s, %s)
+            ''', (booking['User_ID'], booking_id, refund_amount, 'Refund', datetime.now()))
+            
+        conn.commit()
+        return jsonify({'success': True, 'message': f'Booking cancelled successfully and £{refund_amount:.2f} refunded to the user.', 'event_id': booking['Event_ID'], 'tickets_cancelled': active_count})
+        
+    except Exception as e:
+        conn.rollback()
+        print('Error in admin_cancel_booking:', e)
+        return jsonify({'success': False, 'message': 'An error occurred while cancelling the booking.'})
+    finally:
+        dbcursor.close()
+        conn.close()
+
+@app.route('/admin/api/cancel_all_bookings/<int:event_id>', methods=['POST'])
+def admin_cancel_all_bookings(event_id):
+    if session.get('role') != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorised'}), 401
+        
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Get all active bookings for the event
+        dbcursor.execute('''
+            SELECT Booking_ID, User_ID, Ticket_Price, Tickets_Purchased, Booking_Status
+            FROM Bookings
+            WHERE Event_ID = %s AND Booking_Status != 'Cancelled'
+        ''', (event_id,))
+        
+        bookings = dbcursor.fetchall()
+        
+        if not bookings:
+            return jsonify({'success': False, 'message': 'No active bookings found for this event.'})
+            
+        total_refunded = 0.0
+        total_tickets_cancelled = 0
+        
+        # Cancel all active bookings and their tickets
+        for booking in bookings:
+            booking_id = booking['Booking_ID']
+            user_id = booking['User_ID']
+            ticket_price = float(booking['Ticket_Price'])
+            tickets_purchased = int(booking['Tickets_Purchased'])
+            
+            # Count active tickets for this booking
+            dbcursor.execute('''
+                SELECT COUNT(*) as Active_Tickets
+                FROM Tickets
+                WHERE Booking_ID = %s AND Ticket_Status != 'Cancelled'
+            ''', (booking_id,))
+            
+            active_count = dbcursor.fetchone()['Active_Tickets']
+            
+            if active_count > 0:
+                # Calculate refund for active tickets
+                individual_price = ticket_price / tickets_purchased if tickets_purchased > 0 else 0.0
+                refund_amount = individual_price * active_count
+                total_tickets_cancelled += active_count
+                
+                # Update tickets to cancelled
+                dbcursor.execute('''
+                    UPDATE Tickets
+                    SET Ticket_Status = 'Cancelled'
+                    WHERE Booking_ID = %s AND Ticket_Status != 'Cancelled'
+                ''', (booking_id,))
+                
+                # Update booking status
+                dbcursor.execute('''
+                    UPDATE Bookings
+                    SET Booking_Status = 'Cancelled'
+                    WHERE Booking_ID = %s
+                ''', (booking_id,))
+                
+                # Refund user wallet
+                if refund_amount > 0:
+                    dbcursor.execute('''
+                        INSERT INTO Transactions (User_ID, Booking_ID, Amount, Payment_method, Transaction_Date)
+                        VALUES (%s, %s, %s, %s, %s)
+                    ''', (user_id, booking_id, refund_amount, 'Refund', datetime.now()))
+                    total_refunded += refund_amount
+            
+        conn.commit()
+        return jsonify({'success': True, 'message': f'All {len(bookings)} booking(s) cancelled successfully. Total refunded: £{total_refunded:.2f}', 'event_id': event_id, 'tickets_cancelled': total_tickets_cancelled})
+        
+    except Exception as e:
+        conn.rollback()
+        print('Error in admin_cancel_all_bookings:', e)
+        return jsonify({'success': False, 'message': 'An error occurred while cancelling all bookings.'})
+    finally:
+        dbcursor.close()
+        conn.close()
 
 # Update user (admin only version)
 @app.route('/admin_update_user', methods=['POST'])
@@ -1147,8 +1347,8 @@ def update_event():
 
         # Check if event has existing bookings, if so prevent reducing capacity below tickets already sold
         dbcursor.execute('''SELECT COUNT(*) as sold FROM Tickets t
-                            JOIN Bookings b ON t.Booking_ID = b.Booking_ID
-                            WHERE b.Event_ID = %s''', (event_id,))
+                    JOIN Bookings b ON t.Booking_ID = b.Booking_ID
+                    WHERE b.Event_ID = %s AND t.Ticket_Status != 'Cancelled' ''', (event_id,))
         tickets_sold = dbcursor.fetchone()[0]
         if capacity < tickets_sold:
             return jsonify({'success': False, 'message': f'Event capacity cannot be reduced below the number of tickets already sold ({tickets_sold}).'})

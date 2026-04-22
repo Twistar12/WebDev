@@ -223,6 +223,123 @@
     </div>
   </div>
 
+  <div class="row g-4 mt-2">
+    <div class="col-lg-12">
+      <div class="admin-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="text-warning mb-0"><i class="fa-solid fa-ticket-simple me-2"></i>Event Bookings Overview</h4>
+        </div>
+        <div class="scrollable-list" style="max-height: 400px;">
+          <table class="table table-dark-custom table-hover text-center">
+            <thead>
+              <tr>
+                <th>Event Title</th>
+                <th>Tickets Sold / Total Capacity</th>
+                <th>Percent Sold</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in all_events %}
+              {% if e.Status != 'past' %}
+              <tr style="color: white">
+                <td>{{ e.Title }}</td>
+                <td class="text-center">
+                  <span id="event-sold-count-{{ e.Event_ID }}">{{ e.Tickets_Sold|int if e.Tickets_Sold else 0 }}</span> / <span id="event-capacity-count-{{ e.Event_ID }}">{{ e.Total_Capacity|int if e.Total_Capacity else 0 }}</span>
+                </td>
+                <td>
+                  {% set cap = e.Total_Capacity|float if e.Total_Capacity else 0 %}
+                  {% set sold = e.Tickets_Sold|float if e.Tickets_Sold else 0 %}
+                  {% if cap > 0 %}
+                    <div class="progress" style="height: 20px;">
+                      {% set percent = ((sold / cap) * 100)|round(1) %}
+                      <div id="event-progress-bar-{{ e.Event_ID }}" class="progress-bar {% if percent >= 100 %}bg-success{% elif percent >= 75 %}bg-warning{% else %}bg-danger{% endif %}" 
+                           role="progressbar" style="width: {{ percent }}%;">
+                        {{ percent }}%
+                      </div>
+                    </div>
+                  {% else %}
+                    <span class="text-muted">N/A</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-info manage-bookings-btn" 
+                          data-bs-toggle="modal" data-bs-target="#manageBookingsModal"
+                          data-id="{{ e.Event_ID }}" data-title="{{ e.Title }}">
+                    <i class="fa-solid fa-list-check"></i> Manage Bookings
+                  </button>
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="modal fade" id="manageBookingsModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 d-flex justify-content-between align-items-center">
+        <h5 class="modal-title text-info"><i class="fa-solid fa-list-check me-2"></i>Manage Bookings: <span id="manageBookingsEventTitle"></span></h5>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-sm btn-outline-danger red-btn" id="cancelAllBookingsBtn" style="display:none;">
+            <i class="fa-solid fa-ban me-1"></i>Cancel All
+          </button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+      </div>
+      <div class="modal-body text-light">
+        <div id="bookingsLoading" class="text-center py-4 text-info">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+        <div id="bookingsContent" class="d-none scrollable-list" style="max-height: 400px;">
+          <table class="table table-dark-custom">
+            <thead>
+              <tr>
+                <th>Booking Date</th>
+                <th>User</th>
+                <th>Tickets</th>
+                <th>Total Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsTableBody">
+              <!-- Bookings injected here dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="adminCancelBookingModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger" style="background: rgba(0, 0, 0, 0.486); color: #fff; border-radius: 10px; border: 1px solid #dc3545; backdrop-filter: blur(15px);">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Cancel & Refund Booking</h5>
+        <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeAdminCancelModal()"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="text-light mb-3">Warning: This action is irreversible. Are you sure you want to cancel this booking and refund the user?</p>
+        <p class="fs-5 text-light text-center mb-4">
+          <strong class="text-success"><span id="adminCancelRefundText"></span></strong> will be refunded to their wallet.<br>
+        </p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button type="button" class="btn btn-outline-light clear-btn w-50" onclick="closeAdminCancelModal()">No, Keep Booking</button>
+          <button type="button" class="btn btn-outline-danger red-btn w-50" id="confirmAdminCancelBtn">Yes, Cancel & Refund</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="editUserModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -803,5 +920,217 @@
   handleFormSubmit('addEventForm');
   handleFormSubmit('updateEventForm');
   handleFormSubmit('deleteEventForm');
+
+  // Manage Bookings for each event
+  let currentEventId = null;
+
+  function updateEventTicketsSold(eventId, ticketsCancelled) {
+    const soldCountEl = document.getElementById(`event-sold-count-${eventId}`);
+    const capacityEl = document.getElementById(`event-capacity-count-${eventId}`);
+    const progressBarEl = document.getElementById(`event-progress-bar-${eventId}`);
+
+    if (!soldCountEl || !capacityEl || !progressBarEl) return;
+
+    const currentSold = parseInt(soldCountEl.textContent, 10) || 0;
+    const capacity = parseInt(capacityEl.textContent, 10) || 0;
+    const nextSold = Math.max(0, currentSold - (parseInt(ticketsCancelled, 10) || 0));
+
+    soldCountEl.textContent = nextSold;
+
+    if (capacity > 0) {
+      const percent = Math.round((nextSold / capacity) * 1000) / 10;
+      progressBarEl.style.width = `${percent}%`;
+      progressBarEl.textContent = `${percent}%`;
+      progressBarEl.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+      if (percent >= 100) {
+        progressBarEl.classList.add('bg-success');
+      } else if (percent >= 75) {
+        progressBarEl.classList.add('bg-warning');
+      } else {
+        progressBarEl.classList.add('bg-danger');
+      }
+    }
+  }
+
+  document.querySelectorAll('.manage-bookings-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const eventId = this.getAttribute('data-id');
+      const eventTitle = this.getAttribute('data-title');
+      currentEventId = eventId;
+      
+      document.getElementById('manageBookingsEventTitle').textContent = eventTitle;
+      document.getElementById('cancelAllBookingsBtn').style.display = 'none';
+      
+      const loading = document.getElementById('bookingsLoading');
+      const content = document.getElementById('bookingsContent');
+      const tbody = document.getElementById('bookingsTableBody');
+      
+      loading.classList.remove('d-none');
+      content.classList.add('d-none');
+      tbody.innerHTML = '';
+      
+      fetch(`/admin/event_bookings/${eventId}`)
+        .then(response => response.json())
+        .then(data => {
+          loading.classList.add('d-none');
+          content.classList.remove('d-none');
+          
+          if (data.bookings && data.bookings.length > 0) {
+            // Check if there are any active bookings
+            const hasActiveBookings = data.bookings.some(b => b.Booking_Status !== 'Cancelled');
+            document.getElementById('cancelAllBookingsBtn').style.display = hasActiveBookings ? 'block' : 'none';
+            
+            data.bookings.forEach(b => {
+              const tr = document.createElement('tr');
+              tr.id = `booking-row-${b.Booking_ID}`;
+              
+              let statusBadge = '';
+              let actionHtml = '';
+              
+              if (b.Booking_Status === 'Cancelled') {
+                statusBadge = '<span class="badge bg-danger w-100">Cancelled</span>';
+                actionHtml = '<span class="text-muted">Refunded</span>';
+              } else {
+                statusBadge = '<span class="badge bg-success w-100">Active</span>';
+                actionHtml = `<button class="btn btn-sm btn-outline-danger cancel-booking-btn" data-bid="${b.Booking_ID}" data-price="${parseFloat(b.Total_Price).toFixed(2)}" data-tickets="${b.Tickets_Purchased}">
+                                <i class="fa-solid fa-ban"></i> Cancel & Refund
+                              </button>`;
+              }
+              
+              const dateStr = new Date(b.Booking_date).toLocaleString();
+              
+              tr.style.color = "white";
+              tr.innerHTML = `
+                <td>${dateStr}</td>
+                <td>@${b.Username} (${b.First_name} ${b.Last_name})</td>
+                <td>${b.Tickets_Purchased}</td>
+                <td>£${parseFloat(b.Total_Price).toFixed(2)}</td>
+                <td class="booking-status-col">${statusBadge}</td>
+                <td class="booking-action-col">${actionHtml}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+            
+            // Attach event listeners to cancel buttons
+            document.querySelectorAll('.cancel-booking-btn').forEach(cBtn => {
+              cBtn.addEventListener('click', function() {
+                const bId = this.getAttribute('data-bid');
+                const price = this.getAttribute('data-price');
+                
+                // Hide manage bookings modal
+                const manageModalEl = document.getElementById('manageBookingsModal');
+                const manageModal = bootstrap.Modal.getInstance(manageModalEl);
+                if(manageModal) manageModal.hide();
+                
+                // Set data in cancel modal
+                document.getElementById('adminCancelRefundText').textContent = `£${price}`;
+                
+                const confirmBtn = document.getElementById('confirmAdminCancelBtn');
+                // Remove old event listeners
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+                
+                newConfirmBtn.addEventListener('click', function() {
+                  cancelBooking(bId, price);
+                });
+                
+                // Show cancel modal
+                const cancelModal = new bootstrap.Modal(document.getElementById('adminCancelBookingModal'));
+                cancelModal.show();
+              });
+            });
+            
+          } else {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No bookings found for this event.</td></tr>';
+          }
+        })
+        .catch(err => {
+          loading.classList.add('d-none');
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading bookings.</td></tr>';
+          content.classList.remove('d-none');
+        });
+    });
+  });
+
+  function closeAdminCancelModal() {
+      const cancelModalEl = document.getElementById('adminCancelBookingModal');
+      const cancelModal = bootstrap.Modal.getInstance(cancelModalEl);
+      if(cancelModal) cancelModal.hide();
+      
+      const manageModalEl = document.getElementById('manageBookingsModal');
+      const manageModal = bootstrap.Modal.getInstance(manageModalEl) || new bootstrap.Modal(manageModalEl);
+      manageModal.show();
+  }
+
+  // Cancel All Bookings Button Handler
+  document.getElementById('cancelAllBookingsBtn').addEventListener('click', function() {
+    if (confirm('Are you sure you want to cancel ALL bookings for this event and refund all users? This action cannot be undone.')) {
+      cancelAllBookings(currentEventId);
+    }
+  });
+
+  function cancelBooking(bookingId, price) {
+    fetch(`/admin/cancel_booking/${bookingId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      // Close cancel modal
+      const cancelModalEl = document.getElementById('adminCancelBookingModal');
+      const cancelModal = bootstrap.Modal.getInstance(cancelModalEl);
+      if(cancelModal) cancelModal.hide();
+        
+      showToast(data.message, data.success);
+      if (data.success) {
+        const row = document.getElementById(`booking-row-${bookingId}`);
+        if (row) {
+          row.querySelector('.booking-status-col').innerHTML = '<span class="badge bg-danger w-100">Cancelled</span>';
+          row.querySelector('.booking-action-col').innerHTML = '<span class="text-muted">Refunded</span>';
+        }
+        updateEventTicketsSold(data.event_id, data.tickets_cancelled);
+      }
+      
+      // Re-open manage bookings modal
+      const manageModalEl = document.getElementById('manageBookingsModal');
+      const manageModal = bootstrap.Modal.getInstance(manageModalEl) || new bootstrap.Modal(manageModalEl);
+      manageModal.show();
+    })
+    .catch(err => {
+      showToast('An error occurred while cancelling the booking.', false);
+    });
+  }
+
+  function cancelAllBookings(eventId) {
+    fetch(`/admin/api/cancel_all_bookings/${eventId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      showToast(data.message, data.success);
+      if (data.success) {
+        // Update all active booking rows to cancelled
+        document.querySelectorAll('.booking-status-col').forEach(statusCol => {
+          const row = statusCol.closest('tr');
+          if (row && row.querySelector('.booking-action-col button')) {
+            statusCol.innerHTML = '<span class="badge bg-danger w-100">Cancelled</span>';
+            row.querySelector('.booking-action-col').innerHTML = '<span class="text-muted">Refunded</span>';
+          }
+        });
+        updateEventTicketsSold(data.event_id, data.tickets_cancelled);
+        document.getElementById('cancelAllBookingsBtn').style.display = 'none';
+      }
+    })
+    .catch(err => {
+      showToast('An error occurred while cancelling all bookings.', false);
+    });
+  }
 </script>
 {% endblock %}

@@ -210,7 +210,7 @@
                     </div>
                     <div class="text-end">
                       <div class="fw-bold">£{{ "%.2f"|format(t.Total_Price) }}</div>
-                      <span class="badge {% if t.Live_Status == 'Valid' %}bg-success{% elif t.Live_Status == 'Expired' %}bg-secondary{% else %}bg-warning{% endif %} rounded-pill">{{ t.Live_Status }}</span>
+                      <span class="badge {% if t.Live_Status == 'Valid' %}bg-success{% elif t.Live_Status == 'Expired' %}bg-secondary{% elif t.Live_Status == 'Cancelled' %}bg-danger{% else %}bg-warning{% endif %} rounded-pill">{{ t.Live_Status }}</span>
                     </div>
                   </div>
                 </li>
@@ -500,7 +500,7 @@
       })
       .then(response => response.json())
       .then(data => {
-        // Find the global toast from base.html
+        // Find the global toast from base
         const toastEl = document.getElementById('Toast');
         const msgEl = document.getElementById('toastMessage');
         
