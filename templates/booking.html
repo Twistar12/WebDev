@@ -317,6 +317,9 @@
         <h5 class="mb-3 text-center">Your Ticket Codes:</h5>
         <div id="rcpt_tickets" class="d-flex flex-column gap-2 text-center mb-4">
         </div>
+        <a id="downloadReceiptBtn" href="#" class="btn btn-outline-info search-btn w-100 mb-2" target="_blank">
+          <i class="fa-solid fa-file-arrow-down me-2"></i>Download Receipt (PDF)
+        </a>
         <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light clear-btn w-100">Return to Dashboard</a>
       </div>
     </div>
@@ -450,6 +453,11 @@
             data.receipt.tickets.forEach(code => {
               ticketsDiv.innerHTML += `<div class="ticket-code">${code}</div>`;
             });
+
+            const downloadBtn = document.getElementById('downloadReceiptBtn');
+            if (downloadBtn && data.receipt.booking_id) {
+              downloadBtn.href = `/booking_receipt_pdf/${data.receipt.booking_id}`;
+            }
 
             // Show success modal
             new bootstrap.Modal(document.getElementById('receiptModal')).show();

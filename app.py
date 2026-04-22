@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify, make_response
+from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify, make_response, send_file
 import mysql.connector, dbfunc, sys, csv, os
 from mysql.connector import errorcode
 from dotenv import load_dotenv
@@ -6,7 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
-from io import StringIO
+from io import StringIO, BytesIO
+import importlib
 import random, string
 
 # Load environment variables from .env file
@@ -1592,6 +1593,7 @@ def process_booking():
         # return receipt data
         return jsonify({'success': True,
                             'receipt': {
+                                'booking_id': booking_id,
                                 'ref_no': f"{random.Random(booking_id).randint(0, 0xffffff):06X}",
                                 'base': f"£{total_base:.2f}",
                                 'advanced_disc': f"£{advanced_disc:.2f}" if advanced_disc > 0 else "£0.00",
@@ -1602,6 +1604,112 @@ def process_booking():
     except Exception as e:
         conn.rollback()
         return jsonify({'success': False, 'message': f'Error processing booking: {str(e)}'})
+    finally:
+        dbcursor.close()
+        conn.close()
+
+
+@app.route('/booking_receipt_pdf/<int:booking_id>')
+def booking_receipt_pdf(booking_id):
+    if 'user_id' not in session:
+        return redirect(url_for('index'))
+
+    try:
+        reportlab_canvas = importlib.import_module('reportlab.pdfgen.canvas')
+    except ModuleNotFoundError:
+        flash('PDF generation is not available right now. Please contact support.', 'danger')
+        return redirect(url_for('tickets'))
+
+    conn = dbfunc.getConnection()
+    dbcursor = conn.cursor(dictionary=True)
+
+    try:
+        dbcursor.execute('''
+            SELECT b.Booking_ID, b.User_ID, b.Booking_date, b.Ticket_Price, b.Original_Price,
+                   b.Discount_Applied, b.Is_Student, b.Tickets_Purchased,
+                   e.Title, e.Start_date, e.End_date
+            FROM Bookings b
+            JOIN Events e ON b.Event_ID = e.Event_ID
+            WHERE b.Booking_ID = %s AND b.User_ID = %s
+            LIMIT 1
+        ''', (booking_id, session['user_id']))
+        booking = dbcursor.fetchone()
+
+        if not booking:
+            return jsonify({'success': False, 'message': 'Booking not found or access denied.'})
+
+        dbcursor.execute('''
+            SELECT Code
+            FROM Tickets
+            WHERE Booking_ID = %s
+            ORDER BY Ticket_ID ASC
+        ''', (booking_id,))
+        ticket_rows = dbcursor.fetchall()
+
+        ticket_codes = [row['Code'] for row in ticket_rows]
+        reference_no = f"{random.Random(booking_id).randint(0, 0xffffff):06X}"
+
+        original_price = float(booking['Original_Price'] or booking['Ticket_Price'] or 0)
+        total_paid = float(booking['Ticket_Price'] or 0)
+        total_discount = float(booking['Discount_Applied'] or max(0, original_price - total_paid))
+        student_discount = round(original_price * 0.10, 2) if int(booking.get('Is_Student') or 0) == 1 else 0.0
+        advanced_discount = max(0.0, round(total_discount - student_discount, 2))
+
+        pdf_buffer = BytesIO()
+        a4_size = (595.2755905511812, 841.8897637795277)
+        pdf = reportlab_canvas.Canvas(pdf_buffer, pagesize=a4_size)
+        page_width, page_height = a4_size
+        y = page_height - 50
+
+        def write_line(text, font='Helvetica', size=11, gap=18):
+            nonlocal y
+            if y < 70:
+                pdf.showPage()
+                y = page_height - 50
+            pdf.setFont(font, size)
+            pdf.drawString(50, y, text)
+            y -= gap
+
+        write_line('Bristol Community Events', font='Helvetica-Bold', size=18, gap=24)
+        write_line('Booking Receipt (PDF)', font='Helvetica-Bold', size=13)
+        write_line(f"Reference: #{reference_no}")
+        booking_date = booking['Booking_date'].strftime('%Y-%m-%d %H:%M:%S') if booking['Booking_date'] else 'N/A'
+        write_line(f"Booking Date: {booking_date}")
+        write_line('')
+
+        write_line('Event Details', font='Helvetica-Bold', size=12)
+        write_line(f"Title: {booking['Title']}")
+        start_date = booking['Start_date'].strftime('%Y-%m-%d %H:%M') if booking['Start_date'] else 'N/A'
+        end_date = booking['End_date'].strftime('%Y-%m-%d %H:%M') if booking['End_date'] else 'N/A'
+        write_line(f"Start: {start_date}")
+        write_line(f"End: {end_date}")
+        write_line(f"Tickets Purchased: {booking['Tickets_Purchased']}")
+        write_line('')
+
+        write_line('Payment Summary', font='Helvetica-Bold', size=12)
+        write_line(f"Base Price: GBP {original_price:.2f}")
+        write_line(f"Advanced Booking Discount: GBP {advanced_discount:.2f}")
+        write_line(f"Student Discount: GBP {student_discount:.2f}")
+        write_line(f"Total Paid: GBP {total_paid:.2f}", font='Helvetica-Bold')
+        write_line('')
+
+        write_line('Ticket Codes', font='Helvetica-Bold', size=12)
+        if ticket_codes:
+            for code in ticket_codes:
+                write_line(f"- {code}", font='Courier')
+        else:
+            write_line('- No tickets found')
+
+        pdf.save()
+        pdf_buffer.seek(0)
+
+        filename = f"booking_receipt_{booking_id}.pdf"
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=filename
+        )
     finally:
         dbcursor.close()
         conn.close()
