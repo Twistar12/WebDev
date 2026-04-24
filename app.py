@@ -19,6 +19,11 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
+
+def generate_booking_ref(booking_id):
+    """Return a deterministic 6-char booking reference for a booking id."""
+    return f"{random.Random(int(booking_id)).randint(0, 0xffffff):06X}"
+
 # Remember Me sets session to permanent (30 days)
 app.permanent_session_lifetime = timedelta(days=30)
 
@@ -359,7 +364,7 @@ def dashboard():
     # Process ticket history to add hash ref and dummy live status for styling
     for t in ticket_history:
         # Use pseudo-random seeded with Booking_ID instead of hash to avoid small ints returning themselves
-        t['Ref_No'] = f"{random.Random(t['Booking_ID']).randint(0, 0xffffff):06X}"
+        t['Ref_No'] = generate_booking_ref(t['Booking_ID'])
         # Determine status, prioritising explicit booking cancellation.
         if t.get('Booking_Status') == 'Cancelled':
             t['Live_Status'] = 'Cancelled'
@@ -1609,7 +1614,7 @@ def process_booking():
         return jsonify({'success': True,
                             'receipt': {
                                 'booking_id': booking_id,
-                                'ref_no': f"{random.Random(booking_id).randint(0, 0xffffff):06X}",
+                                'ref_no': generate_booking_ref(booking_id),
                                 'base': f"£{total_base:.2f}",
                                 'advanced_disc': f"£{advanced_disc:.2f}" if advanced_disc > 0 else "£0.00",
                                 'student_disc': f"£{student_amount:.2f}" if student_amount > 0 else "£0.00",
@@ -1662,7 +1667,7 @@ def booking_receipt_pdf(booking_id):
         ticket_rows = dbcursor.fetchall()
 
         ticket_codes = [row['Code'] for row in ticket_rows]
-        reference_no = f"{random.Random(booking_id).randint(0, 0xffffff):06X}"
+        reference_no = generate_booking_ref(booking_id)
 
         original_price = float(booking['Original_Price'] or booking['Ticket_Price'] or 0)
         total_paid = float(booking['Ticket_Price'] or 0)
@@ -1750,7 +1755,12 @@ def tickets():
                 e.Start_date,
                 (CASE
                     WHEN (t.Ticket_Status = 'Cancelled') THEN 'Cancelled'
-                    WHEN (TIMESTAMPDIFF(SECOND, e.End_date, NOW()) >= 1) THEN 'Expired'
+                    WHEN (NOW() > (
+                        SELECT TIMESTAMP(MAX(ed.Date), MAX(ed.End_Time))
+                        FROM Booking_Days bd
+                        JOIN Event_Days ed ON bd.Day_ID = ed.Day_ID
+                        WHERE bd.Booking_ID = b.Booking_ID
+                    )) THEN 'Expired'
                     WHEN (t.Activated_Time IS NOT NULL AND TIMESTAMPDIFF(MINUTE, t.Activated_Time, NOW()) >= 10) THEN 'Used'
                     WHEN (t.Activated_Time IS NOT NULL) THEN 'Active'
                     ELSE 'Valid'
@@ -1786,6 +1796,7 @@ def tickets():
                 if bid not in grouped_bookings:
                     grouped_bookings[bid] = {
                         'Booking_ID': bid,
+                        'Ref_No': generate_booking_ref(bid),
                         'Title': t['Title'],
                         'Venue': t['Venue'],
                         'Booked_Dates': t['Booked_Dates'],
@@ -1950,7 +1961,11 @@ def cancel_ticket():
         
         conn.commit()
 
-        return jsonify({'success': True, 'message': f'Ticket cancelled and £{refund_amount:.2f} refunded to your wallet!'})
+        return jsonify({
+            'success': True,
+            'message': f'Ticket cancelled and £{refund_amount:.2f} refunded to your wallet!',
+            'ref_no': generate_booking_ref(ticket_info['Booking_ID'])
+        })
 
     except Exception as e:
         conn.rollback()
@@ -1976,7 +1991,12 @@ def get_user_tickets_status():
                 t.Ticket_ID,
                 (CASE
                     WHEN (t.Ticket_Status = 'Cancelled') THEN 'Cancelled'
-                    WHEN (TIMESTAMPDIFF(SECOND, e.End_date, NOW()) >= 1) THEN 'Expired'
+                    WHEN (NOW() > (
+                        SELECT TIMESTAMP(MAX(ed.Date), MAX(ed.End_Time))
+                        FROM Booking_Days bd
+                        JOIN Event_Days ed ON bd.Day_ID = ed.Day_ID
+                        WHERE bd.Booking_ID = b.Booking_ID
+                    )) THEN 'Expired'
                     WHEN (TIMESTAMPDIFF(MINUTE, t.Activated_Time, NOW()) >= 10) THEN 'Used'
                     WHEN (t.Activated_Time IS NOT NULL) THEN 'Active'
                     WHEN (t.Activated_Time IS NULL) THEN 'Valid'

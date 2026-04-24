@@ -65,7 +65,7 @@
     }
 
     .status-Expired {
-        background-color: #dc3545;
+        background-color: #5c5757;
         color: white;
     }
 
@@ -239,8 +239,7 @@
                 </div>
 
                 <div class="ticket-footer">
-                    <span class="badge border border-light px-3 py-2 rounded-pill">Booking Ref: #{{
-                        "%06X"|format((b.Booking_ID|string).__hash__() % 16777215) }}</span>
+                    <span class="badge border border-light px-3 py-2 rounded-pill">Booking Ref: #{{ b.Ref_No }}</span>
 
                     <button class="btn btn-sm btn-outline-light clear-btn" data-booking="{{ b | tojson | forceescape }}"
                         onclick="openBookingModal(this)">
@@ -752,7 +751,7 @@
                     if (cancellationModal) cancellationModal.hide();
 
                     // Show cancellation receipt modal
-                    const refNo = data.ref_no || Math.random().toString(36).substring(2, 10).toUpperCase();
+                    const refNo = data.ref_no || (currentBookingData && currentBookingData.Ref_No) || 'N/A';
                     document.getElementById('cancel_rcpt_ref').textContent = '#' + refNo;
                     document.getElementById('cancel_rcpt_base').textContent = '£' + currentIndividualPrice;
                     document.getElementById('cancel_rcpt_charge_pct').textContent = currentChargePct;

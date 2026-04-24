@@ -61,9 +61,9 @@
     background: rgba(0, 0, 0, 0.486);
     color: #fff;
     border-radius: 10px;
-    border: none;
+    border: 1px solid #616161;
     backdrop-filter: blur(15px);
-    box-shadow: #ffc107 0px 0px 5px;
+    box-shadow: #000000 0px 0px 5px;
   }
 
   .custom-tooltip .tooltip-inner {
@@ -205,12 +205,12 @@
               {% for e in all_events %}
               <tr style="color: white">
                 <td class="text-truncate" style="max-width: 150px;">
-                  {{ e.Title }}
                   {% if e.Low_Sales_Warning %}
-                  <i class="fa-solid fa-triangle-exclamation text-danger ms-2" data-bs-toggle="tooltip"
+                  <i class="fa-solid fa-triangle-exclamation text-danger me-2" data-bs-toggle="tooltip"
                     data-bs-placement="top" data-bs-custom-class="custom-tooltip"
                     title="Low Sales Warning: {{ e.Days_Until_Event }} days until event, Considered lowering prices!"></i>
                   {% endif %}
+                  {{ e.Title }}
                 </td>
                 <td>{{ e.Venue }}</td>
                 <td>
@@ -338,34 +338,6 @@
                 <!-- Bookings injected here dynamically -->
               </tbody>
             </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="adminCancelBookingModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-danger"
-        style="background: rgba(0, 0, 0, 0.486); color: #fff; border-radius: 10px; border: 1px solid #dc3545; backdrop-filter: blur(15px);">
-        <div class="modal-header border-0">
-          <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Cancel & Refund
-            Booking</h5>
-          <button type="button" class="btn-close btn-close-white" aria-label="Close"
-            onclick="closeAdminCancelModal()"></button>
-        </div>
-        <div class="modal-body text-center">
-          <p class="text-light mb-3">Warning: This action is irreversible. Are you sure you want to cancel this booking
-            and refund the user?</p>
-          <p class="fs-5 text-light text-center mb-4">
-            <strong class="text-success"><span id="adminCancelRefundText"></span></strong> will be refunded to their
-            wallet.<br>
-          </p>
-          <div class="d-flex gap-2 justify-content-center">
-            <button type="button" class="btn btn-outline-light clear-btn w-50" onclick="closeAdminCancelModal()">No,
-              Keep Booking</button>
-            <button type="button" class="btn btn-outline-danger red-btn w-50" id="confirmAdminCancelBtn">Yes, Cancel &
-              Refund</button>
           </div>
         </div>
       </div>
@@ -671,6 +643,34 @@
               <button type="submit" class="btn btn-outline-danger red-btn w-50">Yes, Delete It</button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="adminCancelBookingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger"
+        style="background: rgba(0, 0, 0, 0.486); color: #fff; border-radius: 10px; border: 1px solid #ff0019; backdrop-filter: blur(15px);">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Cancel & Refund
+            Booking</h5>
+          <button type="button" class="btn-close btn-close-white" aria-label="Close"
+            onclick="closeAdminCancelModal()"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="text-light mb-3">Warning: This action is irreversible. Are you sure you want to cancel this booking
+            and refund the user?</p>
+          <p class="fs-5 text-light text-center mb-4">
+            <strong class="text-success"><span id="adminCancelRefundText"></span></strong> will be refunded to their
+            wallet.<br>
+          </p>
+          <div class="d-flex gap-2 justify-content-center">
+            <button type="button" class="btn btn-outline-light clear-btn w-50" onclick="closeAdminCancelModal()">No,
+              Keep Booking</button>
+            <button type="button" class="btn btn-outline-danger red-btn w-50" id="confirmAdminCancelBtn">Yes, Cancel &
+              Refund</button>
+          </div>
         </div>
       </div>
     </div>
