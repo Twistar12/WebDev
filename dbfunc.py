@@ -1,11 +1,16 @@
 # Connection Script
 import mysql.connector
 from mysql.connector import errorcode
+from dotenv import load_dotenv
+import os
 
-hostname = 'localhost'
-password = 'Bokunoheroacademia@1'
-db = 'bristol_events_db'
-username = 'root'
+# Load environment variables from .env file
+load_dotenv()
+
+hostname = os.getenv('DB_HOSTNAME')
+username = os.getenv('DB_USERNAME')
+password = os.getenv('DB_PASSWORD')
+db = os.getenv('DB_NAME')
 
 # connects db 
 def getConnection():

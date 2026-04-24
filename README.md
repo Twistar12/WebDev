@@ -25,7 +25,6 @@ WebDev/
 ├── dbfunc.py             # Database connection utilities
 ├── requirements.txt      # Python dependencies
 ├── README.md            # This file
-├── bristol_events_dump  # MySQL database dump
 ├── static/
 │   ├── css/
 │   │   └── index.css    # Custom styles

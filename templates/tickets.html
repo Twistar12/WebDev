@@ -273,7 +273,7 @@
             <div id="actionFormsContainer">
                 <!-- Rendered activate/cancel forms depending on selected ticket -->
             </div>
-            <div class="modal-actions" id="m_actions">
+            <div class="modal-actions text-nowrap" id="m_actions">
                 <!-- Action buttons via JS -->
             </div>
 
@@ -534,7 +534,8 @@
 
         html += `
         <div class="qr-container shadow-sm">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(t.Code)}" alt="Ticket QR Code" class="qr-code">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(t.Code)}"
+          alt="Ticket QR Code" class="qr-code">
           <div class="mt-2 font-monospace fw-bold fs-5">${t.Code}</div>
         </div>
         <p class="text-muted small mt-2">Present this code at the venue entrance.</p>
@@ -598,16 +599,6 @@
         const eventEndTime = new Date();
         eventTimeToday.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
         eventEndTime.setHours(parseInt(endTimeParts[0]), parseInt(endTimeParts[1]), 0, 0);
-
-        // Calculate the difference in milliseconds
-        const diffMs = eventTimeToday - now;
-        const diffHours = diffMs / (1000 * 60 * 60);
-
-        // Check if we're within the activation window (1 hour before to end time)
-        if (diffHours > 1) {
-            showToast("Ticket can only be activated 1 hour before the event starts.", false);
-            return;
-        }
 
         // Check if current time is after event end time
         if (now > eventEndTime) {

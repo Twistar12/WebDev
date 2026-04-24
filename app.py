@@ -15,7 +15,6 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
-# use python -c 'import secrets; print(secrets.token_hex(32))' to generate for production
 
 # Remember Me sets session to permanent (30 days)
 app.permanent_session_lifetime = timedelta(days=30)
@@ -64,8 +63,10 @@ def events():
     # Use live ticket counts so cancelled tickets return to the available pool immediately.
     dbcursor.execute('''SELECT ec.*, e.Start_date AS full_start, e.End_date AS full_end, e.Accessibility_Flag,
                      (SELECT v.Type FROM Venues v WHERE v.Name = ec.venue LIMIT 1) AS venue_type,
-                     COALESCE((SELECT SUM(Day_Capacity) FROM Event_Days WHERE Event_ID = e.Event_ID), e.Capacity, ec.capacity, 0) AS live_capacity,
-                     (SELECT COUNT(*) FROM Tickets t JOIN Bookings b ON t.Booking_ID = b.Booking_ID WHERE b.Event_ID = e.Event_ID AND t.Ticket_Status != 'Cancelled') AS live_tickets_sold
+                     COALESCE((SELECT SUM(Day_Capacity) FROM Event_Days WHERE Event_ID = e.Event_ID),
+                     e.Capacity, ec.capacity, 0) AS live_capacity,
+                     (SELECT COUNT(*) FROM Tickets t JOIN Bookings b ON t.Booking_ID = b.Booking_ID
+                     WHERE b.Event_ID = e.Event_ID AND t.Ticket_Status != 'Cancelled') AS live_tickets_sold
                      FROM Event_Cards ec
                      JOIN Events e ON ec.event_id = e.Event_ID
                      ORDER BY e.Start_date ASC''')
@@ -156,7 +157,8 @@ def signup():
             return redirect(url_for('signup'))
 
         # Hash the password before storing
-        # generate_password_hash automatically salts password and encrypts using PBKDF2 algorithm
+        # generate_password_hash automatically salts password
+        # and encrypts using scrypt algorithm
         hashed_password = generate_password_hash(password)
 
         # Insert new user into database
@@ -182,18 +184,14 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
-        return redirect(url_for('index')) # change to dashboard later when implemented
+        return redirect(url_for('index'))
     
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '').strip()
         remember = request.form.get('rememberMe') == 'on'
 
-        conn = dbfunc.getConnection()
-        if not conn.is_connected():
-            print('MySQL Connection Error')
-            return "DB Connection Error. Check console for more details.", 500
-        
+        conn = dbfunc.getConnection()   
         dbcursor = conn.cursor(dictionary=True)
 
         # Fetch user by email
@@ -220,15 +218,15 @@ def login():
             
 
             if is_ajax:
-                return jsonify({'success': True, 'message': 'Login successful! Welcome back, {}.'.format(user['First_name']), 'redirect': url_for('dashboard')}) # data.success hold result, data.message holds message in AJAX response
+                return jsonify({'success': True, 'message': 'Login successful! Welcome back, {}.'.format(user['First_name']),
+                                'redirect': url_for('dashboard')})
             
             # Fallback for non-AJAX login
             flash('Login successful! Welcome back, {}.'.format(user['First_name']), 'success')
-            return redirect(url_for('dashboard')) # change to dashboard later when implemented
+            return redirect(url_for('dashboard'))
         else:
             if is_ajax:
                 return jsonify({'success': False, 'message': 'Invalid email or password.'})
-
             # Fallback for non-AJAX login
             flash('Invalid email or password. Please try again.', 'danger')
         
@@ -1582,7 +1580,8 @@ def process_booking():
         generated_tickets = []
         for _ in range(num_tickets):
             # Format: FIRST3LETTERS OF EVENT + RANDOM 4 ALPHANUMERALS + Pseudo-Random Booking_ID mapping
-            code = f"{event['Title'][:3].upper()}-{''.join(random.choices(string.ascii_uppercase + string.digits, k=4))}-{random.Random(booking_id).randint(0, 0xffff):04X}" # Seed with booking_id and take hex digits for uniqueness without exposing actual ID
+            # Seed with booking_id and take hex digits for uniqueness without exposing actual ID
+            code = f"{event['Title'][:3].upper()}-{''.join(random.choices(string.ascii_uppercase + string.digits, k=4))}-{random.Random(booking_id).randint(0, 0xffff):04X}"
             # default to valid status and insert activation time later when user activates ticket
             dbcursor.execute('''INSERT INTO Tickets (Booking_ID, Code, Ticket_Status)
                              VALUES (%s, %s, %s)''', (booking_id, code, 'Valid'))
@@ -1676,7 +1675,6 @@ def booking_receipt_pdf(booking_id):
         booking_date = booking['Booking_date'].strftime('%Y-%m-%d %H:%M:%S') if booking['Booking_date'] else 'N/A'
         write_line(f"Booking Date: {booking_date}")
         write_line('')
-
         write_line('Event Details', font='Helvetica-Bold', size=12)
         write_line(f"Title: {booking['Title']}")
         start_date = booking['Start_date'].strftime('%Y-%m-%d %H:%M') if booking['Start_date'] else 'N/A'
@@ -1685,7 +1683,6 @@ def booking_receipt_pdf(booking_id):
         write_line(f"End: {end_date}")
         write_line(f"Tickets Purchased: {booking['Tickets_Purchased']}")
         write_line('')
-
         write_line('Payment Summary', font='Helvetica-Bold', size=12)
         write_line(f"Base Price: GBP {original_price:.2f}")
         write_line(f"Advanced Booking Discount: GBP {advanced_discount:.2f}")
@@ -1724,7 +1721,8 @@ def tickets():
     dbcursor = conn.cursor(dictionary=True)
 
     try: 
-        # Query VIEW User_ticket_info and join tickets and events with it
+        # Complex query to get all tickets for the user along with their booking and event details,
+        # and calculate live status based on current time and activation time
         dbcursor.execute('''
             SELECT 
                 uti.*,
