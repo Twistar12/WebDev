@@ -382,15 +382,23 @@ def dashboard():
 
 
     # Card 8: Waiting List
+    # Use live capacity and live active ticket count so cancellations immediately free slots.
     dbcursor.execute('''SELECT wl.Event_ID, e.Title, DATE_FORMAT(e.Start_date, '%d %b %Y') AS date,
-                     (SUM(ed.Day_Capacity) - COALESCE (
-                        (SELECT SUM(Tickets_Purchased) FROM User_Ticket_Info WHERE Title = e.Title), 0)) AS Available_Slots
-                    FROM Waiting_list wl
-                    JOIN Events e on wl.Event_ID = e.Event_ID
-                    JOIN Event_Days ed on e.Event_ID = ed.Event_ID
-                    WHERE wl.User_ID = %s AND e.Start_date >= CURDATE()
-                    GROUP BY wl.Event_ID, e.Title, e.Start_date       
-                    ORDER BY e.Start_date ASC''', (session['user_id'],)) # only show upcoming events in waiting list
+                            GREATEST(
+                                COALESCE((SELECT SUM(ed2.Day_Capacity)
+                                             FROM Event_Days ed2
+                                             WHERE ed2.Event_ID = e.Event_ID), e.Capacity, 0)
+                                -
+                                (SELECT COUNT(*)
+                                 FROM Tickets t
+                                 JOIN Bookings b ON t.Booking_ID = b.Booking_ID
+                                 WHERE b.Event_ID = e.Event_ID AND t.Ticket_Status != 'Cancelled'),
+                                0
+                            ) AS Available_Slots
+                          FROM Waiting_list wl
+                          JOIN Events e on wl.Event_ID = e.Event_ID
+                          WHERE wl.User_ID = %s AND e.End_date >= NOW()
+                          ORDER BY e.Start_date ASC''', (session['user_id'],)) # show upcoming and ongoing waiting-list events
     waiting_list = dbcursor.fetchall()
     for w in waiting_list:
         w['date'] = str(w['date']) # convert to strings for Jinja
@@ -683,9 +691,14 @@ def admin_portal():
         else:
             e['Status'] = 'upcoming'
 
-    # Sort events: ongoing first, then upcoming, then past
-    status_priority = {'ongoing': 0, 'upcoming': 1, 'past': 2}
-    all_events.sort(key=lambda x: (status_priority[x['Status']], x['Days_Until_Event']))
+    # Sort events safely even if status text is malformed/unexpected.
+    status_priority = {'ongoing': 0, 'upcoming': 1, 'sold_out': 2, 'past': 3}
+    all_events.sort(
+        key=lambda x: (
+            status_priority.get(str(x.get('Status', '')).strip().lower(), 99),
+            x.get('Days_Until_Event', 9999)
+        )
+    )
 
     # Fetch venues for creating event
     dbcursor.execute('SELECT * FROM Venues ORDER BY Name ASC')
