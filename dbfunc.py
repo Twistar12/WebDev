@@ -1,3 +1,6 @@
+# Student Name: Alvin Vellappallil
+# Student ID: 24028338
+
 # Connection Script
 import mysql.connector
 from mysql.connector import errorcode

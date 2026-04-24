@@ -1,3 +1,6 @@
+<!-- Student Name: Alvin Vellappallil -->
+<!-- Student ID: 24028338 -->
+
 # Bristol Community Events
 
 A full-stack web application for discovering, booking, and managing events in Bristol. Users can browse events, make bookings with flexible pricing, manage tickets, and download booking receipts as PDFs.
