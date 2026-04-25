@@ -210,10 +210,7 @@ Use the following credentials to login and explore the application:
 | fiona_g | fiona@example.com | User | fionaGallagher123 |
 | george_l | george@example.com | User | georgeLucas123 |
 | hannah_m | hannah@example.com | User | hannahMontana123 |
-| ian_s | ian@example.com | User | ianSomerhalder123 |
-| jenna_o | jenna@example.com | User | jennaOrtega123 |
-| test_user | new@example.com | User | testUser123 |
-| user_name | user@example.com | User | userName123 |
+| will_poulter | will@example.com | User | willPoulter123 |
 
 **Note:** Passwords in the database are hashed using scrypt. For testing purposes, these accounts can be reset or new test accounts created via the signup form.
 
